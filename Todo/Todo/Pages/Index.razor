@@ -1,0 +1,46 @@
+﻿@page "/"
+@attribute [Authorize]
+@using Todo.Shared.State
+@inject HttpClient Http
+@inject AppState State
+@implements IDisposable
+
+
+<h1>TODO Application</h1>
+
+<SearchTodoComponent State="@State" />
+
+<ListTodoComponent State="@State" />
+
+@code{
+  protected override async Task OnInitializedAsync()
+  {
+    await GetTodos();
+    State.OnChange += StateHasChanged;
+  }
+
+  protected override async Task OnParametersSetAsync()
+  {
+
+  }
+
+  public void Dispose()
+  {
+    State.OnChange -= StateHasChanged;
+  }
+
+  private async Task GetTodos()
+  {
+    var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:44372/todo"), Method = HttpMethod.Get });
+    if (response.IsSuccessStatusCode)
+    {
+      string content = await response.Content.ReadAsStringAsync();
+      State.OnInitSetTodos(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TodoDetail>>(content));
+    }
+    else
+    {
+      State.OnInitSetTodos(null);
+    }
+  }
+
+}

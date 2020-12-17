@@ -1,0 +1,29 @@
+﻿@inject HttpClient Http
+
+<SfMaskedTextBox Placeholder="Enter Title..." @bind-Value="@todo.Title"></SfMaskedTextBox>
+<SfMaskedTextBox Placeholder="Enter Description..." @bind-Value="@todo.Description"></SfMaskedTextBox>
+<SfCheckBox Label="Is Completed" @bind-Checked="@todo.IsDone"></SfCheckBox>
+<SfButton CssClass="e-warning" @onclick="UpdateTodoRequest">Update</SfButton>
+
+@code {
+
+  protected override async Task OnInitializedAsync()
+  {
+    //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+  }
+
+  public bool IsSucceed { get; set; }
+
+  [Parameter]
+  public TodoDetail todo { get; set; }
+
+  private async Task UpdateTodoRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    if (todo != null)
+    {
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:44372/todo"), Method = HttpMethod.Put, Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(todo), System.Text.Encoding.UTF8, "application/json") });
+      IsSucceed = response.IsSuccessStatusCode;
+    }
+  }
+
+}

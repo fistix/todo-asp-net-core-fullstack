@@ -1,0 +1,43 @@
+﻿@using Todo.Shared.State
+@inject HttpClient Http
+
+<SfTextBox @ref="txtSearch" Placeholder="Enter Title..." @bind-Value="@Term"></SfTextBox>
+<label style="color: tomato; font-size: 10px"> @ErrorMessage </label>
+<br />
+<SfButton CssClass="e-info" @onclick="SearchTodoRequest">Search</SfButton>
+<br />
+
+@code {
+  [Parameter]
+  public AppState State { get; set; }
+
+  SfTextBox txtSearch;
+
+  public string Term = "";
+  public string ErrorMessage = "";
+
+  private async Task SearchTodoRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    if (String.IsNullOrWhiteSpace(Term) == false)
+    {
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri($"https://localhost:44372/todo/search/{Term}"), Method = HttpMethod.Get });
+      if (response.IsSuccessStatusCode)
+      {
+        string content = await response.Content.ReadAsStringAsync();
+        State.SetTodoList(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TodoDetail>>(content));
+      }
+      else
+      {
+        State.SetTodoList(null);
+      }
+      ErrorMessage = "";
+      txtSearch.CssClass = "e-success";
+    }
+    else
+    {
+      ErrorMessage = "Must not be empty!";
+      txtSearch.CssClass = "e-error";
+    }
+
+  }
+}

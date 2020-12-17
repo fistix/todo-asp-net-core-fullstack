@@ -1,0 +1,30 @@
+﻿<SfToast @ref="ToastObj" Title="@Title" Timeout=5000 Icon="e-meeting" Content="@ToastContent">
+  <ToastPosition X="Right"></ToastPosition>
+</SfToast>
+
+<style>
+  #toast_default .e-meeting::before {
+    content: "\e705";
+    font-size: 17px;
+  }
+</style>
+
+@code {
+  SfToast ToastObj;
+
+  [Parameter]
+  public string ToastContent { get; set; }
+  
+  [Parameter]
+  public string Title { get; set; }
+
+  public async Task ShowToast()
+  {
+    await this.ToastObj.Show();
+  }
+
+  private async Task HideToast()
+  {
+    await this.ToastObj.Hide("All");
+  }
+}
