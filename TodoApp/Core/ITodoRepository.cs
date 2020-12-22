@@ -1,10 +1,10 @@
-﻿using Domain.Entity;
+﻿using Fistix.Training.Domain.DataModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core
+namespace Fistix.Training.Core
 {
   public interface ITodoRepository
   {

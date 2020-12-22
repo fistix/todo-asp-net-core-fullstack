@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Validator", "Validator\Validator.csproj", "{D3BB417D-EDAC-42CE-ADF3-A08A0C5B49FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{07FB7D93-0D32-4BB3-9028-5E916B05D604}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{07FB7D93-0D32-4BB3-9028-5E916B05D604}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

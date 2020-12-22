@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Core;
-using Domain.Commands;
+using Fistix.Training.Core;
+using Fistix.Training.Domain.Commands;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Service.CommandHandlers
+namespace Fistix.Training.Service.CommandHandlers
 {
   public class DeleteTodoCommandHandler : IRequestHandler<DeleteTodoCommand, bool>
   {

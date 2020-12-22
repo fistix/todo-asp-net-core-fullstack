@@ -1,7 +1,9 @@
-using Core;
-using DataLayer.Repositories;
-using Domain.Commands.Tasks;
+using Fistix.Training.Core;
+using Fistix.Training.Core.Validators.Tasks;
+using Fistix.Training.DataLayer.Repositories;
+using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.WebApi.Extensions;
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Service.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,13 +34,13 @@ namespace Fistix.Training.WebApi
     public void ConfigureServices(IServiceCollection services)
     {
 
-      services.AddControllers();
-      services.AddSwaggerGen(c =>
+      services.AddControllers().AddFluentValidation(x=> x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
+            services.AddSwaggerGen(c =>
       {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
       });
 
-      services.AddCommonServices();
+      services.AddCommonServices(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

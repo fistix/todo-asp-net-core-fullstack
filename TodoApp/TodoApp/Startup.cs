@@ -1,4 +1,4 @@
-using DataLayer;
+using Fistix.Training.DataLayer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -15,14 +15,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
-using DataLayer.Repositories;
-using Core;
-using Domain.Commands;
+using Fistix.Training.DataLayer.Repositories;
+using Fistix.Training.Core;
 using System.Reflection;
-using Service.CommandHandlers;
-using Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.AspNetCore.Filters;
+using Fistix.Training.Service;
+using Fistix.Training.Domain.Commands;
+using Fistix.Training.Service.CommandHandlers;
 
 namespace TodoApp
 {

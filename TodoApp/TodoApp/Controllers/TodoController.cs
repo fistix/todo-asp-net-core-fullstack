@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Domain.Commands;
-using Domain.Dtos;
-using Domain.Queries;
+using Fistix.Training.Domain.Commands;
+using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TodoApp.Controllers
+namespace Fistix.Training.TodoApp.Controllers
 {
   [ApiController]
   [Route("[controller]")]

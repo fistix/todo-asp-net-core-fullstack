@@ -1,10 +1,10 @@
-﻿using Domain.Dtos;
+﻿using Fistix.Training.Domain.Dtos;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Commands
+namespace Fistix.Training.Domain.Commands
 {
   public class AddTodoCommand : IRequest<TodoDto>
   {

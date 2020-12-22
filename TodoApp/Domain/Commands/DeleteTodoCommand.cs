@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Commands
+namespace Fistix.Training.Domain.Commands
 {
   public class DeleteTodoCommand : IRequest<bool>
   {

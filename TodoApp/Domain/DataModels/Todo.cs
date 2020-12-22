@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Entity
+namespace Fistix.Training.Domain.DataModels
 {
   public class Todo : Entity
   {

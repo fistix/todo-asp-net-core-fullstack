@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
-using Core;
-using Domain.Commands;
-using Domain.Dtos;
-using Domain.Entity;
+using Fistix.Training.Core;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Fistix.Training.Domain.DataModels;
+using Fistix.Training.Domain.Commands;
+using Fistix.Training.Domain.Dtos;
 
-namespace Service.CommandHandlers
+namespace Fistix.Training.Service.CommandHandlers
 {
   public class UpdateTodoCommandHandler : IRequestHandler<UpdateTodoCommand, TodoDto>
   {

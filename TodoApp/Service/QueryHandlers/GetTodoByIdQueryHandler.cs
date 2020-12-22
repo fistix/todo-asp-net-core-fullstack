@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Core;
-using Domain.Dtos;
-using Domain.Queries;
+using Fistix.Training.Core;
+using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.Queries;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Service.QueryHandlers
+namespace Fistix.Training.Service.QueryHandlers
 {
   public class GetTodoByIdQueryHandler : IRequestHandler<GetTodoByIdQuery, TodoDto>
   {
