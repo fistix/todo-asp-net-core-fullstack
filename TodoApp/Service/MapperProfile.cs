@@ -55,10 +55,11 @@ namespace Fistix.Training.Service
             CreateMap<CreateTaskCommand, TaskDto>();
             CreateMap<TaskDto, CreateTaskCommand>();
 
-            CreateMap<TaskDto, GetAllTasksQueryResult>();
-            CreateMap<GetAllTasksQueryResult, TaskDto>();
+            //CreateMap<TaskDto, GetAllTasksQueryResult>();
+            //CreateMap<GetAllTasksQueryResult, TaskDto>();
 
-            
+            //CreateMap<GetTaskDetailByIdQueryResult, TaskDto>();
+            //CreateMap<TaskDto, GetTaskDetailByIdQueryResult>();
         }
     }
 }

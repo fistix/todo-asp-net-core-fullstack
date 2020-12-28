@@ -31,6 +31,9 @@ namespace Fistix.Training.DataLayer.Repositories
         public async Task<Domain.DataModels.Task> GetById(Guid id)
         {
             return await _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
+            //var result= _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
+            
+
         }
 
 

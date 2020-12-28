@@ -45,8 +45,9 @@ namespace Fistix.Training.WebApi.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GetAllTasksQueryResult>> GetAll()
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        // public async Task<ActionResult<GetAllTasksQueryResult>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             //var result = await _mediator.Send(new GetAllTasksQuery());
             //return result;
@@ -71,6 +72,28 @@ namespace Fistix.Training.WebApi.Controllers
         //    //return result;
         //    return base.Ok(await _mediator.Send(new GetAllTasksQuery()));
         //}
+
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Get([FromRoute]Guid id)
+        {
+            var result = await _mediator.Send(new GetTaskDetailByIdQuery() { Id = id });
+            if (result.Payload == null)
+            {
+                return base.NotFound();
+            }
+            else
+            {
+                return base.Ok(result);
+            }
+            //if (id.ToString()==null)
+            //{
+            //    return base.Unauthorized();
+            //}
+        }
 
     }
 }

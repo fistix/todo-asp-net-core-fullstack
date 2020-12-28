@@ -28,8 +28,8 @@ namespace Fistix.Training.DataLayer
         }
         private void TodoModelConfig(ModelBuilder builder)
         {
-            builder.Entity<Todo>().HasKey(x => x.Id);
             builder.Entity<Todo>().ToTable("Todos");
+            builder.Entity<Todo>().HasKey(x => x.Id);
         }
     }
 }
