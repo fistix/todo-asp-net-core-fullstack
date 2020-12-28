@@ -88,7 +88,7 @@ namespace TodoApp
 
 
 
-      services.AddDbContext<TodoDbContext>(options =>
+      services.AddDbContext<EfContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("TodoDatabase")));
 
       services.AddAuthentication(options =>

@@ -6,24 +6,20 @@ using System.Text;
 
 namespace Fistix.Training.DataLayer
 {
-    public class TodoDbContext : DbContext
+    public class EfContext : DbContext
     {
         public DbSet<Todo> Todos { get; set; }
         public DbSet<Task> Tasks { get; set; }
 
-        public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
+        public EfContext(DbContextOptions<EfContext> options) : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-
             TaskModelConfig(builder);
             TodoModelConfig(builder);
             base.OnModelCreating(builder);
-
-
-           
         }
         private void TaskModelConfig(ModelBuilder builder)
         {

@@ -9,6 +9,8 @@ namespace Fistix.Training.Core
     public interface ITaskRepository
     {
         Task<Domain.DataModels.Task> Create(Domain.DataModels.Task task);
+        Task<List<Domain.DataModels.Task>> GetAll();
+        Task<Domain.DataModels.Task> GetById(Guid id);
 
     }
 }

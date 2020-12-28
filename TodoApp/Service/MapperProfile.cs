@@ -3,6 +3,7 @@ using Fistix.Training.Domain.Commands;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
 using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.Queries.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -53,6 +54,9 @@ namespace Fistix.Training.Service
 
             CreateMap<CreateTaskCommand, TaskDto>();
             CreateMap<TaskDto, CreateTaskCommand>();
+
+            CreateMap<TaskDto, GetAllTasksQueryResult>();
+            CreateMap<GetAllTasksQueryResult, TaskDto>();
 
             
         }
