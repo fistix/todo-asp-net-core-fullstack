@@ -6,7 +6,7 @@ using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.Queries.Tasks;
 using Fistix.Training.Service;
 using Fistix.Training.Service.QueryHandlers.Tasks;
-using Fistix.Training.Service.Tasks;
+using Fistix.Training.Service.CommandHandlers.Tasks;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

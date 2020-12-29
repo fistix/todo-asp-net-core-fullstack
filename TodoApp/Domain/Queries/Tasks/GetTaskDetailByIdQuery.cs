@@ -9,10 +9,6 @@ namespace Fistix.Training.Domain.Queries.Tasks
 {
     public class GetTaskDetailByIdQuery : IRequest<GetTaskDetailByIdQueryResult>
     {
-        //public GetTaskDetailByIdQuery(Guid id)
-        //{
-        //    Id = id;
-        //}
         public Guid Id { get; set; }
     }
 

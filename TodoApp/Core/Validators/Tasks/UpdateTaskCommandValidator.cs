@@ -8,16 +8,13 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Tasks
 {
-   
-
-    public class CreateTaskCommandValidator : AbstractValidator<CreateTaskCommand>
+    public class UpdateTaskCommandValidator : AbstractValidator<UpdateTaskCommand>
     {
-
-        public CreateTaskCommandValidator()
+        public UpdateTaskCommandValidator()
         {
+            RuleFor(x => x.Id).NotEmpty();
             RuleFor(x => x.Title).Length(1, 30);
-            RuleFor(x => x.Description).NotNull();
-            //RuleFor(x => x.Active).Must(x=> x==false || x==true);
+            RuleFor(x => x.Description).NotEmpty();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Fistix.Training.DataLayer.Repositories
         {
             var entity = await _efContext.Tasks.AddAsync(task);
             await _efContext.SaveChangesAsync();
-            return entity.Entity;     
+            return entity.Entity;
         }
 
         public async Task<List<Domain.DataModels.Task>> GetAll()
@@ -31,9 +31,30 @@ namespace Fistix.Training.DataLayer.Repositories
         public async Task<Domain.DataModels.Task> GetById(Guid id)
         {
             return await _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
-            //var result= _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
-            
+        }
 
+        public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
+        {
+
+            //var temp = await GetById(task.Id.GetValueOrDefault());
+            //if (temp != null)
+            //{
+            //    task.CreatedOn = temp.CreatedOn;
+            //}
+
+            //var temp = await GetById((Guid)task.Id);
+
+            var temp = _efContext.Tasks.FirstOrDefault(t => t.Id.Equals(task.Id));
+            if (temp == null)
+            {
+                return null;
+            }
+
+            var entity = _efContext.Tasks.Update(task);
+            await _efContext.SaveChangesAsync();
+            return entity.Entity;
+
+            //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
         }
 
 

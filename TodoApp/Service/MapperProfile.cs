@@ -22,23 +22,24 @@ namespace Fistix.Training.Service
             CreateMap<AddTodoCommand, Todo>();
             CreateMap<Todo, AddTodoCommand>();
 
+            CreateMap<AddTodoCommand, TodoDto>();
+            CreateMap<TodoDto, AddTodoCommand>();
+
             CreateMap<UpdateTodoCommand, Todo>();
             CreateMap<Todo, UpdateTodoCommand>();
 
             CreateMap<UpdateTodoCommand, TodoDto>();
             CreateMap<TodoDto, UpdateTodoCommand>();
 
-            CreateMap<AddTodoCommand, TodoDto>();
-            CreateMap<TodoDto, AddTodoCommand>();
+
 
             CreateMap<CreateTaskCommand, Task>();
             CreateMap<Task, CreateTaskCommand>();
 
             CreateMap<Domain.DataModels.Task, Domain.Dtos.TaskDto>()
-            .ForMember(x => x.Id, v => v.MapFrom(z => z.Id.ToString()));
+            .ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
             CreateMap<Domain.Dtos.TaskDto, Domain.DataModels.Task>()
-                .ForMember(x => x.Id, v => v.MapFrom(z => Guid.Parse(z.Id)));
-
+            .ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
 
 
             CreateMap<Domain.DataModels.Task, CreateTaskCommandResult>();
@@ -60,6 +61,10 @@ namespace Fistix.Training.Service
 
             //CreateMap<GetTaskDetailByIdQueryResult, TaskDto>();
             //CreateMap<TaskDto, GetTaskDetailByIdQueryResult>();
+
+            CreateMap<UpdateTaskCommand, Task>()
+                .ForMember(x => x.CreatedOn, x=>x.Ignore());
+            CreateMap<Task, UpdateTaskCommand>();
         }
     }
 }

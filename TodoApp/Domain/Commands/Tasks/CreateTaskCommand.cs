@@ -9,8 +9,8 @@ namespace Fistix.Training.Domain.Commands.Tasks
 {
     public class CreateTaskCommand : IRequest<CreateTaskCommandResult>
     {
-        //public Guid? UserId { get; set; }
-        public Guid? Id { get; set; }
+        
+        //public Guid? Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public bool Active { get; set; }
