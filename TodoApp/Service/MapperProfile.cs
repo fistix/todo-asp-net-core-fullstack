@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fistix.Training.Domain.Commands;
+using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
 using Fistix.Training.Domain.Dtos;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace Fistix.Training.Service
 {
-    public class MapperProfile : Profile
+    public class MapperProfile : AutoMapper.Profile
     {
         public MapperProfile()
         {
@@ -32,29 +33,30 @@ namespace Fistix.Training.Service
             CreateMap<TodoDto, UpdateTodoCommand>();
 
 
+            CreateMap<Task, TaskDto>();
+            //.ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
+            CreateMap<TaskDto, Task>();
+            //.ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
+
 
             CreateMap<CreateTaskCommand, Task>();
             CreateMap<Task, CreateTaskCommand>();
 
-            CreateMap<Domain.DataModels.Task, Domain.Dtos.TaskDto>()
-            .ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
-            CreateMap<Domain.Dtos.TaskDto, Domain.DataModels.Task>()
-            .ForMember(x => x.Id, v => v.MapFrom(z => z.Id));
+        
+            //CreateMap<Domain.DataModels.Task, CreateTaskCommandResult>();
+            ////.ForMember(x => x.Payload.Id, v => v.MapFrom(z => z.Id.ToString()));
+            //CreateMap<CreateTaskCommandResult, Domain.DataModels.Task>();
+            ////.ForMember(x => x.Id, v => v.MapFrom(z => Guid.Parse(z.Payload.Id)));
 
 
-            CreateMap<Domain.DataModels.Task, CreateTaskCommandResult>();
-            //.ForMember(x => x.Payload.Id, v => v.MapFrom(z => z.Id.ToString()));
-            CreateMap<CreateTaskCommandResult, Domain.DataModels.Task>();
-            //.ForMember(x => x.Id, v => v.MapFrom(z => Guid.Parse(z.Payload.Id)));
-
-            CreateMap<CreateTaskCommand, CreateTaskCommandResult>();
-            //.ForMember(x => x.Payload.Id, v => v.MapFrom(z => z.Id.ToString()));
-            CreateMap<CreateTaskCommandResult, CreateTaskCommand>();
-            //.ForMember(x => x.Id, v => v.MapFrom(z => Guid.Parse(z.Payload.Id)));
+            //CreateMap<CreateTaskCommand, CreateTaskCommandResult>();
+            ////.ForMember(x => x.Payload.Id, v => v.MapFrom(z => z.Id.ToString()));
+            //CreateMap<CreateTaskCommandResult, CreateTaskCommand>();
+            ////.ForMember(x => x.Id, v => v.MapFrom(z => Guid.Parse(z.Payload.Id)));
 
 
-            CreateMap<CreateTaskCommand, TaskDto>();
-            CreateMap<TaskDto, CreateTaskCommand>();
+            //CreateMap<CreateTaskCommand, TaskDto>();
+            //CreateMap<TaskDto, CreateTaskCommand>();
 
             //CreateMap<TaskDto, GetAllTasksQueryResult>();
             //CreateMap<GetAllTasksQueryResult, TaskDto>();
@@ -62,9 +64,18 @@ namespace Fistix.Training.Service
             //CreateMap<GetTaskDetailByIdQueryResult, TaskDto>();
             //CreateMap<TaskDto, GetTaskDetailByIdQueryResult>();
 
-            CreateMap<UpdateTaskCommand, Task>()
-                .ForMember(x => x.CreatedOn, x=>x.Ignore());
+            CreateMap<UpdateTaskCommand, Task>();
+                //.ForMember(x => x.CreatedOn, x=>x.Ignore());
             CreateMap<Task, UpdateTaskCommand>();
+
+
+            CreateMap<Domain.DataModels.Profile, ProfileDto>();
+            CreateMap<ProfileDto, Domain.DataModels.Profile>();
+
+            CreateMap<CreateProfileCommand, Domain.DataModels.Profile>();
+            CreateMap<Domain.DataModels.Profile, CreateProfileCommand>();
+
+
         }
     }
 }

@@ -28,6 +28,7 @@ namespace Fistix.Training.WebApi.Extensions
             services.AddMediatR(typeof(CreateTaskCommand).Assembly, typeof(CreateTaskCommandHandler).Assembly);
             services.AddScoped<ITodoRepository, TodoRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IProfileRepository, ProfileRepository>();
             
             services.AddDbContext<EfContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("TodoDatabase")));

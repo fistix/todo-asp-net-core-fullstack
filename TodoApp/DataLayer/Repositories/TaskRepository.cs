@@ -33,6 +33,40 @@ namespace Fistix.Training.DataLayer.Repositories
             return await _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
         }
 
+        public async Task<bool> Delete(Guid id)
+        {
+            var task = await GetById(id);
+            if (task != null)
+            {
+                _efContext.Remove(task);
+                await _efContext.SaveChangesAsync();
+                return true;
+            }
+            
+            throw new ArgumentException();
+
+            //var task = GetById(id);
+            //return _efContext.Tasks.Remove(task);
+            //return await _efContext.Tasks.Remove(id);
+        }
+
+
+        //public async Task<bool> Delete(Guid id)
+        //{
+        //    var task = await GetById(id);
+        //    if (task != null)
+        //    {
+        //        _efContext.Remove(task);
+        //        return true;
+        //    }
+        //    return false;
+        //    //throw new ArgumentException($"{id} not found!");
+
+        //    //var task = GetById(id);
+        //    //return _efContext.Tasks.Remove(task);
+        //    //return await _efContext.Tasks.Remove(id);
+        //}
+
         public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
         {
 

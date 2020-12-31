@@ -12,6 +12,8 @@ namespace Fistix.Training.Core
         Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task);
         Task<List<Domain.DataModels.Task>> GetAll();
         Task<Domain.DataModels.Task> GetById(Guid id);
-        
+        Task<bool> Delete(Guid id);
+
+
     }
 }

@@ -112,5 +112,30 @@ namespace Fistix.Training.WebApi.Controllers
             }
            
         }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteTask([FromRoute]Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    //return base.BadRequest($"{id} is empty!");
+                    return base.BadRequest("Id is empty!");
+                }
+                var result = await _mediator.Send(new DeleteTaskCommand() { Id = id });
+
+                return base.Ok("Successfully Deleted!");
+            }
+            catch (ArgumentException)
+            {
+                return base.NotFound($"Id {id} not found!");
+            }
+            //Sir code review of previous tasks is also remaining
+        }
+
     }
 }

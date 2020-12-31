@@ -10,6 +10,7 @@ namespace Fistix.Training.DataLayer
     {
         public DbSet<Todo> Todos { get; set; }
         public DbSet<Task> Tasks { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
 
         public EfContext(DbContextOptions<EfContext> options) : base(options)
         {
@@ -19,6 +20,8 @@ namespace Fistix.Training.DataLayer
         {
             TaskModelConfig(builder);
             TodoModelConfig(builder);
+            ProfileModelConfig(builder);
+
             base.OnModelCreating(builder);
         }
         private void TaskModelConfig(ModelBuilder builder)
@@ -30,6 +33,11 @@ namespace Fistix.Training.DataLayer
         {
             builder.Entity<Todo>().ToTable("Todos");
             builder.Entity<Todo>().HasKey(x => x.Id);
+        }
+        private void ProfileModelConfig(ModelBuilder builder)
+        {
+            builder.Entity<Profile>().ToTable("Profiles");
+            builder.Entity<Profile>().HasKey(x => x.Id);
         }
     }
 }
