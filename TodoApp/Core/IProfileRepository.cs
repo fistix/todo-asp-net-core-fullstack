@@ -10,5 +10,7 @@ namespace Fistix.Training.Core
     public interface IProfileRepository
     {
         Task<Profile> Create(Profile profile);
+        Task<Profile> Update(Profile profile);
+        Task<List<Profile>> GetAll();
     }
 }
