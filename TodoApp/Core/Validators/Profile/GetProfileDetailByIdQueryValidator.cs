@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Profile
 {
-    public class GetProfileDetailByEmailQueryValidator : AbstractValidator<GetProfileDetailByEmailQuery>
+    public class GetProfileDetailByIdQueryValidator : AbstractValidator<GetProfileDetailByIdQuery>
     {
-        public GetProfileDetailByEmailQueryValidator()
+        public GetProfileDetailByIdQueryValidator()
         {
-            RuleFor(x => x.Email).EmailAddress();
+            RuleFor(x => x.Id).NotEmpty();
         }
     }
 }

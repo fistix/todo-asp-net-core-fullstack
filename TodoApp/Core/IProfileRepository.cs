@@ -12,5 +12,7 @@ namespace Fistix.Training.Core
         Task<Profile> Create(Profile profile);
         Task<Profile> Update(Profile profile);
         Task<List<Profile>> GetAll();
+        Task<Profile> GetByEmail(string email);
+        Task<Profile> GetById(Guid id);
     }
 }

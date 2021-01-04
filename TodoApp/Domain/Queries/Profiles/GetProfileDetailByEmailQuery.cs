@@ -9,6 +9,6 @@ namespace Fistix.Training.Domain.Queries.Profiles
 {
     public class GetProfileDetailByEmailQuery : IRequest<GetProfileDetailByEmailQueryResult>
     {
-        public String Email { get; set; }
+        public string Email { get; set; }
     }
 }

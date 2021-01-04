@@ -1,0 +1,33 @@
+﻿using AutoMapper;
+using Fistix.Training.Core;
+using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.Queries.Profiles;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Fistix.Training.Service.QueryHandlers.Profiles
+{
+    public class GetProfileDetailByIdQueryHandler : IRequestHandler<GetProfileDetailByIdQuery, GetProfileDetailByIdQueryResult>
+    {
+        private readonly IMapper _mapper = null;
+        private readonly IProfileRepository _profileRepository = null;
+        public GetProfileDetailByIdQueryHandler(IMapper mapper, IProfileRepository profileRepository)
+        {
+            _mapper = mapper;
+            _profileRepository = profileRepository;
+        }
+        public async Task<GetProfileDetailByIdQueryResult> Handle(GetProfileDetailByIdQuery request, CancellationToken cancellationToken)
+        {
+            var result= _mapper.Map<ProfileDto>(await _profileRepository.GetById(request.Id));
+            return new GetProfileDetailByIdQueryResult()
+            {
+                Payload = result
+            };
+        }
+    }
+}

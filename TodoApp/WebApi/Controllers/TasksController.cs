@@ -33,14 +33,50 @@ namespace Fistix.Training.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateTask(CreateTaskCommand command)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return base.BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+
+                var result = await _mediator.Send<CreateTaskCommandResult>(command);
+                return base.Created($"api/Tasks/{result.Payload.Id}", result);
+            }
+            catch (ArgumentException ex)
+            {
+
+                return base.BadRequest(ex.Message);
+            }
+        }
+
+        //// Changings are pending
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status304NotModified)]
+        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateTaskCommand command)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send<UpdateTaskCommandResult>(command);
+                if (result != null)
+                {
+                    return base.Ok(result);
+                }
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            var result = await _mediator.Send<CreateTaskCommandResult>(command);
-
-            return base.Created($"api/Tasks/{result.Payload.Id}", result);
         }
 
         [HttpGet]
@@ -69,9 +105,9 @@ namespace Fistix.Training.WebApi.Controllers
         {
             try
             {
-                if (id == Guid.Empty)
+                if (!ModelState.IsValid)
                 {
-                    return base.BadRequest();
+                    return base.BadRequest(ModelState);
                     //return base.BadRequest(id);
                     //throw new ArgumentException("Id is empty");
                 }
@@ -85,34 +121,7 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status304NotModified)]
-        public async Task<IActionResult> UpdateTask(UpdateTaskCommand command)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return base.BadRequest(ModelState);
-                }
-                var result = await _mediator.Send<UpdateTaskCommandResult>(command);
-                if (result != null)
-                {
-                    return base.Ok(result);
-                }
-                return base.NotFound();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-           
-        }
-
+        
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

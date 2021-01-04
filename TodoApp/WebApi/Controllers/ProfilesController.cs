@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fistix.Training.Core.Exceptions;
 using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Queries.Profiles;
 using MediatR;
@@ -24,6 +25,7 @@ namespace Fistix.Training.WebApi.Controllers
             _mapper = mapper;
         }
 
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -45,11 +47,11 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(UpdateProfileCommand command)
+        public async Task<IActionResult> Update([FromRoute]Guid id,[FromBody]UpdateProfileCommand command)
         {
             try
             {
@@ -59,12 +61,10 @@ namespace Fistix.Training.WebApi.Controllers
                 }
                 var result = await _mediator.Send<UpdateProfileCommandResult>(command);
                 return base.Ok(result);
-
-                //return null;
             }
-            catch (ArgumentException ex)
+            catch (NotFoundException nfx)
             {
-                return base.NotFound(ex.Message);
+                return base.NotFound(nfx.Message);
             }
         }
 
@@ -76,11 +76,11 @@ namespace Fistix.Training.WebApi.Controllers
             return base.Ok(result);
         }
 
-        [HttpGet("{email}")]
+        [HttpGet("ByEmail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute]string email)
+        public async Task<IActionResult> Get([FromQuery]string email)
         {
             try
             {
@@ -88,8 +88,33 @@ namespace Fistix.Training.WebApi.Controllers
                 {
                     return base.BadRequest(ModelState);
                 }
-                ////
-                return null;
+                var result = await _mediator.Send(new GetProfileDetailByEmailQuery() { Email = email });
+                return base.Ok(result);
+            }
+            catch(NotFoundException nfx)
+            {
+                return base.NotFound(nfx.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Get([FromRoute]Guid id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send(new GetProfileDetailByIdQuery() { Id = id });
+                return base.Ok(result);
+            }
+            catch (NotFoundException nfx)
+            {
+                return base.NotFound(nfx.Message);
             }
             catch (Exception)
             {

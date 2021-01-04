@@ -1,4 +1,4 @@
-﻿using Fistix.Training.Domain.Dtos;
+﻿using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Profiles
 {
-    public class GetProfileDetailByEmailQueryResult
+    public class GetProfileDetailByIdQuery : IRequest<GetProfileDetailByIdQueryResult>
     {
-        public ProfileDto Payload { get; set; }
+        public Guid Id { get; set; }
     }
 }

@@ -22,23 +22,17 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
         }
         public async Task<UpdateProfileCommandResult> Handle(UpdateProfileCommand command, CancellationToken cancellationToken)
         {
-            try
+            var profile = _mapper.Map<Domain.DataModels.Profile>(command);
+            var result = await _profileRepository.Update(profile);
+            if (result != null)
             {
-                var profile = _mapper.Map<Domain.DataModels.Profile>(command);
-                var result =  await _profileRepository.Update(profile);
-                if (result != null)
+                return new UpdateProfileCommandResult()
                 {
-                    return new UpdateProfileCommandResult()
-                    {
-                        Payload = _mapper.Map<Domain.Dtos.ProfileDto>(result)
-                    };
-                }
-                return null;
+                    Payload = _mapper.Map<Domain.Dtos.ProfileDto>(result)
+                };
             }
-            catch (ArgumentException)
-            {
-                throw;
-            }
+            return null;
+            
             //throw new NotImplementedException();
         }
     }
