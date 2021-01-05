@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fistix.Training.Core.Exceptions;
 using Fistix.Training.Core.Validators.Tasks;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.Queries.Tasks;
@@ -41,11 +42,10 @@ namespace Fistix.Training.WebApi.Controllers
                 }
 
                 var result = await _mediator.Send<CreateTaskCommandResult>(command);
-                return base.Created($"api/Tasks/{result.Payload.Id}", result);
+                return base.Created($"api/Tasks/{result.Payload.TaskId}", result);
             }
             catch (ArgumentException ex)
             {
-
                 return base.BadRequest(ex.Message);
             }
         }
@@ -64,17 +64,13 @@ namespace Fistix.Training.WebApi.Controllers
                 {
                     return base.BadRequest(ModelState);
                 }
+                //var result = await _mediator.Send<UpdateTaskCommandResult>(command);
                 var result = await _mediator.Send<UpdateTaskCommandResult>(command);
-                if (result != null)
-                {
-                    return base.Ok(result);
-                }
-                return base.NotFound();
+                return base.Ok(result);
             }
-            catch (Exception)
+            catch (NotFoundException nfx)
             {
-
-                throw;
+                return base.NotFound(nfx.Message);
             }
 
         }
@@ -121,12 +117,12 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        
+
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTask([FromRoute]Guid id)
+        public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
         {
             try
             {
@@ -143,8 +139,36 @@ namespace Fistix.Training.WebApi.Controllers
             {
                 return base.NotFound($"Id {id} not found!");
             }
-            //Sir code review of previous tasks is also remaining
         }
+
+        //[HttpPut("{id}/AssignUser")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //public async Task<IActionResult> AssignUser([FromRoute] Guid id, [FromBody] AttachUserWithTaskCommand)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //        {
+        //            return base.BadRequest(ModelState);
+        //        }
+        //        var result = await _mediator.Send(new AttachUserWithTaskCommand() { TaskId = id });
+        //        //var result = await _mediator.Send(new AttachUserWithTaskCommandResult());
+
+        //        return base.Ok(result);
+        //    }
+        //    catch(NotFoundException nfx)
+        //    {
+        //        return base.NotFound();
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+
+        //}
 
     }
 }

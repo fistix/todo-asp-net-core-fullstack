@@ -27,7 +27,7 @@ namespace Fistix.Training.DataLayer
         private void TaskModelConfig(ModelBuilder builder)
         {
             builder.Entity<Task>().ToTable("Tasks");
-            builder.Entity<Task>().HasKey(x => x.Id);
+            builder.Entity<Task>().HasKey(x => x.TaskId);
         }
         private void TodoModelConfig(ModelBuilder builder)
         {
@@ -37,7 +37,7 @@ namespace Fistix.Training.DataLayer
         private void ProfileModelConfig(ModelBuilder builder)
         {
             builder.Entity<Profile>().ToTable("Profiles");
-            builder.Entity<Profile>().HasKey(x => x.Id);
+            builder.Entity<Profile>().HasKey(x => x.ProfileId);
         }
     }
 }

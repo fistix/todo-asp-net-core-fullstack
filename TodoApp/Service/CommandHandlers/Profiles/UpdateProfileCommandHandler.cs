@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
+using Fistix.Training.Core.Exceptions;
 using Fistix.Training.Domain.Commands.Profiles;
 using MediatR;
 using System;
@@ -22,16 +23,31 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
         }
         public async Task<UpdateProfileCommandResult> Handle(UpdateProfileCommand command, CancellationToken cancellationToken)
         {
-            var profile = _mapper.Map<Domain.DataModels.Profile>(command);
-            var result = await _profileRepository.Update(profile);
-            if (result != null)
+            try
             {
-                return new UpdateProfileCommandResult()
+                var temp = await _profileRepository.GetById(command.Id);
+                //if (temp == null)
+                //{
+                //    throw new NotFoundException();
+                //}
+                temp = _mapper.Map<Domain.DataModels.Profile>(command);
+                //var profile = _mapper.Map<Domain.DataModels.Profile>(command);
+                //var result = await _profileRepository.Update(profile);
+                var result = await _profileRepository.Update(temp);
+                if (result != null)
                 {
-                    Payload = _mapper.Map<Domain.Dtos.ProfileDto>(result)
-                };
+                    return new UpdateProfileCommandResult()
+                    {
+                        Payload = _mapper.Map<Domain.Dtos.ProfileDto>(result)
+                    };
+                }
+                return null;
             }
-            return null;
+            catch (Exception)
+            {
+
+                throw;
+            }
             
             //throw new NotImplementedException();
         }

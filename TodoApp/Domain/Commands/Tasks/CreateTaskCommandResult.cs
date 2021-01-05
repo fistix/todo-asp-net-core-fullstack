@@ -9,7 +9,6 @@ namespace Fistix.Training.Domain.Commands.Tasks
 {
     public class CreateTaskCommandResult
     {
-        //public DataModels.Task Payload { get; set; }
         public TaskDto Payload { get; set; }
     }
 }

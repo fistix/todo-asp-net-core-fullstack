@@ -8,11 +8,12 @@ namespace Fistix.Training.Domain.DataModels
 {
     public class Task /*: Entity*/
     {
-        public Guid? Id { get; set; }
+        public Guid? TaskId { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public bool Active { get; set; }
+        public Guid? UserProfileId { get; set; }
     }
 }

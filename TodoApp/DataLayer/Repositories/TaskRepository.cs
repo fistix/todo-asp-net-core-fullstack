@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Fistix.Training.Core.Exceptions;
+
 namespace Fistix.Training.DataLayer.Repositories
 {
     public class TaskRepository : ITaskRepository
@@ -22,6 +24,24 @@ namespace Fistix.Training.DataLayer.Repositories
             return entity.Entity;
         }
 
+        public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
+        {
+            var temp = _efContext.Tasks.FirstOrDefault(t => t.TaskId.Equals(task.TaskId));
+            if (temp != null)
+            {
+                temp.Title = task.Title;
+                temp.Description = task.Description;
+                temp.Active = task.Active;
+                temp.ModifiedOn = task.ModifiedOn;
+
+                var entity = _efContext.Tasks.Update(temp);
+                await _efContext.SaveChangesAsync();
+                return entity.Entity;
+            }
+            throw new NotFoundException("Result not found!");
+            //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
+        }
+
         public async Task<List<Domain.DataModels.Task>> GetAll()
         {
             var entity = await _efContext.Tasks.ToListAsync();
@@ -30,7 +50,7 @@ namespace Fistix.Training.DataLayer.Repositories
 
         public async Task<Domain.DataModels.Task> GetById(Guid id)
         {
-            return await _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
+            return await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
         }
 
         public async Task<bool> Delete(Guid id)
@@ -67,29 +87,7 @@ namespace Fistix.Training.DataLayer.Repositories
         //    //return await _efContext.Tasks.Remove(id);
         //}
 
-        public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
-        {
-
-            //var temp = await GetById(task.Id.GetValueOrDefault());
-            //if (temp != null)
-            //{
-            //    task.CreatedOn = temp.CreatedOn;
-            //}
-
-            //var temp = await GetById((Guid)task.Id);
-
-            var temp = _efContext.Tasks.FirstOrDefault(t => t.Id.Equals(task.Id));
-            if (temp == null)
-            {
-                return null;
-            }
-
-            var entity = _efContext.Tasks.Update(task);
-            await _efContext.SaveChangesAsync();
-            return entity.Entity;
-
-            //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
-        }
+        
 
 
     }

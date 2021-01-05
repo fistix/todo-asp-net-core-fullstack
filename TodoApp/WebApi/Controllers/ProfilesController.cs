@@ -29,6 +29,7 @@ namespace Fistix.Training.WebApi.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Create(CreateProfileCommand command)
         {
             try
@@ -38,12 +39,12 @@ namespace Fistix.Training.WebApi.Controllers
                     return base.BadRequest(ModelState);
                 }
                 var result = await _mediator.Send<CreateProfileCommandResult>(command);
-                return base.Created($"api/Profiles/{result.Payload.Id}", result);
+                return base.Created($"api/Profiles/{result.Payload.ProfileId}", result);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-
-                return base.BadRequest(ex.Message);
+                //return base.BadRequest(ex.Message);
+                return base.Conflict(ex.Message);
             }
         }
 
@@ -51,7 +52,7 @@ namespace Fistix.Training.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromRoute]Guid id,[FromBody]UpdateProfileCommand command)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProfileCommand command)
         {
             try
             {
@@ -64,7 +65,11 @@ namespace Fistix.Training.WebApi.Controllers
             }
             catch (NotFoundException nfx)
             {
-                return base.NotFound(nfx.Message);
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -80,7 +85,7 @@ namespace Fistix.Training.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromQuery]string email)
+        public async Task<IActionResult> Get([FromQuery] string email)
         {
             try
             {
@@ -91,9 +96,13 @@ namespace Fistix.Training.WebApi.Controllers
                 var result = await _mediator.Send(new GetProfileDetailByEmailQuery() { Email = email });
                 return base.Ok(result);
             }
-            catch(NotFoundException nfx)
+            catch (NotFoundException nfx)
             {
-                return base.NotFound(nfx.Message);
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -101,7 +110,7 @@ namespace Fistix.Training.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute]Guid id)
+        public async Task<IActionResult> Get([FromRoute] Guid id)
         {
             try
             {
@@ -114,7 +123,7 @@ namespace Fistix.Training.WebApi.Controllers
             }
             catch (NotFoundException nfx)
             {
-                return base.NotFound(nfx.Message);
+                return base.NotFound();
             }
             catch (Exception)
             {

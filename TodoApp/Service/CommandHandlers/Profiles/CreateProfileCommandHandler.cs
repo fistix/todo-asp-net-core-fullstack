@@ -23,22 +23,13 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
         }
         public async Task<CreateProfileCommandResult> Handle(CreateProfileCommand command, CancellationToken cancellationToken)
         {
-            try
+            var profile = _mapper.Map<Domain.DataModels.Profile>(command);
+            profile.ProfileId = Guid.NewGuid();
+            var response = await _profileRepository.Create(profile);
+            return new CreateProfileCommandResult()
             {
-                var profile = _mapper.Map<Domain.DataModels.Profile>(command);
-                profile.Id = Guid.NewGuid();
-                var response = await _profileRepository.Create(profile);
-                return new CreateProfileCommandResult()
-                {
-                    Payload = _mapper.Map<ProfileDto>(response)
-                };
-            }
-            catch (ArgumentException ex)
-            {
-                throw;
-            }
-           
-            
+                Payload = _mapper.Map<ProfileDto>(response)
+            };
             //throw new NotImplementedException();
         }
     }

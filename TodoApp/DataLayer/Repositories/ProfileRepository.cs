@@ -23,26 +23,33 @@ namespace Fistix.Training.DataLayer.Repositories
         {
             if (_efContext.Profiles.Any(x => x.Email == profile.Email))
             {
-                throw new ArgumentException("Email is already registered!");
+                throw new InvalidOperationException("Email is already registered!");
+                //throw new ArgumentException("Email is already registered!");
             }
             var entity = await _efContext.Profiles.AddAsync(profile);
             await _efContext.SaveChangesAsync();
             return entity.Entity;
         }
-
         public async Task<Profile> Update(Profile profile)
         {
-            var temp =  _efContext.Profiles.FirstOrDefault(x=> x.Id.Equals( profile.Id));
-            if (temp != null)
-            {
-                temp.FirstName = profile.FirstName;
-                temp.LastName = profile.LastName;
-                var entity = _efContext.Profiles.Update(temp);
-                await _efContext.SaveChangesAsync();
-                return entity.Entity;
-            }
-            throw new NotFoundException("Result not found!");
+            var entity = _efContext.Profiles.Update(profile);
+            await _efContext.SaveChangesAsync();
+            return entity.Entity;
+
         }
+        //public async Task<Profile> Update(Profile profile)
+        //{
+        //    var temp =  _efContext.Profiles.FirstOrDefault(x=> x.Id.Equals(profile.Id));
+        //    if (temp != null)
+        //    {
+        //        temp.FirstName = profile.FirstName;
+        //        temp.LastName = profile.LastName;
+        //        var entity = _efContext.Profiles.Update(temp);
+        //        await _efContext.SaveChangesAsync();
+        //        return entity.Entity;
+        //    }
+        //    throw new NotFoundException();
+        //}
 
         public async Task<List<Profile>> GetAll()
         {
@@ -54,7 +61,7 @@ namespace Fistix.Training.DataLayer.Repositories
             var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.Email.Equals(email));
             if (profile == null)
             {
-                throw new NotFoundException("Email does not exists!");
+                throw new NotFoundException();
                 //throw new NotFoundException("Result not found!");
             }
             return profile;
@@ -65,7 +72,7 @@ namespace Fistix.Training.DataLayer.Repositories
             var profile = await _efContext.Profiles.FindAsync(id);
             if (profile == null)
             {
-                throw new NotFoundException("Result not found!");
+                throw new NotFoundException();
             }
             return profile;
         }
