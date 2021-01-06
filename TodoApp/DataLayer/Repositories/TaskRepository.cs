@@ -23,24 +23,32 @@ namespace Fistix.Training.DataLayer.Repositories
             await _efContext.SaveChangesAsync();
             return entity.Entity;
         }
-
         public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
         {
-            var temp = _efContext.Tasks.FirstOrDefault(t => t.TaskId.Equals(task.TaskId));
-            if (temp != null)
-            {
-                temp.Title = task.Title;
-                temp.Description = task.Description;
-                temp.Active = task.Active;
-                temp.ModifiedOn = task.ModifiedOn;
-
-                var entity = _efContext.Tasks.Update(temp);
-                await _efContext.SaveChangesAsync();
-                return entity.Entity;
-            }
-            throw new NotFoundException("Result not found!");
-            //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
+            var entity = _efContext.Tasks.Update(task);
+            await _efContext.SaveChangesAsync();
+            return entity.Entity;
         }
+
+
+        //public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
+        //{
+        //    var temp = _efContext.Tasks.FirstOrDefault(t => t.TaskId.Equals(task.TaskId));
+        //    if (temp != null)
+        //    {
+        //        temp.Title = task.Title;
+        //        temp.Description = task.Description;
+        //        temp.Active = task.Active;
+        //        temp.ModifiedOn = task.ModifiedOn;
+        //        temp.UserProfileId = task.UserProfileId;
+
+        //        var entity = _efContext.Tasks.Update(temp);
+        //        await _efContext.SaveChangesAsync();
+        //        return entity.Entity;
+        //    }
+        //    throw new NotFoundException("Result not found!");
+        //    //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
+        //}
 
         public async Task<List<Domain.DataModels.Task>> GetAll()
         {
@@ -50,7 +58,12 @@ namespace Fistix.Training.DataLayer.Repositories
 
         public async Task<Domain.DataModels.Task> GetById(Guid id)
         {
-            return await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
+            var task= await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
+            if (task == null)
+            {
+                throw new NotFoundException("Task not found!");
+            }
+            return task;
         }
 
         public async Task<bool> Delete(Guid id)
@@ -62,8 +75,8 @@ namespace Fistix.Training.DataLayer.Repositories
                 await _efContext.SaveChangesAsync();
                 return true;
             }
-            
-            throw new ArgumentException();
+
+            throw new NotFoundException();
 
             //var task = GetById(id);
             //return _efContext.Tasks.Remove(task);
@@ -87,7 +100,7 @@ namespace Fistix.Training.DataLayer.Repositories
         //    //return await _efContext.Tasks.Remove(id);
         //}
 
-        
+
 
 
     }

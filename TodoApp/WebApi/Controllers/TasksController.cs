@@ -141,34 +141,35 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        //[HttpPut("{id}/AssignUser")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<IActionResult> AssignUser([FromRoute] Guid id, [FromBody] AttachUserWithTaskCommand)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //        {
-        //            return base.BadRequest(ModelState);
-        //        }
-        //        var result = await _mediator.Send(new AttachUserWithTaskCommand() { TaskId = id });
-        //        //var result = await _mediator.Send(new AttachUserWithTaskCommandResult());
+        [HttpPut("{id}/AssignUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AssignUser([FromRoute] Guid id, [FromBody] AttachUserWithTaskCommand command/*,[FromRoute] Guid profileId*/)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                //var result = await _mediator.Send(new AttachUserWithTaskCommand() { TaskId = taskId/*, UserId = profileId*/ });
+                //var result = await _mediator.Send(new AttachUserWithTaskCommandResult());
+                var result = await _mediator.Send<AttachUserWithTaskCommandResult>(command);
 
-        //        return base.Ok(result);
-        //    }
-        //    catch(NotFoundException nfx)
-        //    {
-        //        return base.NotFound();
-        //    }
-        //    catch (Exception)
-        //    {
+                return base.Ok(result);
+            }
+            catch (NotFoundException nfx)
+            {
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
 
-        //        throw;
-        //    }
+                throw;
+            }
 
-        //}
+        }
 
     }
 }

@@ -17,7 +17,7 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
         private readonly IMapper _mapper = null;
         private readonly ITaskRepository _taskRepository = null;
         private readonly IProfileRepository _profileRepository = null;
-        public AttachUserWithTaskCommandHandler(IMapper mapper,ITaskRepository taskRepository,IProfileRepository profileRepository)
+        public AttachUserWithTaskCommandHandler(IMapper mapper, ITaskRepository taskRepository, IProfileRepository profileRepository)
         {
             _mapper = mapper;
             _taskRepository = taskRepository;
@@ -25,36 +25,36 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
         }
         public async Task<AttachUserWithTaskCommandResult> Handle(AttachUserWithTaskCommand command, CancellationToken cancellationToken)
         {
-            try
-            {
-                var tempTask = await _taskRepository.GetById(command.TaskId);
-                //if (task == null)
-                //{
-                //    throw new NotFoundException();
-                //}
+            var task = await _taskRepository.GetById(command.TaskId);
 
-                var tempProfile = await _profileRepository.GetById(command.UserId);
-                //if (profile == null)
-                //{
-                //    throw new NotFoundException();
-                //}
-                if (tempProfile == null || tempTask == null)
+            var profile = await _profileRepository.GetById(command.UserId);
+
+            task.UserProfileId = profile.ProfileId;
+            var response = await _taskRepository.Update(task);
+            if (response != null)
+            {
+                return new AttachUserWithTaskCommandResult()
                 {
-                    throw new NotFoundException();
-                }
-                var task = _mapper.Map<Domain.DataModels.Task>(command);
-                var result = await _taskRepository.Update(task);
-
-
-
+                    Payload = _mapper.Map<Domain.Dtos.TaskDto>(response)
+                };
             }
-            catch (Exception)
-            {
+            return null;
 
-                throw;
-            }
-            
-            throw new NotImplementedException();
+            //var tempProfile = await _profileRepository.GetById(command.UserId);
+            ////if (profile == null)
+            ////{
+            ////    throw new NotFoundException();
+            ////}
+            //if (tempProfile == null || tempTask == null)
+            //{
+            //    throw new NotFoundException();
+            //}
+            //var task = _mapper.Map<Domain.DataModels.Task>(command);
+            //var result = await _taskRepository.Update(task);
+
+
+
+            //throw new NotImplementedException();
         }
     }
 }

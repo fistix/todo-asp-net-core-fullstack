@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fistix.Training.Domain.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Fistix.Training.Domain.Commands.Tasks
 {
     public class AttachUserWithTaskCommandResult
     {
-
+        public TaskDto Payload { get; set; }
     }
 }
