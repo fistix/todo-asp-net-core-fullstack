@@ -30,6 +30,7 @@ namespace Fistix.Training.DataLayer.Repositories
             await _efContext.SaveChangesAsync();
             return entity.Entity;
         }
+
         public async Task<Profile> Update(Profile profile)
         {
             var entity = _efContext.Profiles.Update(profile);
@@ -52,11 +53,17 @@ namespace Fistix.Training.DataLayer.Repositories
         //    throw new NotFoundException();
         //}
 
-        public async Task<List<Profile>> GetAll()
+        public async Task<Profile> GetById(Guid id)
         {
-            var entity = await _efContext.Profiles.ToListAsync();
-            return entity;
+            //var profile = await _efContext.Profiles.FindAsync(id);
+            var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.ProfileId.Equals(id));
+            if (profile == null)
+            {
+                throw new NotFoundException("Profile not found!");
+            }
+            return profile;
         }
+
         public async Task<Profile> GetByEmail(string email)
         {
             var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.Email.Equals(email));
@@ -68,15 +75,10 @@ namespace Fistix.Training.DataLayer.Repositories
             return profile;
         }
 
-        public async Task<Profile> GetById(Guid id)
+        public async Task<List<Profile>> GetAll()
         {
-            //var profile = await _efContext.Profiles.FindAsync(id);
-            var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.ProfileId.Equals(id));
-            if (profile == null)
-            {
-                throw new NotFoundException("Profile not found!");
-            }
-            return profile;
+            var entity = await _efContext.Profiles.ToListAsync();
+            return entity;
         }
     }
 }

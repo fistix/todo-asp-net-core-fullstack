@@ -28,7 +28,7 @@ namespace Fistix.Training.Service.QueryHandlers.Profiles
                 Payload = profiles
             };
 
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

@@ -40,7 +40,9 @@ namespace Fistix.Training.Service
             CreateMap<CreateTaskCommand, Task>();
             CreateMap<Task, CreateTaskCommand>();
 
-            CreateMap<UpdateTaskCommand, Task>();
+            CreateMap<UpdateTaskCommand, Task>()
+                .ForMember(x => x.CreatedOn, v => v.UseDestinationValue())
+                .ForMember(x => x.UserProfileId, v => v.UseDestinationValue());
             CreateMap<Task, UpdateTaskCommand>();
 
 

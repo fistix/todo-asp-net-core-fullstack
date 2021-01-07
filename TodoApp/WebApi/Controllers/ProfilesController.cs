@@ -16,13 +16,13 @@ namespace Fistix.Training.WebApi.Controllers
     [ApiController]
     public class ProfilesController : ControllerBase
     {
-        private readonly IMediator _mediator = null;
         private readonly IMapper _mapper = null;
+        private readonly IMediator _mediator = null;
 
-        public ProfilesController(IMediator mediator, IMapper mapper)
+        public ProfilesController(IMapper mapper,IMediator mediator)
         {
-            _mediator = mediator;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
 
@@ -73,12 +73,29 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var result = await _mediator.Send(new GetAllProfilesQuery());
-            return base.Ok(result);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send(new GetProfileDetailByIdQuery() { Id = id });
+                return base.Ok(result);
+            }
+            catch (NotFoundException nfx)
+            {
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpGet("ByEmail")]
@@ -106,30 +123,12 @@ namespace Fistix.Training.WebApi.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute] Guid id)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return base.BadRequest(ModelState);
-                }
-                var result = await _mediator.Send(new GetProfileDetailByIdQuery() { Id = id });
-                return base.Ok(result);
-            }
-            catch (NotFoundException nfx)
-            {
-                return base.NotFound();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            var result = await _mediator.Send(new GetAllProfilesQuery());
+            return base.Ok(result);
         }
     }
 }

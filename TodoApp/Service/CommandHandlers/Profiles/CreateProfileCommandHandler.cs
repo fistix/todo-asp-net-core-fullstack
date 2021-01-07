@@ -14,12 +14,12 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
 {
     public class CreateProfileCommandHandler : IRequestHandler<CreateProfileCommand, CreateProfileCommandResult>
     {
-        private readonly IProfileRepository _profileRepository = null;
         private readonly IMapper _mapper = null;
-        public CreateProfileCommandHandler(IProfileRepository profileRepository,IMapper mapper)
+        private readonly IProfileRepository _profileRepository = null;
+        public CreateProfileCommandHandler(IMapper mapper,IProfileRepository profileRepository)
         {
-            _profileRepository = profileRepository;
             _mapper = mapper;
+            _profileRepository = profileRepository;
         }
         public async Task<CreateProfileCommandResult> Handle(CreateProfileCommand command, CancellationToken cancellationToken)
         {

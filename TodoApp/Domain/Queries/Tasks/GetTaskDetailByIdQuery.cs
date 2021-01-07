@@ -11,5 +11,4 @@ namespace Fistix.Training.Domain.Queries.Tasks
     {
         public Guid Id { get; set; }
     }
-
 }

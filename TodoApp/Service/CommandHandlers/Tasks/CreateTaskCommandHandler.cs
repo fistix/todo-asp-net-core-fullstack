@@ -13,13 +13,12 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
 {
     public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, CreateTaskCommandResult>
     {
-
-        private readonly ITaskRepository _taskRepository = null;
         private readonly IMapper _mapper = null;
+        private readonly ITaskRepository _taskRepository = null;
         public CreateTaskCommandHandler(IMapper mapper, ITaskRepository taskRepository)
         {
-            _taskRepository = taskRepository;
             _mapper = mapper;
+            _taskRepository = taskRepository;
         }
         public async Task<CreateTaskCommandResult> Handle(CreateTaskCommand command, CancellationToken cancellationToken)
         {
@@ -34,12 +33,11 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
             task.TaskId = Guid.NewGuid();
             task.CreatedOn = DateTime.Now;
             
-            var entity = await _taskRepository.Create(task);
+            var response = await _taskRepository.Create(task);
             return new CreateTaskCommandResult()
             {
-                Payload = _mapper.Map<Domain.Dtos.TaskDto>(entity)
+                Payload = _mapper.Map<Domain.Dtos.TaskDto>(response)
             };
-
             //throw new NotImplementedException();
         }
     }

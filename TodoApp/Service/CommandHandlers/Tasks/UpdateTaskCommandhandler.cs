@@ -22,7 +22,9 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
         }
         public async Task<UpdateTaskCommandResult> Handle(UpdateTaskCommand command, CancellationToken cancellationToken)
         {
-            var task = _mapper.Map<Domain.DataModels.Task>(command);
+            var task = await _taskRepository.GetById(command.Id);
+            //var task = _mapper.Map<Domain.DataModels.Task>(command);
+            task = _mapper.Map(command, task);
             task.ModifiedOn = DateTime.Now;
 
             var result = await _taskRepository.Update(task);

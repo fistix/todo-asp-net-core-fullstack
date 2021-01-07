@@ -12,12 +12,10 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Service.QueryHandlers.Tasks
 {
-    
     public class GetTaskDetailByIdQueryHandler : IRequestHandler<GetTaskDetailByIdQuery, GetTaskDetailByIdQueryResult>
     {
-        private readonly IMapper  _mapper = null;
+        private readonly IMapper _mapper = null;
         private readonly ITaskRepository _taskRepository = null;
-
         public GetTaskDetailByIdQueryHandler(ITaskRepository taskRepository, IMapper mapper)
         {
             _mapper = mapper;
@@ -25,24 +23,11 @@ namespace Fistix.Training.Service.QueryHandlers.Tasks
         }
         public async Task<GetTaskDetailByIdQueryResult> Handle(GetTaskDetailByIdQuery request, CancellationToken cancellationToken)
         {
-            try
+            var result = _mapper.Map<TaskDto>(await _taskRepository.GetById(request.Id));
+            return new GetTaskDetailByIdQueryResult()
             {
-                var result = _mapper.Map<TaskDto>(await _taskRepository.GetById(request.Id));
-                if (result == null)
-                {
-                    //throw new ArgumentException(result.Id, "Id not exists!");
-                    throw new ArgumentException("Id not exists!");
-                }
-                return new GetTaskDetailByIdQueryResult()
-                {
-                    Payload = result
-                };
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            
+                Payload = result
+            };
         }
     }
 }

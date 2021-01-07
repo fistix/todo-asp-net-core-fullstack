@@ -21,14 +21,9 @@ namespace Fistix.Training.Service.QueryHandlers.Profiles
             _mapper = mapper;
             _profileRepository = profileRepository;
         }
-
         public async Task<GetProfileDetailByEmailQueryResult> Handle(GetProfileDetailByEmailQuery request, CancellationToken cancellationToken)
         {
             var result = _mapper.Map<ProfileDto>(await _profileRepository.GetByEmail(request.Email));
-            //if (result == null)
-            //{
-            //    throw new ArgumentException("Email does not exists!");
-            //}
             return new GetProfileDetailByEmailQueryResult()
             {
                 Payload = result

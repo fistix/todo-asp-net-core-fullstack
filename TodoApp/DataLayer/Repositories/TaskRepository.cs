@@ -30,7 +30,6 @@ namespace Fistix.Training.DataLayer.Repositories
             return entity.Entity;
         }
 
-
         //public async Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task)
         //{
         //    var temp = _efContext.Tasks.FirstOrDefault(t => t.TaskId.Equals(task.TaskId));
@@ -50,22 +49,6 @@ namespace Fistix.Training.DataLayer.Repositories
         //    //_efContext.Tasks.Update(task).Property(t=>t.CreatedOn).IsModified==false;
         //}
 
-        public async Task<List<Domain.DataModels.Task>> GetAll()
-        {
-            var entity = await _efContext.Tasks.ToListAsync();
-            return entity;
-        }
-
-        public async Task<Domain.DataModels.Task> GetById(Guid id)
-        {
-            var task= await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
-            if (task == null)
-            {
-                throw new NotFoundException("Task not found!");
-            }
-            return task;
-        }
-
         public async Task<bool> Delete(Guid id)
         {
             var task = await GetById(id);
@@ -75,33 +58,34 @@ namespace Fistix.Training.DataLayer.Repositories
                 await _efContext.SaveChangesAsync();
                 return true;
             }
-
             throw new NotFoundException();
-
-            //var task = GetById(id);
-            //return _efContext.Tasks.Remove(task);
-            //return await _efContext.Tasks.Remove(id);
         }
 
 
-        //public async Task<bool> Delete(Guid id)
-        //{
-        //    var task = await GetById(id);
-        //    if (task != null)
-        //    {
-        //        _efContext.Remove(task);
-        //        return true;
-        //    }
-        //    return false;
-        //    //throw new ArgumentException($"{id} not found!");
+        public async Task<Domain.DataModels.Task> GetById(Guid id)
+        {
+            var task = await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
+            if (task == null)
+            {
+                throw new NotFoundException("Task not found!");
+            }
+            return task;
+        }
 
-        //    //var task = GetById(id);
-        //    //return _efContext.Tasks.Remove(task);
-        //    //return await _efContext.Tasks.Remove(id);
-        //}
+        public async Task<List<Domain.DataModels.Task>> GetAll()
+        {
+            var entity = await _efContext.Tasks.ToListAsync();
+            return entity;
+        }
 
-
-
-
+        public async Task<Domain.DataModels.Task> CheckAssignedUser(Guid id)
+        {
+            var user = await _efContext.Tasks.FirstOrDefaultAsync(x => x.UserProfileId.Equals(id));
+            if (user == null)
+            {
+                throw new InvalidOperationException("User is not assigned to this task!");
+            }
+            return user;
+        }
     }
 }

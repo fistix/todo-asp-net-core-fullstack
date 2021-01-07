@@ -14,12 +14,12 @@ namespace Fistix.Training.Service.QueryHandlers.Tasks
 {
     public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, GetAllTasksQueryResult>
     {
-        private readonly ITaskRepository _taskRepository = null;
         private readonly IMapper _mapper = null;
-        public GetAllTasksQueryHandler(ITaskRepository taskRepository, IMapper mapper)
+        private readonly ITaskRepository _taskRepository = null;
+        public GetAllTasksQueryHandler(IMapper mapper, ITaskRepository taskRepository)
         {
-            _taskRepository = taskRepository;
             _mapper = mapper;
+            _taskRepository = taskRepository;
         }
 
         public async Task<GetAllTasksQueryResult> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)

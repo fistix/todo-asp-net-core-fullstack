@@ -19,20 +19,20 @@ namespace Fistix.Training.WebApi.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
-        private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public TasksController(IMediator mediator, IMapper mapper)
+        public TasksController(IMapper mapper, IMediator mediator)
         {
-            _mediator = mediator;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateTask(CreateTaskCommand command)
+        public async Task<IActionResult> Create(CreateTaskCommand command)
         {
             try
             {
@@ -49,14 +49,13 @@ namespace Fistix.Training.WebApi.Controllers
                 return base.BadRequest(ex.Message);
             }
         }
-
-        //// Changings are pending
+        
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         //[ProducesResponseType(StatusCodes.Status304NotModified)]
-        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateTaskCommand command)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTaskCommand command)
         {
             try
             {
@@ -72,26 +71,38 @@ namespace Fistix.Training.WebApi.Controllers
             {
                 return base.NotFound(nfx.Message);
             }
+            catch (Exception)
+            {
+                throw;
+            }
 
         }
 
-        [HttpGet]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var result = await _mediator.Send(new GetAllTasksQuery());
-            return base.Ok(result);
-
-            //if (result.Payload.Count > 0)
-            //{
-            //    return base.Ok(result);
-            //}
-            //else
-            //{
-            //    return base.NotFound();
-            //}
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send(new DeleteTaskCommand() { Id = id });
+                return base.Ok("Successfully Deleted!");
+            }
+            catch (NotFoundException)
+            {
+                return base.NotFound();
+                //return base.NotFound($"Id {id} not found!");
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
         }
-
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -110,35 +121,31 @@ namespace Fistix.Training.WebApi.Controllers
                 var result = await _mediator.Send(new GetTaskDetailByIdQuery() { Id = id });
                 return base.Ok(result);
             }
-            catch (Exception)
+            catch (NotFoundException nfx)
             {
                 return base.NotFound();
-                //throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
-
-
-        [HttpDelete("{id}")]
+        
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                if (id == Guid.Empty)
-                {
-                    //return base.BadRequest($"{id} is empty!");
-                    return base.BadRequest("Id is empty!");
-                }
-                var result = await _mediator.Send(new DeleteTaskCommand() { Id = id });
+            var result = await _mediator.Send(new GetAllTasksQuery());
+            return base.Ok(result);
 
-                return base.Ok("Successfully Deleted!");
-            }
-            catch (ArgumentException)
-            {
-                return base.NotFound($"Id {id} not found!");
-            }
+            //if (result.Payload.Count > 0)
+            //{
+            //    return base.Ok(result);
+            //}
+            //else
+            //{
+            //    return base.NotFound();
+            //}
         }
 
         [HttpPut("{id}/AssignUser")]
@@ -165,11 +172,34 @@ namespace Fistix.Training.WebApi.Controllers
             }
             catch (Exception)
             {
-
                 throw;
             }
-
         }
 
+        [HttpPut("{id}/UnAssignUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        
+        public async Task<IActionResult> UnAssignUser([FromRoute] Guid id, [FromBody] UnAttachUserWithTaskCommand command)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send<UnAttachUserWithTaskCommandResult>(command);
+                return base.Ok(result);
+            }
+            catch (NotFoundException nfx)
+            {
+                return base.NotFound(nfx.Message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
