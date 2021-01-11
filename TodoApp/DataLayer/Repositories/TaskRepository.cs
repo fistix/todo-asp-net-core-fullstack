@@ -78,14 +78,14 @@ namespace Fistix.Training.DataLayer.Repositories
             return entity;
         }
 
-        public async Task<Domain.DataModels.Task> CheckAssignedUser(Guid id)
-        {
-            var user = await _efContext.Tasks.FirstOrDefaultAsync(x => x.UserProfileId.Equals(id));
-            if (user == null)
-            {
-                throw new InvalidOperationException("User is not assigned to this task!");
-            }
-            return user;
-        }
+        //public async Task<Domain.DataModels.Task> CheckAssignedUser(Guid id)
+        //{
+        //    var user = await _efContext.Tasks.FirstOrDefaultAsync(x => x.UserProfileId.Equals(id));
+        //    if (user == null)
+        //    {
+        //        throw new InvalidOperationException("User is not assigned to this task!");
+        //    }
+        //    return user;
+        //}
     }
 }

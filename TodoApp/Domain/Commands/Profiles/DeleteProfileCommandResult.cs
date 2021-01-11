@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fistix.Training.Domain.Commands.Tasks
+namespace Fistix.Training.Domain.Commands.Profiles
 {
-    public class DeleteTaskCommandResult
+    public class DeleteProfileCommandResult
     {
-        //public TaskDto Payload { get; set; }
         public bool IsSucceed { get; set; }
     }
 }

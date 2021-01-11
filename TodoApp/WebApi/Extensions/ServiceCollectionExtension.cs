@@ -16,6 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fistix.Training.Service.AzureFileService;
+using Azure.Storage.Blobs;
 
 namespace Fistix.Training.WebApi.Extensions
 {
@@ -33,6 +35,9 @@ namespace Fistix.Training.WebApi.Extensions
             services.AddDbContext<EfContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("TodoDatabase")));
 
+            services.AddScoped(x => new BlobServiceClient(Configuration["AzureStorageConnectionString"]));
+
+            services.AddScoped<IFileService, FileService>();
 
         }
     }

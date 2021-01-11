@@ -19,7 +19,7 @@ namespace Fistix.Training.WebApi.Controllers
         private readonly IMapper _mapper = null;
         private readonly IMediator _mediator = null;
 
-        public ProfilesController(IMapper mapper,IMediator mediator)
+        public ProfilesController(IMapper mapper, IMediator mediator)
         {
             _mapper = mapper;
             _mediator = mediator;
@@ -56,6 +56,7 @@ namespace Fistix.Training.WebApi.Controllers
         {
             try
             {
+                //command.Id = id;
                 if (!ModelState.IsValid)
                 {
                     return base.BadRequest(ModelState);
@@ -64,6 +65,31 @@ namespace Fistix.Training.WebApi.Controllers
                 return base.Ok(result);
             }
             catch (NotFoundException nfx)
+            {
+                return base.NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([FromRoute] Guid id) 
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return base.BadRequest(ModelState);
+                }
+                var result = await _mediator.Send(new DeleteProfileCommand() { Id = id });
+                return base.Ok("Successfully Deleted!");
+            }
+            catch (NotFoundException)
             {
                 return base.NotFound();
             }
@@ -130,5 +156,28 @@ namespace Fistix.Training.WebApi.Controllers
             var result = await _mediator.Send(new GetAllProfilesQuery());
             return base.Ok(result);
         }
+
+        [HttpPut("{id}/ProfilePicture")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateProfilePicture([FromRoute] Guid id, [FromForm] UpdateProfilePictureCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send<UpdateProfilePictureCommandResult>(command);
+                return base.Ok(result);
+            }
+            catch (NotFoundException)
+            {
+                return base.NotFound();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
     }
 }

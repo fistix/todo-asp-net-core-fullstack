@@ -13,6 +13,6 @@ namespace Fistix.Training.Core
         Task<bool> Delete(Guid id);
         Task<Domain.DataModels.Task> GetById(Guid id);
         Task<List<Domain.DataModels.Task>> GetAll();
-        Task<Domain.DataModels.Task> CheckAssignedUser(Guid id);
+        //Task<Domain.DataModels.Task> CheckAssignedUser(Guid id);
     }
 }

@@ -36,7 +36,18 @@ namespace Fistix.Training.DataLayer.Repositories
             var entity = _efContext.Profiles.Update(profile);
             await _efContext.SaveChangesAsync();
             return entity.Entity;
+        }
 
+        public async Task<bool> Delete(Guid id)
+        {
+            var profile = await GetById(id);
+            if (profile != null)
+            {
+                _efContext.Profiles.Remove(profile);
+                await _efContext.SaveChangesAsync();
+                return true;
+            }
+            throw new NotFoundException();
         }
 
         //public async Task<Profile> Update(Profile profile)
@@ -77,8 +88,7 @@ namespace Fistix.Training.DataLayer.Repositories
 
         public async Task<List<Profile>> GetAll()
         {
-            var entity = await _efContext.Profiles.ToListAsync();
-            return entity;
+            return await _efContext.Profiles.ToListAsync();
         }
     }
 }

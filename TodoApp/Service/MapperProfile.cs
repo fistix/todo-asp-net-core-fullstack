@@ -54,7 +54,8 @@ namespace Fistix.Training.Service
 
             CreateMap<UpdateProfileCommand, Domain.DataModels.Profile>()
                 .ForMember(x => x.ProfileId, v => v.UseDestinationValue())
-                .ForMember(x => x.Email, v => v.UseDestinationValue());
+                .ForMember(x => x.Email, v => v.UseDestinationValue())
+                .ForMember(x=>x.ProfilePictureUrl,v=>v.UseDestinationValue());
             CreateMap<Domain.DataModels.Profile, UpdateProfileCommand>()
                 .ForMember(x => x.Id, v => v.UseDestinationValue());
 
@@ -67,11 +68,12 @@ namespace Fistix.Training.Service
                 .ForMember(x => x.Active, v => v.Ignore())
                 .ForMember(x => x.CreatedOn, v => v.Ignore())
                 .ForMember(x => x.ModifiedOn, v => v.Ignore());
-
             CreateMap<Task, AttachUserWithTaskCommand>();
             
             CreateMap<AttachUserWithTaskCommand, Domain.DataModels.Profile>();
             CreateMap<Domain.DataModels.Profile, AttachUserWithTaskCommand>();
+
+
         }
     }
 }

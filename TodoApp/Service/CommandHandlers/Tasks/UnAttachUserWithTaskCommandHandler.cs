@@ -25,7 +25,12 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
         public async Task<UnAttachUserWithTaskCommandResult> Handle(UnAttachUserWithTaskCommand command, CancellationToken cancellationToken)
         {
             var task = await _taskRepository.GetById(command.TaskId);
-            var assignedUser = await _taskRepository.CheckAssignedUser(command.UserId);
+            //var assignedUser = await _taskRepository.CheckAssignedUser(command.UserId);
+
+            if (task.UserProfileId != command.UserId) 
+            {
+                throw new InvalidOperationException("User is not assigned to this task!");
+            }
             task.UserProfileId = null;
             var response = await _taskRepository.Update(task);
             if (response != null)

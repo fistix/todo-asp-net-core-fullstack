@@ -11,6 +11,7 @@ namespace Fistix.Training.Core
     {
         Task<Profile> Create(Profile profile);
         Task<Profile> Update(Profile profile);
+        Task<bool> Delete(Guid id);
         Task<Profile> GetById(Guid id);
         Task<Profile> GetByEmail(string email);
         Task<List<Profile>> GetAll();
