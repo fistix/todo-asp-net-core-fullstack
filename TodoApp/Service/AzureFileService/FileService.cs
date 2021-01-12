@@ -18,11 +18,12 @@ namespace Fistix.Training.Service.AzureFileService
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<Uri> UploadFileAsync(string profileId, string blobContainerName, Stream content, string contentType, string fileName)
+        public async Task<Uri> UploadFileAsync(/*string profileId, */string blobContainerName, Stream content, string contentType, string fileName)
         {
             var containerClient = GetContainerClient(blobContainerName);
-            var blobClient = containerClient.GetBlobClient(GetBlobName(profileId, fileName));
-            await blobClient.UploadAsync(content, new BlobHttpHeaders { ContentType = contentType });
+            var blobClient = containerClient.GetBlobClient(fileName);
+            var response = await blobClient.UploadAsync(content, new BlobHttpHeaders { ContentType = contentType });
+            
             return blobClient.Uri;
         }
 
@@ -34,17 +35,18 @@ namespace Fistix.Training.Service.AzureFileService
             return containerClient;
         }
 
-        public async Task<bool> DeleteFileAsync(string profileId, string blobContainerName, string fileName)
+        public async Task<bool> DeleteFileAsync(/*string profileId, */string blobContainerName, string fileName)
         {
             var containerClient = GetContainerClient(blobContainerName);
-            var blobClient = containerClient.GetBlobClient(GetBlobName(profileId, fileName));
+            //var blobClient = containerClient.GetBlobClient(GetBlobName(profileId, fileName));
+            var blobClient = containerClient.GetBlobClient(fileName);
             return await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);    
         }
 
-        string GetBlobName(string profileId, string fileName)
-        {
-            return $"{profileId}/{fileName}";
-        }
+        //string GetBlobName(string profileId, string fileName)
+        //{
+        //    return $"{profileId}/{fileName}";
+        //}
 
 
     }

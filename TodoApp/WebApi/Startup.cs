@@ -1,4 +1,5 @@
 using Fistix.Training.Core;
+using Fistix.Training.Core.Config;
 using Fistix.Training.Core.Validators.Tasks;
 using Fistix.Training.DataLayer.Repositories;
 using Fistix.Training.Domain.Commands.Tasks;
@@ -23,9 +24,14 @@ namespace Fistix.Training.WebApi
 {
   public class Startup
   {
+    private MasterConfig MasterConfig = new MasterConfig();
     public Startup(IConfiguration configuration)
     {
       Configuration = configuration;
+      MasterConfig.ConnectionStringConfig = Configuration.GetSection("ConnectionStrings").Get<ConnectionStringsConfig>();
+
+      MasterConfig.AzureStorageConfig = Configuration.GetSection("AzureStorage").Get<AzureStorageConfig>();
+      
     }
 
     public IConfiguration Configuration { get; }
@@ -40,7 +46,7 @@ namespace Fistix.Training.WebApi
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
       });
 
-      services.AddCommonServices(Configuration);
+      services.AddCommonServices(Configuration, MasterConfig);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
