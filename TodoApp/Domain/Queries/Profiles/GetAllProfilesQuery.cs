@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Profiles
 {
-    public class GetAllProfilesQuery : IRequest<GetAllProfilesQueryResult>
-    {
-    }
+  public class GetAllProfilesQuery : IRequest<GetAllProfilesQueryResult>
+  {
+  }
 }

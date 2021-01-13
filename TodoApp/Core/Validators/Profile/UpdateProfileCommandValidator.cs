@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Profile
 {
-    public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
+  public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
+  {
+    public UpdateProfileCommandValidator()
     {
-        public UpdateProfileCommandValidator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.FirstName).Length(3, 10);
-            RuleFor(x => x.LastName).NotEmpty();
-        }
+      RuleFor(x => x.Id).NotEmpty();
+      RuleFor(x => x.FirstName).Length(3, 10);
+      RuleFor(x => x.LastName).NotEmpty();
     }
+  }
 }

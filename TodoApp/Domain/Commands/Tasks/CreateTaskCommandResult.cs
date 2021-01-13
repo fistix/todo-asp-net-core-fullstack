@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Tasks
 {
-    public class CreateTaskCommandResult
-    {
-        public TaskDto Payload { get; set; }
-    }
+  public class CreateTaskCommandResult
+  {
+    public TaskDto Payload { get; set; }
+  }
 }

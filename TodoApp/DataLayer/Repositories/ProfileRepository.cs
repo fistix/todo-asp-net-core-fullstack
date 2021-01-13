@@ -25,15 +25,14 @@ namespace Fistix.Training.DataLayer.Repositories
       {
         throw new InvalidOperationException("Profile with same email already exist!");
       }
-      /*var entity = */await _efContext.Profiles.AddAsync(profile);
+      await _efContext.Profiles.AddAsync(profile);
       var dbChangesCount = await _efContext.SaveChangesAsync();
       return dbChangesCount > 0;
-      //return entity.Entity;
     }
 
     public async Task<bool> Update(Profile profile)
     {
-      var entity = _efContext.Profiles.Update(profile);
+      _efContext.Profiles.Update(profile);
       var dbChangesCount = await _efContext.SaveChangesAsync();
       return dbChangesCount > 0;
     }
@@ -45,25 +44,10 @@ namespace Fistix.Training.DataLayer.Repositories
       {
         _efContext.Profiles.Remove(profile);
         var dbChangesCount = await _efContext.SaveChangesAsync();
-
         return dbChangesCount > 0;
       }
       throw new NotFoundException();
     }
-
-    //public async Task<Profile> Update(Profile profile)
-    //{
-    //    var temp =  _efContext.Profiles.FirstOrDefault(x=> x.Id.Equals(profile.Id));
-    //    if (temp != null)
-    //    {
-    //        temp.FirstName = profile.FirstName;
-    //        temp.LastName = profile.LastName;
-    //        var entity = _efContext.Profiles.Update(temp);
-    //        await _efContext.SaveChangesAsync();
-    //        return entity.Entity;
-    //    }
-    //    throw new NotFoundException();
-    //}
 
     public async Task<Profile> GetById(Guid id)
     {

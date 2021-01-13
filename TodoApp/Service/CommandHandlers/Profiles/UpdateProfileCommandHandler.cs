@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
 using Fistix.Training.Domain.Commands.Profiles;
+using Fistix.Training.Domain.Dtos;
 using MediatR;
 using System;
 using System.Threading;
@@ -26,14 +27,14 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
       {
         return new UpdateProfileCommandResult()
         {
-          Payload = _mapper.Map<Domain.Dtos.ProfileDto>(updatedProfile)
+          Payload = _mapper.Map<ProfileDto>(updatedProfile)
         };
       }
       else
       {
         return new UpdateProfileCommandResult()
         {
-          Payload = _mapper.Map<Domain.Dtos.ProfileDto>(profile)
+          Payload = _mapper.Map<ProfileDto>(profile)
         };
       }
     }

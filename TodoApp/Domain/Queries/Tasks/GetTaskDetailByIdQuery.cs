@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Tasks
 {
-    public class GetTaskDetailByIdQuery : IRequest<GetTaskDetailByIdQueryResult>
-    {
-        public Guid Id { get; set; }
-    }
+  public class GetTaskDetailByIdQuery : IRequest<GetTaskDetailByIdQueryResult>
+  {
+    public Guid Id { get; set; }
+  }
 }

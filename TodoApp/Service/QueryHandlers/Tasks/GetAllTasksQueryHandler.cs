@@ -12,27 +12,23 @@ using System.Threading;
 
 namespace Fistix.Training.Service.QueryHandlers.Tasks
 {
-    public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, GetAllTasksQueryResult>
+  public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, GetAllTasksQueryResult>
+  {
+    private readonly IMapper _mapper = null;
+    private readonly ITaskRepository _taskRepository = null;
+    public GetAllTasksQueryHandler(IMapper mapper, ITaskRepository taskRepository)
     {
-        private readonly IMapper _mapper = null;
-        private readonly ITaskRepository _taskRepository = null;
-        public GetAllTasksQueryHandler(IMapper mapper, ITaskRepository taskRepository)
-        {
-            _mapper = mapper;
-            _taskRepository = taskRepository;
-        }
-
-        public async Task<GetAllTasksQueryResult> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
-        {
-            //return _mapper.Map<GetAllTasksQueryResult>(await _taskRepository.GetAll());
-            var tasks = _mapper.Map<List<TaskDto>>(await _taskRepository.GetAll());
-            return new GetAllTasksQueryResult()
-            {
-                //Payload = _mapper.Map<Domain.Dtos.TaskDto>(tasks)
-                Payload = tasks
-            };
-
-            //return _mapper.Map<GetAllTasksQueryResult>(await _taskRepository.GetAll());
-        }
+      _mapper = mapper;
+      _taskRepository = taskRepository;
     }
+
+    public async Task<GetAllTasksQueryResult> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
+    {
+      var tasks = _mapper.Map<List<TaskDto>>(await _taskRepository.GetAll());
+      return new GetAllTasksQueryResult()
+      {
+        Payload = tasks
+      };
+    }
+  }
 }

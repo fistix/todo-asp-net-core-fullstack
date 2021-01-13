@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Tasks
 {
-    public class DeleteTaskCommand : IRequest<DeleteTaskCommandResult>
-    {
-        public Guid Id { get; set; }
-    }
+  public class DeleteTaskCommand : IRequest<DeleteTaskCommandResult>
+  {
+    public Guid Id { get; set; }
+  }
 }

@@ -30,12 +30,11 @@ namespace Fistix.Training.WebApi.Extensions
       services.AddScoped(x => masterConfig);
       services.AddAutoMapper(typeof(MapperProfile));
       services.AddMediatR(typeof(CreateTaskCommand).Assembly, typeof(CreateTaskCommandHandler).Assembly);
-      services.AddScoped<ITodoRepository, TodoRepository>();
       services.AddScoped<ITaskRepository, TaskRepository>();
       services.AddScoped<IProfileRepository, ProfileRepository>();
 
       services.AddDbContext<EfContext>(options =>
-        options.UseSqlServer(masterConfig.ConnectionStringConfig.TodoDatabase)        
+        options.UseSqlServer(masterConfig.ConnectionStringConfig.TodoDatabase)
          );
 
       //services.AddScoped(x => new BlobServiceClient(Configuration["AzureStorageConnectionString"]));

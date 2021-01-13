@@ -8,8 +8,8 @@ namespace Fistix.Training.Core
 {
     public interface ITaskRepository
     {
-        Task<Domain.DataModels.Task> Create(Domain.DataModels.Task task);
-        Task<Domain.DataModels.Task> Update(Domain.DataModels.Task task);
+        Task<bool> Create(Domain.DataModels.Task task);
+        Task<bool> Update(Domain.DataModels.Task task);
         Task<bool> Delete(Guid id);
         Task<Domain.DataModels.Task> GetById(Guid id);
         Task<List<Domain.DataModels.Task>> GetAll();

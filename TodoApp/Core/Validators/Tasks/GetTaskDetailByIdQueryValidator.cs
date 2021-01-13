@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Tasks
 {
-    public class GetTaskDetailByIdQueryValidator: AbstractValidator<GetTaskDetailByIdQuery>
+  public class GetTaskDetailByIdQueryValidator : AbstractValidator<GetTaskDetailByIdQuery>
+  {
+    public GetTaskDetailByIdQueryValidator()
     {
-        public GetTaskDetailByIdQueryValidator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-        }
+      RuleFor(x => x.Id).NotEmpty();
     }
+  }
 }

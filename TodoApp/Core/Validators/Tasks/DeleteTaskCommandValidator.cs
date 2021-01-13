@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Tasks
 {
-    public class DeleteTaskCommandValidator : AbstractValidator<DeleteTaskCommand>
+  public class DeleteTaskCommandValidator : AbstractValidator<DeleteTaskCommand>
+  {
+    public DeleteTaskCommandValidator()
     {
-        public DeleteTaskCommandValidator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-        }
+      RuleFor(x => x.Id).NotEmpty();
     }
+  }
 }

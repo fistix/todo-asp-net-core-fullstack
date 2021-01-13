@@ -31,7 +31,7 @@ namespace Fistix.Training.WebApi
       MasterConfig.ConnectionStringConfig = Configuration.GetSection("ConnectionStrings").Get<ConnectionStringsConfig>();
 
       MasterConfig.AzureStorageConfig = Configuration.GetSection("AzureStorage").Get<AzureStorageConfig>();
-      
+
     }
 
     public IConfiguration Configuration { get; }
@@ -40,11 +40,11 @@ namespace Fistix.Training.WebApi
     public void ConfigureServices(IServiceCollection services)
     {
 
-      services.AddControllers().AddFluentValidation(x=> x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
-            services.AddSwaggerGen(c =>
-      {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
-      });
+      services.AddControllers().AddFluentValidation(x => x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
+      services.AddSwaggerGen(c =>
+{
+  c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
+});
 
       services.AddCommonServices(Configuration, MasterConfig);
     }

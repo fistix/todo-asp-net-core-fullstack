@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Profile
 {
-    public class CreateProfileCommandValidator : AbstractValidator<CreateProfileCommand>
+  public class CreateProfileCommandValidator : AbstractValidator<CreateProfileCommand>
+  {
+    public CreateProfileCommandValidator()
     {
-        public CreateProfileCommandValidator()
-        {
-            RuleFor(x => x.FirstName).Length(3, 10);
-            RuleFor(x => x.LastName).NotEmpty();
-            RuleFor(x => x.Email).EmailAddress();
-        }
+      RuleFor(x => x.FirstName).Length(3, 10);
+      RuleFor(x => x.LastName).NotEmpty();
+      RuleFor(x => x.Email).EmailAddress();
     }
+  }
 }

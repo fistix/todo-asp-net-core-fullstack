@@ -19,17 +19,15 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
   public class UpdateProfilePictureCommandHandler : IRequestHandler<UpdateProfilePictureCommand, UpdateProfilePictureCommandResult>
   {
     private readonly IMapper _mapper = null;
-    private readonly IProfileRepository _profileRepository = null;
     private readonly IFileService _fileService = null;
-    private readonly IConfiguration _configuration = null;
     private readonly MasterConfig _masterConfig = null;
-    public UpdateProfilePictureCommandHandler(IMapper mapper, IProfileRepository profileRepository, IFileService fileService, IConfiguration configuration, MasterConfig masterConfig)
+    private readonly IProfileRepository _profileRepository = null;
+    public UpdateProfilePictureCommandHandler(IMapper mapper, IFileService fileService, MasterConfig masterConfig, IProfileRepository profileRepository)
     {
       _mapper = mapper;
-      _profileRepository = profileRepository;
       _fileService = fileService;
-      _configuration = configuration;
       _masterConfig = masterConfig;
+      _profileRepository = profileRepository;
 
     }
     public async Task<UpdateProfilePictureCommandResult> Handle(UpdateProfilePictureCommand command, CancellationToken cancellationToken)

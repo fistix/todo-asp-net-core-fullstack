@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Profiles
 {
-    public class GetProfileDetailByEmailQuery : IRequest<GetProfileDetailByEmailQueryResult>
-    {
-        public string Email { get; set; }
-    }
+  public class GetProfileDetailByEmailQuery : IRequest<GetProfileDetailByEmailQueryResult>
+  {
+    public string Email { get; set; }
+  }
 }

@@ -12,22 +12,22 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Service.QueryHandlers.Profiles
 {
-    public class GetProfileDetailByEmailQueryHandler : IRequestHandler<GetProfileDetailByEmailQuery, GetProfileDetailByEmailQueryResult>
+  public class GetProfileDetailByEmailQueryHandler : IRequestHandler<GetProfileDetailByEmailQuery, GetProfileDetailByEmailQueryResult>
+  {
+    private readonly IMapper _mapper = null;
+    private readonly IProfileRepository _profileRepository = null;
+    public GetProfileDetailByEmailQueryHandler(IMapper mapper, IProfileRepository profileRepository)
     {
-        private readonly IMapper _mapper = null;
-        private readonly IProfileRepository _profileRepository = null;
-        public GetProfileDetailByEmailQueryHandler(IMapper mapper,IProfileRepository profileRepository)
-        {
-            _mapper = mapper;
-            _profileRepository = profileRepository;
-        }
-        public async Task<GetProfileDetailByEmailQueryResult> Handle(GetProfileDetailByEmailQuery request, CancellationToken cancellationToken)
-        {
-            var result = _mapper.Map<ProfileDto>(await _profileRepository.GetByEmail(request.Email));
-            return new GetProfileDetailByEmailQueryResult()
-            {
-                Payload = result
-            };
-        }
+      _mapper = mapper;
+      _profileRepository = profileRepository;
     }
+    public async Task<GetProfileDetailByEmailQueryResult> Handle(GetProfileDetailByEmailQuery request, CancellationToken cancellationToken)
+    {
+      var result = _mapper.Map<ProfileDto>(await _profileRepository.GetByEmail(request.Email));
+      return new GetProfileDetailByEmailQueryResult()
+      {
+        Payload = result
+      };
+    }
+  }
 }

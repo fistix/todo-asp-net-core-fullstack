@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Tasks
 {
-    public class AttachUserWithTaskCommandValidator :AbstractValidator<AttachUserWithTaskCommand>
+  public class AttachUserWithTaskCommandValidator : AbstractValidator<AttachUserWithTaskCommand>
+  {
+    public AttachUserWithTaskCommandValidator()
     {
-        public AttachUserWithTaskCommandValidator()
-        {
-            RuleFor(x => x.TaskId).NotEmpty();
-            RuleFor(x => x.UserId).NotEmpty();
-        }
+      RuleFor(x => x.TaskId).NotEmpty();
+      RuleFor(x => x.UserId).NotEmpty();
     }
+  }
 }

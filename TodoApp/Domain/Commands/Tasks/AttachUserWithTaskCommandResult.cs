@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Tasks
 {
-    public class AttachUserWithTaskCommandResult
-    {
-        public TaskDto Payload { get; set; }
-    }
+  public class AttachUserWithTaskCommandResult
+  {
+    public TaskDto Payload { get; set; }
+  }
 }

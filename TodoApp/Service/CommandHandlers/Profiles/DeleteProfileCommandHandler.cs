@@ -17,24 +17,19 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
 {
   public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand, DeleteProfileCommandResult>
   {
-    private readonly IMapper _mapper = null;
-    private readonly IProfileRepository _profileRepository = null;
     private readonly IFileService _fileService = null;
-    private readonly IConfiguration _configuration = null;
     private readonly MasterConfig _masterConfig = null;
-    public DeleteProfileCommandHandler(IMapper mapper, IProfileRepository profileRepository, 
-      IFileService fileService, IConfiguration configuration, MasterConfig masterConfig)
+    private readonly IProfileRepository _profileRepository = null;
+    public DeleteProfileCommandHandler(IFileService fileService, MasterConfig masterConfig, IProfileRepository profileRepository)
     {
-      _mapper = mapper;
-      _profileRepository = profileRepository;
       _fileService = fileService;
-      _configuration = configuration;
       _masterConfig = masterConfig;
+      _profileRepository = profileRepository;
     }
     public async Task<DeleteProfileCommandResult> Handle(DeleteProfileCommand command, CancellationToken cancellationToken)
     {
       var profile = await _profileRepository.GetById(command.Id);
-      bool result = false;
+      bool response = false;
 
       if (!String.IsNullOrEmpty(profile.ProfilePictureUrl))
       {
@@ -42,11 +37,11 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
         await _fileService.DeleteFileAsync(_masterConfig.AzureStorageConfig.AzureContainer, fileName);
       }
 
-      result = await _profileRepository.Delete(command.Id);
+      response = await _profileRepository.Delete(command.Id);
 
       return new DeleteProfileCommandResult()
       {
-        IsSucceed = result
+        IsSucceed = response
       };
     }
   }

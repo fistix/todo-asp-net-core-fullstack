@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Profiles
 {
-    public class CreateProfileCommandResult
-    {
-        public ProfileDto Payload { get; set; }
-    }
+  public class CreateProfileCommandResult
+  {
+    public ProfileDto Payload { get; set; }
+  }
 }

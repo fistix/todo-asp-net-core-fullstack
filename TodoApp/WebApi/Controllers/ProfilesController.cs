@@ -16,12 +16,10 @@ namespace Fistix.Training.WebApi.Controllers
   [ApiController]
   public class ProfilesController : ControllerBase
   {
-    private readonly IMapper _mapper = null;
     private readonly IMediator _mediator = null;
 
-    public ProfilesController(IMapper mapper, IMediator mediator)
+    public ProfilesController(IMediator mediator)
     {
-      _mapper = mapper;
       _mediator = mediator;
     }
 
@@ -30,7 +28,7 @@ namespace Fistix.Training.WebApi.Controllers
     [ProducesResponseType(typeof(CreateProfileCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody]CreateProfileCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateProfileCommand command)
     {
       try
       {
@@ -84,9 +82,9 @@ namespace Fistix.Training.WebApi.Controllers
           return base.BadRequest();
         }
 
-        var command = new DeleteProfileCommand() 
-        { 
-          Id = id 
+        var command = new DeleteProfileCommand()
+        {
+          Id = id
         };
 
         var result = await _mediator.Send(command);
@@ -111,12 +109,12 @@ namespace Fistix.Training.WebApi.Controllers
           return base.BadRequest();
         }
 
-        var query = new GetProfileDetailByIdQuery() 
-        { 
-          Id = id 
+        var query = new GetProfileDetailByIdQuery()
+        {
+          Id = id
         };
+
         var result = await _mediator.Send(query);
-        
         return base.Ok(result);
       }
       catch (NotFoundException)

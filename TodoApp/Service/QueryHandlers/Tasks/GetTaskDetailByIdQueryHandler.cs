@@ -12,22 +12,23 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Service.QueryHandlers.Tasks
 {
-    public class GetTaskDetailByIdQueryHandler : IRequestHandler<GetTaskDetailByIdQuery, GetTaskDetailByIdQueryResult>
+  public class GetTaskDetailByIdQueryHandler : IRequestHandler<GetTaskDetailByIdQuery, GetTaskDetailByIdQueryResult>
+  {
+    private readonly IMapper _mapper = null;
+    private readonly ITaskRepository _taskRepository = null;
+    public GetTaskDetailByIdQueryHandler(ITaskRepository taskRepository, IMapper mapper)
     {
-        private readonly IMapper _mapper = null;
-        private readonly ITaskRepository _taskRepository = null;
-        public GetTaskDetailByIdQueryHandler(ITaskRepository taskRepository, IMapper mapper)
-        {
-            _mapper = mapper;
-            _taskRepository = taskRepository;
-        }
-        public async Task<GetTaskDetailByIdQueryResult> Handle(GetTaskDetailByIdQuery request, CancellationToken cancellationToken)
-        {
-            var result = _mapper.Map<TaskDto>(await _taskRepository.GetById(request.Id));
-            return new GetTaskDetailByIdQueryResult()
-            {
-                Payload = result
-            };
-        }
+      _mapper = mapper;
+      _taskRepository = taskRepository;
     }
+
+    public async Task<GetTaskDetailByIdQueryResult> Handle(GetTaskDetailByIdQuery request, CancellationToken cancellationToken)
+    {
+      var result = _mapper.Map<TaskDto>(await _taskRepository.GetById(request.Id));
+      return new GetTaskDetailByIdQueryResult()
+      {
+        Payload = result
+      };
+    }
+  }
 }

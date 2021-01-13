@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Profiles
 {
-    public class GetProfileDetailByIdQueryResult
-    {
-        public ProfileDto Payload { get; set; }
-    }
+  public class GetProfileDetailByIdQueryResult
+  {
+    public ProfileDto Payload { get; set; }
+  }
 }

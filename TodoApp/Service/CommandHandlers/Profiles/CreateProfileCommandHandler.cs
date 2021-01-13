@@ -24,9 +24,10 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
     public async Task<CreateProfileCommandResult> Handle(CreateProfileCommand command, CancellationToken cancellationToken)
     {
       var profile = _mapper.Map<Domain.DataModels.Profile>(command);
+
       profile.ProfileId = Guid.NewGuid();
       var response = await _profileRepository.Create(profile);
-      if(response)
+      if (response)
       {
         return new CreateProfileCommandResult()
         {
@@ -40,7 +41,6 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
           Payload = null
         };
       }
-
     }
   }
 }

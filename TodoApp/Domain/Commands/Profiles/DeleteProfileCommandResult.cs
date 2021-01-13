@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Profiles
 {
-    public class DeleteProfileCommandResult
-    {
-        public bool IsSucceed { get; set; }
-    }
+  public class DeleteProfileCommandResult
+  {
+    public bool IsSucceed { get; set; }
+  }
 }

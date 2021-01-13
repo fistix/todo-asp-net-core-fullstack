@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Tasks
 {
-    public class GetAllTasksQueryResult
-    {
-        public List<TaskDto> Payload { get; set; }
-    }
+  public class GetAllTasksQueryResult
+  {
+    public List<TaskDto> Payload { get; set; }
+  }
 }

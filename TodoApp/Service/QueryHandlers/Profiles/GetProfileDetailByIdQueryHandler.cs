@@ -12,22 +12,23 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Service.QueryHandlers.Profiles
 {
-    public class GetProfileDetailByIdQueryHandler : IRequestHandler<GetProfileDetailByIdQuery, GetProfileDetailByIdQueryResult>
+  public class GetProfileDetailByIdQueryHandler : IRequestHandler<GetProfileDetailByIdQuery, GetProfileDetailByIdQueryResult>
+  {
+    private readonly IMapper _mapper = null;
+    private readonly IProfileRepository _profileRepository = null;
+    public GetProfileDetailByIdQueryHandler(IMapper mapper, IProfileRepository profileRepository)
     {
-        private readonly IMapper _mapper = null;
-        private readonly IProfileRepository _profileRepository = null;
-        public GetProfileDetailByIdQueryHandler(IMapper mapper, IProfileRepository profileRepository)
-        {
-            _mapper = mapper;
-            _profileRepository = profileRepository;
-        }
-        public async Task<GetProfileDetailByIdQueryResult> Handle(GetProfileDetailByIdQuery request, CancellationToken cancellationToken)
-        {
-            var result= _mapper.Map<ProfileDto>(await _profileRepository.GetById(request.Id));
-            return new GetProfileDetailByIdQueryResult()
-            {
-                Payload = result
-            };
-        }
+      _mapper = mapper;
+      _profileRepository = profileRepository;
     }
+
+    public async Task<GetProfileDetailByIdQueryResult> Handle(GetProfileDetailByIdQuery request, CancellationToken cancellationToken)
+    {
+      var result = _mapper.Map<ProfileDto>(await _profileRepository.GetById(request.Id));
+      return new GetProfileDetailByIdQueryResult()
+      {
+        Payload = result
+      };
+    }
+  }
 }

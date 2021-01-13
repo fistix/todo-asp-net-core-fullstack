@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Queries.Profiles
 {
-    public class GetProfileDetailByIdQuery : IRequest<GetProfileDetailByIdQueryResult>
-    {
-        public Guid Id { get; set; }
-    }
+  public class GetProfileDetailByIdQuery : IRequest<GetProfileDetailByIdQueryResult>
+  {
+    public Guid Id { get; set; }
+  }
 }

@@ -6,38 +6,31 @@ using System.Text;
 
 namespace Fistix.Training.DataLayer
 {
-    public class EfContext : DbContext
+  public class EfContext : DbContext
+  {
+    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
+
+    public EfContext(DbContextOptions<EfContext> options) : base(options)
     {
-        public DbSet<Todo> Todos { get; set; }
-        public DbSet<Task> Tasks { get; set; }
-        public DbSet<Profile> Profiles { get; set; }
-
-        public EfContext(DbContextOptions<EfContext> options) : base(options)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            TaskModelConfig(builder);
-            TodoModelConfig(builder);
-            ProfileModelConfig(builder);
-
-            base.OnModelCreating(builder);
-        }
-        private void TaskModelConfig(ModelBuilder builder)
-        {
-            builder.Entity<Task>().ToTable("Tasks");
-            builder.Entity<Task>().HasKey(x => x.TaskId);
-        }
-        private void TodoModelConfig(ModelBuilder builder)
-        {
-            builder.Entity<Todo>().ToTable("Todos");
-            builder.Entity<Todo>().HasKey(x => x.Id);
-        }
-        private void ProfileModelConfig(ModelBuilder builder)
-        {
-            builder.Entity<Profile>().ToTable("Profiles");
-            builder.Entity<Profile>().HasKey(x => x.ProfileId);
-        }
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+      TaskModelConfig(builder);
+      ProfileModelConfig(builder);
+
+      base.OnModelCreating(builder);
+    }
+    private void TaskModelConfig(ModelBuilder builder)
+    {
+      builder.Entity<Task>().ToTable("Tasks");
+      builder.Entity<Task>().HasKey(x => x.TaskId);
+    }
+    private void ProfileModelConfig(ModelBuilder builder)
+    {
+      builder.Entity<Profile>().ToTable("Profiles");
+      builder.Entity<Profile>().HasKey(x => x.ProfileId);
+    }
+  }
 }

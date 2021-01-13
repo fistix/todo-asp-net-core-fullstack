@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Exceptions
 {
-    public class NotFoundException : Exception
+  public class NotFoundException : Exception
+  {
+    public NotFoundException()
     {
-        public NotFoundException()
-        {
 
-        }
-        public NotFoundException(string message)
-        {
-            Message = message;
-        }
-
-        public string Message { get; set; }
     }
+    public NotFoundException(string message)
+    {
+      Message = message;
+    }
+
+    public string Message { get; set; }
+  }
 }

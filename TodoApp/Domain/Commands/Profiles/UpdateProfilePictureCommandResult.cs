@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Domain.Commands.Profiles
 {
-    public class UpdateProfilePictureCommandResult
-    {
-        public string UserProfileUrl { get; set; }
-        //public ProfileDto Payload { get; set; }
-    }
+  public class UpdateProfilePictureCommandResult
+  {
+    public string UserProfileUrl { get; set; }
+    //public ProfileDto Payload { get; set; }
+  }
 }
