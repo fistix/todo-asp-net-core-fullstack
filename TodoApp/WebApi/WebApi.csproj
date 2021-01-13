@@ -31,6 +31,9 @@
 		</PackageReference>
 
 
+		<PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.0.1" />
+
+
 		<!--<PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />-->
 
 

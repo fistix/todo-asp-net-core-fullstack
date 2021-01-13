@@ -6,6 +6,7 @@ using Fistix.Training.Domain.Queries.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,6 +18,7 @@ namespace Fistix.Training.WebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class TasksController : ControllerBase
   {
     private readonly IMediator _mediator;

@@ -3,6 +3,7 @@ using Fistix.Training.Core.Exceptions;
 using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Queries.Profiles;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,6 +15,7 @@ namespace Fistix.Training.WebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class ProfilesController : ControllerBase
   {
     private readonly IMediator _mediator = null;

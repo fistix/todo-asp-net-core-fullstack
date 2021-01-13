@@ -10,5 +10,6 @@ namespace Fistix.Training.Core.Config
   {
     public ConnectionStringsConfig ConnectionStringConfig { get; set; }
     public AzureStorageConfig AzureStorageConfig { get; set; }
+    public Auth0Config Auth0Config { get; set; }
   }
 }

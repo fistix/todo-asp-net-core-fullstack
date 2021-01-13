@@ -19,13 +19,14 @@ using System.Threading.Tasks;
 using Fistix.Training.Service.AzureFileService;
 using Azure.Storage.Blobs;
 using Fistix.Training.Core.Config;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Fistix.Training.WebApi.Extensions
 {
   public static class ServiceCollectionExtension
   {
 
-    public static void AddCommonServices(this IServiceCollection services, IConfiguration Configuration, MasterConfig masterConfig)
+    public static void AddCommonServices(this IServiceCollection services, /*IConfiguration Configuration,*/ MasterConfig masterConfig)
     {
       services.AddScoped(x => masterConfig);
       services.AddAutoMapper(typeof(MapperProfile));
@@ -41,7 +42,6 @@ namespace Fistix.Training.WebApi.Extensions
       services.AddScoped(x => new BlobServiceClient(masterConfig.AzureStorageConfig.AzureStorageConnectionString));
 
       services.AddScoped<IFileService, FileService>();
-
     }
   }
 }
