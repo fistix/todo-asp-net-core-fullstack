@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Fistix.Training.Core;
 using Fistix.Training.Core.Exceptions;
+using Fistix.Training.Domain.Commands.MyProfile;
 using Fistix.Training.Domain.Commands.Profiles;
+using Fistix.Training.Domain.Queries.MyProfile;
 using Fistix.Training.Domain.Queries.Profiles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,14 +22,17 @@ namespace Fistix.Training.WebApi.Controllers
   public class ProfilesController : ControllerBase
   {
     private readonly IMediator _mediator = null;
+    private readonly ICurrentUserService _currentUserService = null;
 
-    public ProfilesController(IMediator mediator)
+    public ProfilesController(IMediator mediator, ICurrentUserService currentUserService)
     {
       _mediator = mediator;
+      _currentUserService = currentUserService;
     }
 
 
     [HttpPost]
+    [Authorize(Policy = "IsAdmin")]
     [ProducesResponseType(typeof(CreateProfileCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -174,6 +180,96 @@ namespace Fistix.Training.WebApi.Controllers
         }
 
         var result = await _mediator.Send<UpdateProfilePictureCommandResult>(command);
+        return base.Ok(result);
+      }
+      catch (NotFoundException)
+      {
+        return base.NotFound();
+      }
+    }
+
+    [HttpPost("MyProfile")]
+    [ProducesResponseType(typeof(CreateMyProfileCommandResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateMyProfile([FromBody] CreateMyProfileCommand command)
+    {
+      try
+      {
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<CreateMyProfileCommandResult>(command);
+        return base.Created($"api/Profiles/{result.Payload.ProfileId}", result);
+      }
+      catch (InvalidOperationException ex)
+      {
+        return base.Conflict(ex.Message);
+      }
+    }
+
+    [HttpPut("MyProfile")]
+    [ProducesResponseType(typeof(UpdateMyProfileCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update([FromBody] UpdateMyProfileCommand command)
+    {
+      try
+      {
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<UpdateMyProfileCommandResult>(command);
+        return base.Ok(result);
+      }
+      catch (NotFoundException)
+      {
+        return base.NotFound();
+      }
+    }
+
+
+    [HttpGet("MyProfile")]
+    [ProducesResponseType(typeof(GetMyProfileDetailByEmailQueryResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMyProfile()
+    {
+      try
+      {
+
+        var query = new GetProfileDetailByEmailQuery() { Email = _currentUserService.Email };
+
+        var result = await _mediator.Send(query);
+
+        return base.Ok(result);
+      }
+      catch (NotFoundException)
+      {
+        return base.NotFound();
+      }
+    }
+
+
+    [HttpPut("MyProfile/ProfileImage")]
+    [ProducesResponseType(typeof(UpdateMyProfilePictureCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateMyProfileImage([FromForm] UpdateMyProfilePictureCommand command)
+    {
+      try
+      {
+        
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<UpdateMyProfilePictureCommandResult>(command);
         return base.Ok(result);
       }
       catch (NotFoundException)
