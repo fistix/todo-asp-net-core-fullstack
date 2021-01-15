@@ -193,5 +193,87 @@ namespace Fistix.Training.WebApi.Controllers
         return base.NotFound(nfx.Message);
       }
     }
+
+
+    [HttpPost("MyTask")]
+    [ProducesResponseType(typeof(CreateMyTaskCommandResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateMyTask([FromBody] CreateMyTaskCommand command)
+    {
+      try
+      {
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<CreateMyTaskCommandResult>(command);
+        return base.Created($"api/Tasks/{result.Payload.TaskId}", result);
+      }
+      catch (ArgumentException ex)
+      {
+        return base.BadRequest(ex.Message);
+      }
+    }
+
+    [HttpPut("MyTask/{id}")]
+    [ProducesResponseType(typeof(UpdateMyTaskCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    //[ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> UpdateMyTask([FromRoute] Guid id, [FromBody] UpdateMyTaskCommand command)
+    {
+      try
+      {
+        command.Id = id;
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<UpdateMyTaskCommandResult>(command);
+        return base.Ok(result);
+      }
+      catch (NotFoundException nfx)
+      {
+        return base.NotFound(nfx.Message);
+      }
+      catch (InvalidOperationException)
+      {
+        return base.Conflict();
+      }
+    }
+
+
+    [HttpGet("MyTask/{id}")]
+    [ProducesResponseType(typeof(GetMyTaskDetailQueryResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMyTask([FromRoute] Guid id)
+    {
+      try
+      {
+        if (id.Equals(Guid.Empty))
+        {
+          return base.BadRequest();
+        }
+
+        var query = new GetMyTaskDetailQuery()
+        {
+          Id = id
+        };
+
+        var result = await _mediator.Send(query);
+        return base.Ok(result);
+      }
+      catch (NotFoundException nfx)
+      {
+        return base.NotFound(nfx.Message);
+      }
+      catch (InvalidOperationException ix)
+      {
+        return base.Conflict(ix.Message);
+      }
+    }
   }
 }

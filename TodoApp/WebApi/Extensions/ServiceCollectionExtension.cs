@@ -20,6 +20,9 @@ using Fistix.Training.Service.AzureFileService;
 using Azure.Storage.Blobs;
 using Fistix.Training.Core.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Fistix.Training.Core.AuthorizationRequirements;
+using Fistix.Training.WebApi.Services;
 
 namespace Fistix.Training.WebApi.Extensions
 {
@@ -42,6 +45,10 @@ namespace Fistix.Training.WebApi.Extensions
       services.AddScoped(x => new BlobServiceClient(masterConfig.AzureStorageConfig.AzureStorageConnectionString));
 
       services.AddScoped<IFileService, FileService>();
+
+      services.AddScoped<IAuthorizationHandler, CustomRequireClaimhandler>();
+
+      services.AddScoped<ICurrentUserService, CurrentUserService>();
     }
   }
 }

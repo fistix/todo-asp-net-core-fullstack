@@ -1,8 +1,7 @@
 using Fistix.Training.Core;
+using Fistix.Training.Core.AuthorizationRequirements;
 using Fistix.Training.Core.Config;
 using Fistix.Training.Core.Validators.Tasks;
-using Fistix.Training.DataLayer.Repositories;
-using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.WebApi.Extensions;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -19,7 +18,9 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Fistix.Training.WebApi
@@ -44,6 +45,7 @@ namespace Fistix.Training.WebApi
     {
 
       services.AddControllers().AddFluentValidation(x => x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
+
       //services.AddSwaggerGen(c =>
       //  {
       //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
@@ -59,9 +61,36 @@ namespace Fistix.Training.WebApi
         options.Authority = MasterConfig.Auth0Config.Domain;
         options.Audience = MasterConfig.Auth0Config.Audience;
         options.RequireHttpsMetadata = false;
+        //
+        options.Events = new JwtBearerEvents
+        {
+          OnTokenValidated = context =>
+          {
+            if (!(context.SecurityToken is JwtSecurityToken token)) return Task.CompletedTask;
+            if (context.Principal.Identity is ClaimsIdentity identity)
+            {
+              identity.AddClaim(new Claim("access_token", token.RawData));
+            }
+
+            return Task.CompletedTask;
+          }
+        };
       });
 
-      services.AddAuthorization();
+
+      services.AddAuthorization(config =>
+      {
+        //config.AddPolicy("Claim.Role", policyBuilder =>
+        //{
+        //  policyBuilder.RequireCustomClaim(ClaimTypes.Role);
+        //});
+
+        config.AddPolicy("IsAdmin", policybuilder =>
+         {
+           //policybuilder.RequireCustomClaim("IsAdmin");
+           policybuilder.RequireCustomClaim(ClaimTypes.Email);
+         });
+      });
 
 
       string swaggerDescription = "";
@@ -81,13 +110,11 @@ namespace Fistix.Training.WebApi
           {
             Implicit = new OpenApiOAuthFlow
             {
-              AuthorizationUrl =
-                        new Uri(
-                            $"{MasterConfig.Auth0Config.Domain}authorize?audience={MasterConfig.Auth0Config.Audience}"),
+              AuthorizationUrl = new Uri($"{MasterConfig.Auth0Config.Domain}authorize?audience={MasterConfig.Auth0Config.Audience}"),
               Scopes = new Dictionary<string, string>()
-                            {
-                                {"openid profile email", "Get all required info from Auth0" }
-                            }
+              {
+                {"openid profile email", "Get all required info from Auth0" }
+              }
             }
           }
         });
@@ -95,7 +122,7 @@ namespace Fistix.Training.WebApi
         c.OperationFilter<SecurityRequirementsOperationFilter>();
       });
 
-
+      services.AddHttpContextAccessor();
       services.AddCommonServices(/*Configuration,*/ MasterConfig);
     }
 
@@ -112,13 +139,17 @@ namespace Fistix.Training.WebApi
       //app.UseHttpsRedirection();
 
       app.UseRouting();
+
+      //who are you?
       app.UseAuthentication();
+
+      // are you allowed?
       app.UseAuthorization();
 
-     
+
 
       app.UseSwagger();
-      app.UseSwaggerUI(c=> c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1"));
+      app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1"));
 
       app.UseEndpoints(endpoints =>
       {

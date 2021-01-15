@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fistix.Training.Domain.Commands;
+using Fistix.Training.Domain.Commands.MyProfile;
 using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
@@ -15,7 +16,7 @@ namespace Fistix.Training.Service
   {
     public MapperProfile()
     {
-
+      //Task's mapping
       CreateMap<Task, TaskDto>();
       CreateMap<TaskDto, Task>();
 
@@ -27,7 +28,16 @@ namespace Fistix.Training.Service
           .ForMember(x => x.UserProfileId, v => v.UseDestinationValue());
       CreateMap<Task, UpdateTaskCommand>();
 
+      //My Task's mapping
+      CreateMap<CreateMyTaskCommand, Task>();
+      CreateMap<Task, CreateMyTaskCommand>();
 
+      CreateMap<UpdateMyTaskCommand, Task>()
+          .ForMember(x => x.CreatedOn, v => v.UseDestinationValue())
+          .ForMember(x => x.UserProfileId, v => v.UseDestinationValue());
+      CreateMap<Task, UpdateMyTaskCommand>();
+
+      //Profile's mapping
       CreateMap<Domain.DataModels.Profile, ProfileDto>();
       CreateMap<ProfileDto, Domain.DataModels.Profile>();
 
@@ -39,6 +49,16 @@ namespace Fistix.Training.Service
           .ForMember(x => x.Email, v => v.UseDestinationValue())
           .ForMember(x => x.ProfilePictureUrl, v => v.UseDestinationValue());
       CreateMap<Domain.DataModels.Profile, UpdateProfileCommand>();
+
+      //MyProfile's mapping
+      CreateMap<CreateMyProfileCommand, Domain.DataModels.Profile>();
+      CreateMap<Domain.DataModels.Profile, CreateMyProfileCommand>();
+
+      CreateMap<UpdateMyProfileCommand, Domain.DataModels.Profile>()
+          .ForMember(x => x.ProfileId, v => v.UseDestinationValue())
+          .ForMember(x => x.Email, v => v.UseDestinationValue())
+          .ForMember(x => x.ProfilePictureUrl, v => v.UseDestinationValue());
+      CreateMap<Domain.DataModels.Profile, UpdateMyProfileCommand>();
 
 
 
@@ -53,7 +73,6 @@ namespace Fistix.Training.Service
 
       CreateMap<AttachUserWithTaskCommand, Domain.DataModels.Profile>();
       CreateMap<Domain.DataModels.Profile, AttachUserWithTaskCommand>();
-
 
     }
   }
