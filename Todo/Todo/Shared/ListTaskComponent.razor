@@ -1,0 +1,81 @@
+﻿@using Todo.Shared.State 
+@inject HttpClient Http
+@inject RequestHandler Request
+
+<span class="error">@ErrorDetails</span>
+<SfGrid @ref="Grid" DataSource="@State.Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true" Toolbar="@(new List<string>() { "Edit", "Delete", "Cancel", "Update" })">
+  <GridPageSettings PageSize="15"></GridPageSettings>
+  <GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+  <GridColumns>
+    <GridColumn Field=@nameof(TaskDetail.Title) HeaderText="Title" Type="ColumnType.Date" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.Description) HeaderText="Description" Width="150"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.Active) HeaderText="Is Active" TextAlign="TextAlign.Right" Width="100"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+  </GridColumns>
+  <GridEvents TValue="TaskDetail" OnActionBegin="ActionBegin"></GridEvents>
+</SfGrid>
+
+@code {
+  [Parameter]
+  public AppState State { get; set; }
+
+  SfGrid<TaskDetail> Grid;
+  SearchTodoComponent searchTodoComponent;
+
+  public string ErrorDetails = "";
+  public List<TaskDetail> taskDetails = null;
+
+  protected override async Task OnInitializedAsync()
+  {
+    
+  }
+
+  public async Task ActionBegin(ActionEventArgs<TaskDetail> arg)
+  {
+    //Handles refresh operation
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
+    {
+      //await GetTodos();
+    }
+
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+    {
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri($"https://localhost:5001/api/Tasks?id={arg.Data.TaskId}"), Method = HttpMethod.Delete });
+      Grid.Refresh();
+    }
+
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+    {
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/Tasks"), Method = HttpMethod.Put, Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(arg.Data), System.Text.Encoding.UTF8, "application/json") });
+      Grid.Refresh();
+    }
+
+    //Handles edit operation.During edit operation, original object will be cloned.
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.BeginEdit))
+    {
+      arg.Data = new Models.TaskDetail()
+      {
+        TaskId = arg.RowData.TaskId,
+        Title = arg.RowData.Title,
+        Description = arg.RowData.Description
+      };
+    }
+  }
+
+  //private async Task GetTodos()
+  //{
+  //  var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/Tasks"), Method = HttpMethod.Get });
+  //  if (response.IsSuccessStatusCode)
+  //  {
+  //    string content = await response.Content.ReadAsStringAsync();
+  //    State.SetTodoList(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TodoDetail>>(content));
+  //  }
+  //  else
+  //  {
+  //    State.SetTodoList(null);
+  //  }
+  //}
+
+
+
+}

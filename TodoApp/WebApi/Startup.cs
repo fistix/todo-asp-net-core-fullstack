@@ -51,6 +51,17 @@ namespace Fistix.Training.WebApi
       //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
       //  });
 
+      services.AddCors(options =>
+      {
+        // this defines a CORS policy called "default"
+        options.AddPolicy("default", policy =>
+        {
+          policy.WithOrigins("https://localhost:44377", "http://localhost:60623")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+        });
+      });
+
       services.AddAuthentication(options =>
       {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -137,7 +148,7 @@ namespace Fistix.Training.WebApi
       }
 
       //app.UseHttpsRedirection();
-
+      app.UseCors("default");
       app.UseRouting();
 
       //who are you?

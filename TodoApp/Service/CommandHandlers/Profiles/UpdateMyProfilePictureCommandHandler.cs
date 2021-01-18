@@ -21,7 +21,7 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
     private readonly MasterConfig _masterConfig = null;
     private readonly IProfileRepository _profileRepository = null;
     private readonly ICurrentUserService _currentUserService = null;
-    public UpdateMyProfilePictureCommandHandler(IMapper mapper, IFileService fileService, 
+    public UpdateMyProfilePictureCommandHandler(IMapper mapper, IFileService fileService,
       MasterConfig masterConfig, IProfileRepository profileRepository, ICurrentUserService currentUserService)
     {
       _mapper = mapper;
@@ -33,26 +33,24 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
     }
     public async Task<UpdateMyProfilePictureCommandResult> Handle(UpdateMyProfilePictureCommand command, CancellationToken cancellationToken)
     {
-      command.Email = _currentUserService.Email;
-      //var profile = await _profileRepository.GetById(command.Id);
-      var profile = await _profileRepository.GetByEmail(command.Email);
+      //command.Email = _currentUserService.Email;
+      //var profile = await _profileRepository.GetByEmail(command.Email);
+
+      var profile = await _profileRepository.GetByEmail(_currentUserService.Email);
 
       if (!String.IsNullOrEmpty(profile.ProfilePictureUrl))
       {
-        //string deleteFileName = Path.GetFileName(profile.ProfilePictureUrl).Split("%2F")[1];
         string deleteFileName = Path.GetFileName(profile.ProfilePictureUrl);
         var response = await _fileService.DeleteFileAsync
-            (/*profile.ProfileId.ToString(),*/ _masterConfig.AzureStorageConfig.AzureContainer
-            /*_configuration["AzureContainer"]*/, deleteFileName);
+            (_masterConfig.AzureStorageConfig.AzureContainer, deleteFileName);
       }
       //For generating file name
       var extension = Path.GetExtension(command.ProfilePicture.FileName);
       var fileName = Path.Combine($"{profile.ProfileId}{extension}");
 
-      var fileUploadURI = await _fileService.UploadFileAsync(/*profile.ProfileId.ToString(),*/
-        _masterConfig.AzureStorageConfig.AzureContainer
-          /*_configuration["AzureContainer"]*/, command.ProfilePicture.OpenReadStream(),
-          command.ProfilePicture.ContentType, /*command.ProfilePicture.FileName*/fileName);
+      var fileUploadURI = await _fileService.UploadFileAsync(
+          _masterConfig.AzureStorageConfig.AzureContainer, command.ProfilePicture.OpenReadStream(),
+          command.ProfilePicture.ContentType, fileName);
 
 
       profile.ProfilePictureUrl = fileUploadURI.AbsoluteUri;

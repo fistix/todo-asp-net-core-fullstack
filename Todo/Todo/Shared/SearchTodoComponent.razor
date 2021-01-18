@@ -24,7 +24,7 @@
       if (response.IsSuccessStatusCode)
       {
         string content = await response.Content.ReadAsStringAsync();
-        State.SetTodoList(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TodoDetail>>(content));
+        State.SetTodoList(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TaskDetail>>(content));
       }
       else
       {

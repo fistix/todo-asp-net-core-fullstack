@@ -39,7 +39,7 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
       {
         return new CreateTaskCommandResult()
         {
-          Payload = _mapper.Map<TaskDto>(response)
+          Payload = _mapper.Map<TaskDto>(task)
         };
       }
       else

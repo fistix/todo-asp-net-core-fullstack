@@ -8,18 +8,18 @@ namespace Todo.Shared.State
 {
   public class AppState
   {
-    public List<TodoDetail> Todos { get; private set; }
+    public List<TaskDetail> Tasks { get; private set; }
 
     public event Action OnChange;
 
-    public void OnInitSetTodos(List<TodoDetail> todoDetails)
+    public void OnInitSetTodos(List<TaskDetail> taskDetails)
     {
-      Todos = todoDetails;
+      Tasks = taskDetails;
     }
 
-    public void SetTodoList(List<TodoDetail> todoDetails)
+    public void SetTodoList(List<TaskDetail> taskDetails)
     {
-      Todos = todoDetails;
+      Tasks = taskDetails;
       NotifyStateChanged();
     }
 

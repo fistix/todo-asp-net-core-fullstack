@@ -4,18 +4,19 @@
 @inject HttpClient Http
 @inject AppState State
 @implements IDisposable
+@inject RequestHandler Request
 
-
-<h1>TODO Application</h1>
+<h1>TASK Application</h1>
 
 <SearchTodoComponent State="@State" />
 
-<ListTodoComponent State="@State" />
+@*<ListTodoComponent State="@State" />*@
+<ListTaskComponent State="@State" />
 
 @code{
   protected override async Task OnInitializedAsync()
   {
-    await GetTodos();
+    await GetTasks();
     State.OnChange += StateHasChanged;
   }
 
@@ -29,13 +30,15 @@
     State.OnChange -= StateHasChanged;
   }
 
-  private async Task GetTodos()
+  private async System.Threading.Tasks.Task GetTasks()
   {
-    var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:44372/todo"), Method = HttpMethod.Get });
+    //var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/tasks"), Method = HttpMethod.Get });
+    var response = await Request.SendTodoRequest(null, HttpMethod.Get, "api/tasks");
     if (response.IsSuccessStatusCode)
     {
       string content = await response.Content.ReadAsStringAsync();
-      State.OnInitSetTodos(Newtonsoft.Json.JsonConvert.DeserializeObject<List<TodoDetail>>(content));
+      var responseModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModel>(content);
+      State.OnInitSetTodos(responseModel.Payload);
     }
     else
     {

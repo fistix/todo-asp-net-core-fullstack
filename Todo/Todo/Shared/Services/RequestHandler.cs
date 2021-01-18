@@ -17,13 +17,20 @@ namespace Todo.Shared.Services
       _auth = auth;
       _client = client;
     }
-    public async Task<HttpResponseMessage> SendTodoRequest(TodoDetail todo, HttpMethod method)
+    public async Task<HttpResponseMessage> SendTodoRequest(TaskDetail task, HttpMethod method, string url)
     {
       _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
-      return await _client.SendAsync(new HttpRequestMessage(method, "todo") 
-      { 
-        Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(todo), System.Text.Encoding.UTF8, "application/json")
-      });
+      if (task != null)
+      {
+        return await _client.SendAsync(new HttpRequestMessage(method, url)
+        {
+          Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(task), System.Text.Encoding.UTF8, "application/json")
+        });
+      }
+      else
+      {
+        return await _client.GetAsync(url);
+      }
 
     }
   }
