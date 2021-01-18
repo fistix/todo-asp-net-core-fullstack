@@ -19,8 +19,8 @@ namespace Fistix.Training.WebApi.Services
 
     //public string Email => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
 
-    string ICurrentUserService.Email
-    {
+    string ICurrentUserService.Email 
+    { 
       get => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
       set => throw new NotImplementedException();
     }

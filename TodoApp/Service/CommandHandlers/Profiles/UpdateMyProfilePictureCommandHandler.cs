@@ -21,7 +21,7 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
     private readonly MasterConfig _masterConfig = null;
     private readonly IProfileRepository _profileRepository = null;
     private readonly ICurrentUserService _currentUserService = null;
-    public UpdateMyProfilePictureCommandHandler(IMapper mapper, IFileService fileService,
+    public UpdateMyProfilePictureCommandHandler(IMapper mapper, IFileService fileService, 
       MasterConfig masterConfig, IProfileRepository profileRepository, ICurrentUserService currentUserService)
     {
       _mapper = mapper;
@@ -40,6 +40,7 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
 
       if (!String.IsNullOrEmpty(profile.ProfilePictureUrl))
       {
+        //string deleteFileName = Path.GetFileName(profile.ProfilePictureUrl).Split("%2F")[1];
         string deleteFileName = Path.GetFileName(profile.ProfilePictureUrl);
         var response = await _fileService.DeleteFileAsync
             (_masterConfig.AzureStorageConfig.AzureContainer, deleteFileName);
