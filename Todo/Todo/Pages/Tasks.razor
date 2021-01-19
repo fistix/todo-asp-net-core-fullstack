@@ -1,0 +1,97 @@
+﻿@page "/tasks"
+@inject HttpClient _http
+@inject AuthHandler _auth
+@using System.Net.Http.Headers
+
+<h1>Tasks</h1>
+
+
+<span class="error">@ErrorDetails</span>
+<SfGrid @ref="Grid" DataSource="@taskDetails" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+
+  <GridPageSettings PageSize="15">
+
+  </GridPageSettings>
+  <GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal">
+
+  </GridEditSettings>
+  <GridColumns>
+    <GridColumn Field=@nameof(TaskDetail.Title) HeaderText="Title" Type="ColumnType.Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.Description) HeaderText="Description" Width="150"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.Active) HeaderText="Is Active" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+    <GridColumn Field=@nameof(TaskDetail.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Left" Width="120">
+      <Template>
+        @{
+          var myObj = (context as TaskDetail);
+
+          <div>
+            @*<SfButton CssClass="e-primary" @onclick="() => OnEditClick(myObj.TaskId)">
+                Edit
+              </SfButton>*@
+            <SfButton CssClass="e-primary">
+              <a class="nav-link" href="updatetask/@myObj.TaskId" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Edit
+              </a>
+            </SfButton>
+          </div>
+        }
+      </Template>
+    </GridColumn>
+
+    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Left" Width="120">
+      <Template>
+        @{
+          var myObj = (context as TaskDetail);
+
+          <div>
+            <SfButton CssClass="e-warning">
+              Delete
+            </SfButton>
+          </div>
+        }
+      </Template>
+    </GridColumn>
+
+  </GridColumns>
+  @*<GridEvents TValue="TaskDetail" OnActionBegin="ActionBegin"></GridEvents>*@
+</SfGrid>
+
+@code {
+  SfButton btnEdit;
+
+  SfGrid<TaskDetail> Grid;
+  SearchTodoComponent searchTodoComponent;
+
+  public string ErrorDetails = "";
+  public List<TaskDetail> taskDetails = null;
+  public ResponseModel responseModel = null;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await GetTasks();
+    //State.OnChange += StateHasChanged;
+  }
+
+  private async System.Threading.Tasks.Task GetTasks()
+  {
+    _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
+    var response = await _http.GetAsync("https://localhost:5001/api/tasks");
+    if (response.IsSuccessStatusCode)
+    {
+      string content = await response.Content.ReadAsStringAsync();
+      responseModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModel>(content);
+      taskDetails = responseModel.Payload;
+      //State.OnInitSetTodos(responseModel.Payload);
+    }
+
+  }
+
+  public void OnEditClick(Guid? val)
+  {
+    Console.WriteLine(val);
+
+  }
+
+}

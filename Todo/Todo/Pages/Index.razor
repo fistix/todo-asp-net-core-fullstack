@@ -16,34 +16,34 @@
 @code{
   protected override async Task OnInitializedAsync()
   {
-    await GetTasks();
-    State.OnChange += StateHasChanged;
+    //await GetTasks();
+    //State.OnChange += StateHasChanged;
   }
 
-  protected override async Task OnParametersSetAsync()
-  {
+  //protected override async Task OnParametersSetAsync()
+  //{
 
-  }
+  //}
 
   public void Dispose()
   {
     State.OnChange -= StateHasChanged;
   }
 
-  private async System.Threading.Tasks.Task GetTasks()
-  {
-    //var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/tasks"), Method = HttpMethod.Get });
-    var response = await Request.SendTodoRequest(null, HttpMethod.Get, "api/tasks");
-    if (response.IsSuccessStatusCode)
-    {
-      string content = await response.Content.ReadAsStringAsync();
-      var responseModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModel>(content);
-      State.OnInitSetTodos(responseModel.Payload);
-    }
-    else
-    {
-      State.OnInitSetTodos(null);
-    }
-  }
+  //private async System.Threading.Tasks.Task GetTasks()
+  //{
+  //  //var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/tasks"), Method = HttpMethod.Get });
+  //  var response = await Request.SendTodoRequest(null, HttpMethod.Get, "api/tasks");
+  //  if (response.IsSuccessStatusCode)
+  //  {
+  //    string content = await response.Content.ReadAsStringAsync();
+  //    var responseModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModel>(content);
+  //    State.OnInitSetTodos(responseModel.Payload);
+  //  }
+  //  else
+  //  {
+  //    State.OnInitSetTodos(null);
+  //  }
+  //}
 
 }

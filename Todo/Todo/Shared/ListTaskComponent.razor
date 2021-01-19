@@ -3,7 +3,8 @@
 @inject RequestHandler Request
 
 <span class="error">@ErrorDetails</span>
-<SfGrid @ref="Grid" DataSource="@State.Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true" Toolbar="@(new List<string>() { "Edit", "Delete", "Cancel", "Update" })">
+<SfGrid @ref="Grid" DataSource="@State.Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true" 
+        Toolbar="@(new List<string>() { "Edit", "Delete", "Cancel", "Update" })">
   <GridPageSettings PageSize="15"></GridPageSettings>
   <GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
   <GridColumns>
@@ -27,26 +28,44 @@
 
   protected override async Task OnInitializedAsync()
   {
-    
+    await GetTasks();
+    State.OnChange += StateHasChanged;
   }
+
+  private async System.Threading.Tasks.Task GetTasks()
+  {
+    //var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/tasks"), Method = HttpMethod.Get });
+    var response = await Request.SendTodoRequest(null, HttpMethod.Get, "api/tasks");
+    if (response.IsSuccessStatusCode)
+    {
+      string content = await response.Content.ReadAsStringAsync();
+      var responseModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModel>(content);
+      State.OnInitSetTodos(responseModel.Payload);
+    }
+    else
+    {
+      State.OnInitSetTodos(null);
+    }
+  }
+
 
   public async Task ActionBegin(ActionEventArgs<TaskDetail> arg)
   {
     //Handles refresh operation
     if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
     {
-      //await GetTodos();
+      await GetTasks();
     }
 
     if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
     {
-      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri($"https://localhost:5001/api/Tasks?id={arg.Data.TaskId}"), Method = HttpMethod.Delete });
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri($"https://localhost:5001/api/Tasks/{arg.Data.TaskId}"), Method = HttpMethod.Delete });
       Grid.Refresh();
     }
 
     if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
     {
-      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri("https://localhost:5001/api/Tasks"), Method = HttpMethod.Put, Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(arg.Data), System.Text.Encoding.UTF8, "application/json") });
+      var response = await Http.SendAsync(new HttpRequestMessage { RequestUri = new Uri($"https://localhost:5001/api/Tasks/{arg.Data.TaskId}"), Method = HttpMethod.Put, Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(arg.Data), System.Text.Encoding.UTF8, "application/json") });
       Grid.Refresh();
     }
 

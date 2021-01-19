@@ -12,7 +12,7 @@ namespace Fistix.Training.Core.Validators.Tasks
   {
     public UpdateTaskCommandValidator()
     {
-      RuleFor(x => x.Id).NotEmpty();
+      //RuleFor(x => x.Id).NotEmpty();
       RuleFor(x => x.Title).Length(1, 30);
       RuleFor(x => x.Description).NotEmpty();
     }
