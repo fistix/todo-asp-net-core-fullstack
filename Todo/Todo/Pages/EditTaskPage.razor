@@ -1,0 +1,110 @@
+﻿@page "/editTask/{TaskId}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient _http
+@inject AuthHandler _auth
+@using System.Net.Http.Headers
+@attribute [Authorize]
+
+<h3>Edit Task</h3>
+
+
+<SfTextBox @bind-Value="@taskDetails.Title"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfTextBox @bind-Value="@taskDetails.Description"></SfTextBox>
+<SfCheckBox Label="Is Active" @bind-Checked="@taskDetails.Active"></SfCheckBox>
+
+<div>
+  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
+  <div id="container">
+    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+
+@code {
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = "Record updated successfully!";
+  private string ToastCssClass = "";
+
+
+  bool IsTaskRunning = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await GetTask();
+    StateHasChanged();
+  }
+
+  [Parameter]
+  public string TaskId { get; set; }
+
+  public string ErrorMessage = "";
+  SfTextBox Title;
+  SfTextBox Description;
+  public bool IsSucceed { get; set; }
+
+  public TaskDetail taskDetails = new TaskDetail();
+
+  private async Task GetTask()
+  {
+    _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
+    var response = await _http.GetAsync($"https://localhost:5001/api/tasks/{Guid.Parse(TaskId)}");
+    if (response.IsSuccessStatusCode)
+    {
+      string content = await response.Content.ReadAsStringAsync();
+      taskDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModelForSinglePayload>(content).Payload;
+      //taskDetails = responseModel.Payload;
+      //State.OnInitSetTodos(responseModel.Payload);
+    }
+  }
+
+  private async Task UpdateTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    if (taskDetails != null)
+    {
+      if (String.IsNullOrWhiteSpace(taskDetails.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      if (String.IsNullOrWhiteSpace(taskDetails.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
+
+        var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"https://localhost:5001/api/tasks/{Guid.Parse(TaskId)}")
+        {
+          Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(taskDetails), System.Text.Encoding.UTF8, "application/json")
+        });
+
+        if (response.IsSuccessStatusCode)
+        {
+          IsSucceed = true;
+          IsTaskRunning = false;
+          SpinnerVisiblity = false;
+
+          await ToastObj.Show();
+
+
+        }
+
+      }
+
+    }
+
+  }
+
+}

@@ -2,6 +2,7 @@
 @inject HttpClient _http
 @inject AuthHandler _auth
 @using System.Net.Http.Headers
+@inject IJSRuntime JsRuntime
 
 <h1>Tasks</h1>
 
@@ -21,44 +22,110 @@
     <GridColumn Field=@nameof(TaskDetail.Active) HeaderText="Is Active" TextAlign="TextAlign.Left" Width="100"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
-    <GridColumn HeaderText="Update" TextAlign="TextAlign.Left" Width="120">
+    <GridColumn HeaderText="Update | Delete" TextAlign="TextAlign.Center" Width="120">
       <Template>
         @{
           var myObj = (context as TaskDetail);
-
+          var testId = myObj.TaskId;
           <div>
             @*<SfButton CssClass="e-primary" @onclick="() => OnEditClick(myObj.TaskId)">
                 Edit
               </SfButton>*@
-            <SfButton CssClass="e-primary">
-              <a class="nav-link" href="updatetask/@myObj.TaskId" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Edit
+            <SfButton CssClass="e-info">
+              <a class="nav-link" href="editTask/@myObj.TaskId" Match="NavLinkMatch.All">
+                Edit
               </a>
             </SfButton>
+          </div>
+          <div>
+            <SfButton CssClass="e-danger" @onclick="() => OpenDialog(myObj.TaskId)">Delete</SfButton>
+
+            <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
+              <DialogTemplates>
+                <Header> Confirm Delete</Header>
+                <Content> Are you sure you want to delete this record? (@myObj) </Content>
+              </DialogTemplates>
+              <DialogButtons>
+                <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(myObj.TaskId)" />
+                @*<DialogButton Content="OK" IsPrimary="true" @onclick="@Delete(obj.TaskId)" />*@
+                <DialogButton Content="Cancel" OnClick="@CloseDialog" />
+              </DialogButtons>
+            </SfDialog>
           </div>
         }
       </Template>
     </GridColumn>
 
-    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Left" Width="120">
+    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="120">
       <Template>
         @{
-          var myObj = (context as TaskDetail);
+          var obj = (context as TaskDetail);
 
-          <div>
-            <SfButton CssClass="e-warning">
-              Delete
-            </SfButton>
-          </div>
+
+          <SfButton CssClass="e-danger" @onclick="() => OpenDialog(null)">Delete</SfButton>
+
+          <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
+            <DialogTemplates>
+              <Header> Confirm Delete</Header>
+              <Content> Are you sure you want to delete this record (@obj.TaskId)? </Content>
+            </DialogTemplates>
+            <DialogButtons>
+              <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(obj.TaskId)" />
+              @*<DialogButton Content="OK" IsPrimary="true" @onclick="@Delete(obj.TaskId)" />*@
+              <DialogButton Content="Cancel" OnClick="@CloseDialog" />
+            </DialogButtons>
+          </SfDialog>
         }
       </Template>
     </GridColumn>
 
   </GridColumns>
-  @*<GridEvents TValue="TaskDetail" OnActionBegin="ActionBegin"></GridEvents>*@
 </SfGrid>
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
 
 @code {
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = "Record deleted successfully!";
+  private string ToastCssClass = "";
+
+  private bool IsVisible { get; set; }
+
+  private async Task OpenDialog(Guid? id)
+  {
+    //this.IsVisible = true;
+    Console.WriteLine(id);
+    bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
+    if(confirmed)
+    {
+      await Delete(id);
+    }
+    //await JsRuntime.InvokeVoidAsync("Alert", "Record Is Deleted!");
+  }
+
+  private void CloseDialog()
+  {
+    this.IsVisible = false;
+  }
+  private async Task Delete(/*Microsoft.AspNetCore.Components.Web.MouseEventArgs*/ Guid? val)
+  {
+    //this.IsVisible = false;
+    _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
+    var response = await _http.DeleteAsync($"https://localhost:5001/api/tasks/{val}");
+    CloseDialog();
+    if (response.IsSuccessStatusCode)
+    {
+
+      await ToastObj.Show();
+
+    }
+  }
+
+
+
+
   SfButton btnEdit;
 
   SfGrid<TaskDetail> Grid;
@@ -88,10 +155,10 @@
 
   }
 
-  public void OnEditClick(Guid? val)
-  {
-    Console.WriteLine(val);
+  //public void OnEditClick(Guid? val)
+  //{
+  //  Console.WriteLine(val);
 
-  }
+  //}
 
 }
