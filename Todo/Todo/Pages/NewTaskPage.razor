@@ -1,0 +1,83 @@
+﻿@page "/newtask"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient _http
+@inject AuthHandler _auth
+@using System.Net.Http.Headers
+@attribute [Authorize]
+
+<SfTextBox @ref="Title" Placeholder="Enter Title..." @bind-Value="@taskDetail.Title"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfTextBox @ref="Description" Placeholder="Enter Description..." @bind-Value="@taskDetail.Description"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfCheckBox Label="Is Active" @bind-Checked="@taskDetail.Active"></SfCheckBox>
+
+
+<div>
+  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="AddTaskRequest">Create</SfButton>
+  <div id="container">
+    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+@code {
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = "Record created successfully!";
+  private string ToastCssClass = "";
+
+  bool IsTaskRunning = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+
+
+  protected override async Task OnInitializedAsync()
+  {
+    //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+  }
+
+  SfTextBox Title;
+  SfTextBox Description;
+  public string ErrorMessage = "";
+  public bool IsSucceed { get; set; }
+  TaskDetail taskDetail = new TaskDetail();
+
+  private async Task AddTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    if (taskDetail != null)
+    {
+      if (String.IsNullOrWhiteSpace(taskDetail.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      if (String.IsNullOrWhiteSpace(taskDetail.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
+
+        var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"https://localhost:5001/api/tasks")
+        {
+          Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(taskDetail), System.Text.Encoding.UTF8, "application/json")
+        });
+        if (response.IsSuccessStatusCode)
+        {
+          IsSucceed = true;
+          IsTaskRunning = false;
+          SpinnerVisiblity = false;
+          await ToastObj.Show();
+
+        }
+      }
+    }
+  }
+}

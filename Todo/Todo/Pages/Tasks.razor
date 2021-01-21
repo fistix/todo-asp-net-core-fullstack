@@ -6,6 +6,8 @@
 
 <h1>Tasks</h1>
 
+@*@{ var idToBeDeleted = 0;}*@
+
 
 <span class="error">@ErrorDetails</span>
 <SfGrid @ref="Grid" DataSource="@taskDetails" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
@@ -22,35 +24,16 @@
     <GridColumn Field=@nameof(TaskDetail.Active) HeaderText="Is Active" TextAlign="TextAlign.Left" Width="100"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
-    <GridColumn HeaderText="Update | Delete" TextAlign="TextAlign.Center" Width="120">
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="120">
       <Template>
         @{
           var myObj = (context as TaskDetail);
-          var testId = myObj.TaskId;
           <div>
-            @*<SfButton CssClass="e-primary" @onclick="() => OnEditClick(myObj.TaskId)">
-                Edit
-              </SfButton>*@
             <SfButton CssClass="e-info">
               <a class="nav-link" href="editTask/@myObj.TaskId" Match="NavLinkMatch.All">
                 Edit
               </a>
             </SfButton>
-          </div>
-          <div>
-            <SfButton CssClass="e-danger" @onclick="() => OpenDialog(myObj.TaskId)">Delete</SfButton>
-
-            <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
-              <DialogTemplates>
-                <Header> Confirm Delete</Header>
-                <Content> Are you sure you want to delete this record? (@myObj) </Content>
-              </DialogTemplates>
-              <DialogButtons>
-                <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(myObj.TaskId)" />
-                @*<DialogButton Content="OK" IsPrimary="true" @onclick="@Delete(obj.TaskId)" />*@
-                <DialogButton Content="Cancel" OnClick="@CloseDialog" />
-              </DialogButtons>
-            </SfDialog>
           </div>
         }
       </Template>
@@ -61,31 +44,32 @@
         @{
           var obj = (context as TaskDetail);
 
-
-          <SfButton CssClass="e-danger" @onclick="() => OpenDialog(null)">Delete</SfButton>
-
-          <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
-            <DialogTemplates>
-              <Header> Confirm Delete</Header>
-              <Content> Are you sure you want to delete this record (@obj.TaskId)? </Content>
-            </DialogTemplates>
-            <DialogButtons>
-              <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(obj.TaskId)" />
-              @*<DialogButton Content="OK" IsPrimary="true" @onclick="@Delete(obj.TaskId)" />*@
-              <DialogButton Content="Cancel" OnClick="@CloseDialog" />
-            </DialogButtons>
-          </SfDialog>
+          <SfButton CssClass="e-danger" @onclick="() => StoreId(obj.TaskId)">
+            Delete
+            <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
+              <DialogTemplates>
+                <Header> Confirm Delete</Header>
+                <Content> Are you sure you want to delete this record? (@idToBeDeleted)</Content>
+              </DialogTemplates>
+              <DialogButtons>
+                <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(idToBeDeleted)" />
+                <DialogButton Content="Cancel" OnClick="@CloseDialog" />
+              </DialogButtons>
+            </SfDialog>
+          </SfButton>
         }
       </Template>
     </GridColumn>
 
   </GridColumns>
 </SfGrid>
+
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
 </SfToast>
 
 @code {
+  Guid? idToBeDeleted = null;
   //Toast
   SfToast ToastObj;
   private string ToastTitle = "Record deleted successfully!";
@@ -93,15 +77,21 @@
 
   private bool IsVisible { get; set; }
 
-  private async Task OpenDialog(Guid? id)
+  private void StoreId(Guid? id)
   {
-    //this.IsVisible = true;
-    Console.WriteLine(id);
-    bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
-    if(confirmed)
-    {
-      await Delete(id);
-    }
+    idToBeDeleted = id;
+    OpenDialog().GetAwaiter().GetResult();
+  }
+
+  private async Task OpenDialog()
+  {
+    this.IsVisible = true;
+    //Console.WriteLine(id);
+    //bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
+    //if (confirmed)
+    //{
+    //  await Delete(id);
+    //}
     //await JsRuntime.InvokeVoidAsync("Alert", "Record Is Deleted!");
   }
 

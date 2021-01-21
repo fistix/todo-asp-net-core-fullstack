@@ -18,6 +18,8 @@ namespace Todo
   {
     public static async Task Main(string[] args)
     {
+      //Register Syncfusion license 
+      Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzg2MTk1QDMxMzgyZTM0MmUzMElHQ3dPMThsQmR1b2RuS1k5c0JLSkVsMkVRSWVCUlFsZHQvOGppVjNxQms9");
       var builder = WebAssemblyHostBuilder.CreateDefault(args);
       builder.RootComponents.Add<App>("#app");
 
