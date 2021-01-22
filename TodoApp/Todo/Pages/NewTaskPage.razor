@@ -24,12 +24,22 @@
     </SfSpinner>
   </div>
 </div>
+<div>
+  <SfButton CssClass="e-info">
+    <div>
+      <a class="nav-link" href="/tasks" Match="NavLinkMatch.All">
+        Go back
+      </a>
+    </div>
+  </SfButton>
+</div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
 </SfToast>
 
 @code {
+
   //Toast
   SfToast ToastObj;
   private string ToastTitle = "Record created successfully!";
@@ -50,6 +60,7 @@
   public bool IsSucceed { get; set; }
   TaskDetail taskDetail = new TaskDetail();
 
+
   private async Task AddTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
   {
     if (taskDetail != null)
@@ -58,7 +69,7 @@
       {
         Title.CssClass = "e-error";
       }
-      if (String.IsNullOrWhiteSpace(taskDetail.Description))
+      else if (String.IsNullOrWhiteSpace(taskDetail.Description))
       {
         Description.CssClass = "e-error";
       }
@@ -80,9 +91,8 @@
           IsTaskRunning = false;
           SpinnerVisiblity = false;
           await ToastObj.Show();
-          Title = null;
-          Description = null;
-          
+          taskDetail.Title = "";
+          taskDetail.Description = "";
         }
       }
     }

@@ -56,7 +56,7 @@ namespace Fistix.Training.WebApi
         // this defines a CORS policy called "default"
         options.AddPolicy("default", policy =>
         {
-          policy.WithOrigins("https://localhost:44377", "http://localhost:60623")
+          policy.WithOrigins("https://localhost:44377", "http://localhost:60623", "http://localhost:5002", "https://localhost:5200")
               .AllowAnyHeader()
               .AllowAnyMethod();
         });

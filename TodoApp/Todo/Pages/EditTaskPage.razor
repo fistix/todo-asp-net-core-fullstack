@@ -8,10 +8,13 @@
 
 <h3>Edit Task</h3>
 
-<SfTextBox @bind-Value="@taskDetails.Title"></SfTextBox>
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-<SfTextBox @bind-Value="@taskDetails.Description"></SfTextBox>
-<SfCheckBox Label="Is Active" @bind-Checked="@taskDetails.Active"></SfCheckBox>
+<SfTextBox @ref="Title" @bind-Value="@taskDetail.Title"></SfTextBox>
+
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfTextBox @ref="Description" @bind-Value="@taskDetail.Description"></SfTextBox>
+
+<SfCheckBox Label="Is Active" @bind-Checked="@taskDetail.Active"></SfCheckBox>
 
 <div>
   <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
@@ -20,6 +23,15 @@
                Type="@SpinnerType.Bootstrap" Size="100">
     </SfSpinner>
   </div>
+</div>
+<div>
+  <SfButton CssClass="e-info">
+    <div>
+      <a class="nav-link" href="/tasks" Match="NavLinkMatch.All">
+        Go back
+      </a>
+    </div>
+  </SfButton>
 </div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
@@ -36,7 +48,7 @@
   SfTextBox Description;
   public bool IsSucceed { get; set; }
 
-  public TaskDetail taskDetails = new TaskDetail();
+  public TaskDetail taskDetail = new TaskDetail();
 
   //Toast
   SfToast ToastObj;
@@ -48,7 +60,7 @@
 
   protected override async Task OnInitializedAsync()
   {
-    taskDetails= await _tasksService.GetTaskById(Guid.Parse(TaskId));
+    taskDetail = await _tasksService.GetTaskById(Guid.Parse(TaskId));
     StateHasChanged();
   }
 
@@ -67,21 +79,22 @@
 
   private async Task UpdateTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
   {
-    if (taskDetails != null)
+    if (taskDetail != null)
     {
-      if (String.IsNullOrWhiteSpace(taskDetails.Title))
+      if (String.IsNullOrWhiteSpace(taskDetail.Title))
       {
         Title.CssClass = "e-error";
       }
-      if (String.IsNullOrWhiteSpace(taskDetails.Description))
+      else if (String.IsNullOrWhiteSpace(taskDetail.Description))
       {
         Description.CssClass = "e-error";
       }
       else
       {
-        var response = await _tasksService.Update(taskDetails, Guid.Parse(TaskId));
         IsTaskRunning = true;
         SpinnerVisiblity = true;
+        var response = await _tasksService.Update(taskDetail, Guid.Parse(TaskId));
+
 
         //_http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
         //var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"https://localhost:5001/api/tasks/{Guid.Parse(TaskId)}")

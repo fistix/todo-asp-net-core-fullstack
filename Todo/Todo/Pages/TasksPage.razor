@@ -1,0 +1,23 @@
+﻿@page "/tasks"
+@inject TasksService _tasksService
+
+<Tasks TaskDetails="@taskDetails" />
+
+@code {
+
+  public List<TaskDetail> taskDetails = new List<TaskDetail>();
+  protected override Task OnInitializedAsync()
+  {
+    return GetAllTasks();
+    //return base.OnInitializedAsync();
+  }
+
+  private async Task GetAllTasks()
+  {
+    var responseModel = await _tasksService.GetTasks();
+    taskDetails = responseModel.Payload;
+
+    Console.WriteLine(responseModel.Payload.Count());
+  }
+
+}
