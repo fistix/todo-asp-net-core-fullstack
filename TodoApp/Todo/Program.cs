@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Todo.Shared;
+using Todo.Shared.Models;
 using Todo.Shared.Services;
 using Todo.Shared.State;
 
@@ -28,6 +29,7 @@ namespace Todo
       builder.Services.AddScoped<AuthHandler>();
       builder.Services.AddScoped<RequestHandler>();
       builder.Services.AddScoped<TasksService>();
+      builder.Services.AddScoped<List<TaskDetail>>();
       builder.Services.AddSyncfusionBlazor();
 
       builder.Services.AddOidcAuthentication(options =>

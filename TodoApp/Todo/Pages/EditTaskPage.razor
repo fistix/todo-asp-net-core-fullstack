@@ -4,34 +4,42 @@
 @inject AuthHandler _auth
 @inject TasksService _tasksService
 @using System.Net.Http.Headers
+@using Fistix.Training.Domain.Commands.Tasks
 @attribute [Authorize]
 
 <h3>Edit Task</h3>
 
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-<SfTextBox @ref="Title" @bind-Value="@taskDetail.Title"></SfTextBox>
+<SfTextBox 
+           @ref="Title" @bind-Value="@command.Title" FloatLabelType='@FloatLabelType.Auto'>
+</SfTextBox>
 
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-<SfTextBox @ref="Description" @bind-Value="@taskDetail.Description"></SfTextBox>
+<SfTextBox 
+           @ref="Description" @bind-Value="@command.Description" FloatLabelType='@FloatLabelType.Auto'>
+</SfTextBox>
 
-<SfCheckBox Label="Is Active" @bind-Checked="@taskDetail.Active"></SfCheckBox>
+<SfCheckBox Label="Is Active" @bind-Checked="@command.Active"></SfCheckBox>
 
-<div>
-  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
-  <div id="container">
-    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-               Type="@SpinnerType.Bootstrap" Size="100">
-    </SfSpinner>
-  </div>
-</div>
-<div>
-  <SfButton CssClass="e-info">
-    <div>
-      <a class="nav-link" href="/tasks" Match="NavLinkMatch.All">
-        Go back
-      </a>
+<div class="d-flex justify-content-center mt-4">
+  <div class="mr-5">
+    <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
+    <div id="container">
+      <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+                 Type="@SpinnerType.Bootstrap" Size="100">
+      </SfSpinner>
     </div>
-  </SfButton>
+  </div>
+
+  <div>
+    <SfButton CssClass="e-info">
+      <div>
+        <a href="/tasks" class="text-white" Match="NavLinkMatch.All">
+          Go back
+        </a>
+      </div>
+    </SfButton>
+  </div>
 </div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
@@ -49,6 +57,7 @@
   public bool IsSucceed { get; set; }
 
   public TaskDetail taskDetail = new TaskDetail();
+  UpdateTaskCommand command = new UpdateTaskCommand();
 
   //Toast
   SfToast ToastObj;
@@ -61,31 +70,23 @@
   protected override async Task OnInitializedAsync()
   {
     taskDetail = await _tasksService.GetTaskById(Guid.Parse(TaskId));
+    command.Title = taskDetail.Title;
+    command.Description = taskDetail.Description;
+    command.Active = taskDetail.Active;
+
     StateHasChanged();
   }
 
-  //private async Task GetTask()
-  //{
-  //  _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
-  //  var response = await _http.GetAsync($"https://localhost:5001/api/tasks/{Guid.Parse(TaskId)}");
-  //  if (response.IsSuccessStatusCode)
-  //  {
-  //    string content = await response.Content.ReadAsStringAsync();
-  //    taskDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModelForSinglePayload>(content).Payload;
-  //    //taskDetails = responseModel.Payload;
-  //    //State.OnInitSetTodos(responseModel.Payload);
-  //  }
-  //}
 
   private async Task UpdateTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
   {
-    if (taskDetail != null)
+    if (command != null)
     {
-      if (String.IsNullOrWhiteSpace(taskDetail.Title))
+      if (String.IsNullOrWhiteSpace(command.Title))
       {
         Title.CssClass = "e-error";
       }
-      else if (String.IsNullOrWhiteSpace(taskDetail.Description))
+      else if (String.IsNullOrWhiteSpace(command.Description))
       {
         Description.CssClass = "e-error";
       }
@@ -93,14 +94,8 @@
       {
         IsTaskRunning = true;
         SpinnerVisiblity = true;
-        var response = await _tasksService.Update(taskDetail, Guid.Parse(TaskId));
+        var response = await _tasksService.Update(command, Guid.Parse(TaskId));
 
-
-        //_http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
-        //var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"https://localhost:5001/api/tasks/{Guid.Parse(TaskId)}")
-        //{
-        //  Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(taskDetails), System.Text.Encoding.UTF8, "application/json")
-        //});
 
         if (response.IsSuccessStatusCode)
         {

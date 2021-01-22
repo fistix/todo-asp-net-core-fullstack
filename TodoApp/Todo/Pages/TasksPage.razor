@@ -1,15 +1,18 @@
 ﻿@page "/tasks"
 @attribute [Authorize]
 @inject TasksService _tasksService
+@inject List<TaskDetail> _source
 
-<Tasks TaskDetails="@taskDetails" />
+<Tasks TaskDetails="@_source" />
 
 @code {
 
   public List<TaskDetail> taskDetails = new List<TaskDetail>();
   protected override Task OnInitializedAsync()
   {
+    StateHasChanged();
     return GetAllTasks();
+
     //return base.OnInitializedAsync();
   }
 

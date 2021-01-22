@@ -3,18 +3,18 @@
 @inject HttpClient _http
 @inject AuthHandler _auth
 @inject TasksService _tasksService
+@inject List<TaskDetail> _source
+
   <h1>Tasks - @TaskDetails.Count</h1>
 
 
 <span class="error">@ErrorDetails</span>
-<SfGrid @ref="Grid" DataSource="@TaskDetails" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+<SfGrid @ref="Grid" DataSource="@_source" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
 
-  <GridPageSettings PageSize="15">
+  <GridPageSettings PageSize="15"></GridPageSettings>
+  @*<GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal">
 
-  </GridPageSettings>
-  <GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal">
-
-  </GridEditSettings>
+    </GridEditSettings>*@
   <GridColumns>
     <GridColumn Field=@nameof(TaskDetail.Title) HeaderText="Title" Type="ColumnType.Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.Description) HeaderText="Description" Width="150"></GridColumn>
@@ -22,13 +22,13 @@
     <GridColumn Field=@nameof(TaskDetail.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
 
-    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="120">
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="70">
       <Template>
         @{
           var myObj = (context as TaskDetail);
           <div>
             <SfButton CssClass="e-info">
-              <a class="nav-link" href="editTask/@myObj.TaskId" Match="NavLinkMatch.All">
+              <a href="editTask/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
                 Edit
               </a>
             </SfButton>
@@ -37,7 +37,7 @@
       </Template>
     </GridColumn>
 
-    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="120">
+    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="70">
       <Template>
         @{
           var obj = (context as TaskDetail);
@@ -69,15 +69,11 @@
     </GridColumn>
 
   </GridColumns>
+
+  <GridEvents TValue="TaskDetail" OnActionBegin="ActionBegin"></GridEvents>
 </SfGrid>
 
-<div>
-  <div id="container">
-    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-               Type="@SpinnerType.Bootstrap" Size="100">
-    </SfSpinner>
-  </div>
-</div>
+
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
@@ -89,7 +85,9 @@
   public List<TaskDetail> TaskDetails { get; set; }
 
 
-  Guid? idToBeDeleted = null;
+  //Guid? idToBeDeleted = null;
+  public Guid? idToBeDeleted { get; set; }
+
   //Toast
   SfToast ToastObj;
   private string ToastTitle = "Record deleted successfully!";
@@ -110,6 +108,24 @@
 
 
 
+  ////Added temporary
+  //protected override Task OnInitializedAsync()
+  //{
+  //  StateHasChanged();
+  //  return GetAllTasks();
+
+  //  //return base.OnInitializedAsync();
+  //}
+
+  public async Task ActionBegin(ActionEventArgs<TaskDetail> arg)
+  {
+    //Handles refresh operation
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
+    {
+      await GetAllTasks();
+    }
+  }
+
 
   private async Task Delete(Guid? val)
   {
@@ -124,7 +140,9 @@
       SpinnerVisiblity = false;
       await ToastObj.Show();
       //Refresh
-      await GetAllTasks();
+
+      //await GetAllTasks();
+      Grid.Refresh();
     }
   }
   //Refresh
