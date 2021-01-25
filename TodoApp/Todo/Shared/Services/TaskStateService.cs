@@ -35,13 +35,16 @@ namespace Todo.Shared.Services
 
     public async void GetAllTasks()
     {
-      await GetAll();      
+      await GetAll();
     }
     public async void CreateTask(CreateTaskCommand command)
     {
       await Create(command);
     }
-
+    public async void UpdateTask(Guid id, UpdateTaskCommand command)
+    {
+      await Update(id, command);
+    }
 
     private async Task GetAll()
     {
@@ -69,7 +72,7 @@ namespace Todo.Shared.Services
           ErrorMessage = ex.Message
         });
       }
-      
+
     }
 
     private async Task Create(CreateTaskCommand command)
@@ -103,10 +106,71 @@ namespace Todo.Shared.Services
           ErrorMessage = ex.Message
         });
       }
-
-
-
-
     }
+
+    private async Task Update(Guid id, UpdateTaskCommand command)
+    {
+      try
+      {
+
+        var response = await _httpClient.PostAsJsonAsync<UpdateTaskCommand>("api/Tasks", command);
+        if (response.IsSuccessStatusCode)
+        {
+
+
+          var commandResult = await response.Content.ReadFromJsonAsync<UpdateTaskCommandResult>();
+
+
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+
+          tasks.Remove(tasks.SingleOrDefault(t => t.TaskId.Equals(id)));
+          tasks.Add(commandResult.Payload);
+
+          _tasksSubject.OnNext(tasks);
+          _apiCallResultSubject.OnNext(new ApiCallResult()
+          {
+            IsSucceed = true,
+            Operation = "UpdateTask"
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "UpdateTask",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+    private async Task<TaskDto> GetTaskById(Guid taskId)
+    {
+      var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
+      return task;
+
+
+      //TaskDto task = null;
+      //if (_tasksSubject != null)
+      //{
+      //  task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
+      //}
+      //else
+      //{
+      //  await GetToken();
+
+      //  var response = await _http.GetAsync($"https://localhost:5001/api/tasks/{taskId}");
+      //  if (response.IsSuccessStatusCode)
+      //  {
+      //    string content = await response.Content.ReadAsStringAsync();
+      //    task = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModelForSinglePayload>(content).Payload;
+      //  }
+      //}
+
+      //return task;
+    }
+
   }
 }

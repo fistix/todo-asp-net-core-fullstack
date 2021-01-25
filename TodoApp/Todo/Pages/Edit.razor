@@ -1,0 +1,116 @@
+﻿@*@page "/edit/{TaskId}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient _http
+@inject AuthHandler _auth
+@inject TasksService _tasksService
+@inject TaskStateService _TaskStateService
+
+@using System.Net.Http.Headers
+@using Fistix.Training.Domain.Commands.Tasks
+@attribute [Authorize]
+
+@implements IDisposable
+
+
+<h3>Edit Task</h3>
+
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfTextBox @ref="Title" @bind-Value="@command.Title" FloatLabelType='@FloatLabelType.Auto'>
+</SfTextBox>
+
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+<SfTextBox @ref="Description" @bind-Value="@command.Description" FloatLabelType='@FloatLabelType.Auto'>
+</SfTextBox>
+
+<SfCheckBox Label="Is Active" @bind-Checked="@command.Active"></SfCheckBox>
+
+<div class="d-flex justify-content-center mt-4">
+  <div class="mr-5">
+    <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
+    <div id="container">
+      <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+                 Type="@SpinnerType.Bootstrap" Size="100">
+      </SfSpinner>
+    </div>
+  </div>
+
+  <div>
+    <SfButton CssClass="e-info">
+      <div>
+        <a href="/tasksList" class="text-white" Match="NavLinkMatch.All">
+          Go back
+        </a>
+      </div>
+    </SfButton>
+  </div>
+</div>
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+
+@code {
+  [Parameter]
+  public string TaskId { get; set; }
+
+  public string ErrorMessage = "";
+  SfTextBox Title;
+  SfTextBox Description;
+  public bool IsSucceed { get; set; }
+
+  public TaskDetail taskDetail = new TaskDetail();
+  UpdateTaskCommand command = new UpdateTaskCommand();
+
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = "Record updated successfully!";
+  private string ToastCssClass = "";
+
+  bool IsTaskRunning = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+
+  private IDisposable apiCallSub;
+
+  protected override async Task OnInitializedAsync()
+  {
+    taskDetail = await _tasksService.GetTaskById(Guid.Parse(TaskId));
+    command.Title = taskDetail.Title;
+    command.Description = taskDetail.Description;
+    command.Active = taskDetail.Active;
+
+    //StateHasChanged();
+  }
+
+
+  private async Task UpdateTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  {
+    if (command != null)
+    {
+      if (String.IsNullOrWhiteSpace(command.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(command.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+        var response = await _tasksService.Update(command, Guid.Parse(TaskId));
+
+
+        if (response.IsSuccessStatusCode)
+        {
+          IsSucceed = true;
+          IsTaskRunning = false;
+          SpinnerVisiblity = false;
+          await ToastObj.Show();
+          StateHasChanged();
+        }
+      }
+    }
+  }
+}*@

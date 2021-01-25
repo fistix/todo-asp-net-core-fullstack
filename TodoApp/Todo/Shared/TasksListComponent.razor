@@ -1,0 +1,157 @@
+﻿@using System.Net.Http.Headers
+
+@inject HttpClient _http
+@inject AuthHandler _auth
+@inject TasksService _tasksService
+@inject TaskStateService _TaskStateService
+
+@using Fistix.Training.Domain.Dtos
+
+
+
+<h1>Tasks - @Tasks.Count</h1>
+
+<span class="error">@ErrorDetails</span>
+
+<SfGrid @ref="Grid" DataSource="@Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+
+  <GridPageSettings PageSize="15"></GridPageSettings>
+
+  <GridColumns>
+    <GridColumn Field=@nameof(TaskDto.Title) HeaderText="Title" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Description) HeaderText="Description" Width="150"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Is Active" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
+
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="70">
+      <Template>
+        @{
+          var myObj = (context as TaskDto);
+          <div>
+            <SfButton CssClass="e-info">
+              <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
+                Edit
+              </a>
+            </SfButton>
+          </div>
+        }
+      </Template>
+    </GridColumn>
+
+    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="70">
+      <Template>
+        @{
+          var obj = (context as TaskDto);
+
+          <SfButton CssClass="e-danger" Disabled="IsTaskRunning" @onclick="() => StoreId(obj.TaskId)">
+            Delete
+            <div>
+              <div id="container">
+                <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+                           Type="@SpinnerType.Bootstrap" Size="100">
+                </SfSpinner>
+              </div>
+            </div>
+
+
+            <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
+              <DialogTemplates>
+                <Header> Confirm Delete</Header>
+                <Content> Are you sure you want to delete this record? (@idToBeDeleted)</Content>
+              </DialogTemplates>
+              <DialogButtons>
+                <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(idToBeDeleted)" />
+                <DialogButton Content="Cancel" OnClick="@CloseDialog" />
+              </DialogButtons>
+            </SfDialog>
+          </SfButton>
+        }
+      </Template>
+    </GridColumn>
+  </GridColumns>
+
+  <GridEvents TValue="TaskDto" OnActionBegin="ActionBegin"></GridEvents>
+</SfGrid>
+
+
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+@code {
+
+  //[Parameter]
+  //public List<TaskDetail> TaskDetails { get; set; }
+  [Parameter]
+  public List<TaskDto> Tasks { get; set; }
+
+  [Parameter]
+  public EventCallback OnRefershTask { get; set; }
+
+
+  private Guid? idToBeDeleted { get; set; }
+
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = "Record deleted successfully!";
+
+
+  bool IsTaskRunning = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+  private bool IsVisible { get; set; }
+  public string ErrorDetails = "";
+
+
+  SfGrid<TaskDto> Grid;
+
+
+  public async Task ActionBegin(ActionEventArgs<TaskDto> arg)
+  {
+    //Handles refresh operation
+    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
+    {
+      await OnRefershTask.InvokeAsync();
+      //await GetAllTasks();
+    }
+  }
+
+
+  private async Task Delete(Guid? val)
+  {
+
+    this.IsVisible = false;
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    var response = await _tasksService.Delete(val.Value);
+    CloseDialog();
+    if (response.IsSuccessStatusCode)
+    {
+      IsTaskRunning = false;
+      SpinnerVisiblity = false;
+      await ToastObj.Show();
+
+      //Refresh
+      Grid.Refresh();
+    }
+  }
+
+
+  private void StoreId(Guid? id)
+  {
+    idToBeDeleted = id;
+    OpenDialog().GetAwaiter().GetResult();
+  }
+
+  private async Task OpenDialog()
+  {
+    this.IsVisible = true;
+  }
+
+  private void CloseDialog()
+  {
+    this.IsVisible = false;
+  }
+
+}
