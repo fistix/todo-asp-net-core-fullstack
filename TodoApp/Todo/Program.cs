@@ -29,6 +29,7 @@ namespace Todo
       builder.Services.AddScoped<AuthHandler>();
       builder.Services.AddScoped<RequestHandler>();
       builder.Services.AddScoped<TasksService>();
+      builder.Services.AddScoped<TaskStateService>();
       //builder.Services.AddScoped<List<TaskDetail>>();
       builder.Services.AddSyncfusionBlazor();
 

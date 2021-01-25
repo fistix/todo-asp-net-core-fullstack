@@ -1,25 +1,67 @@
 ﻿@page "/tasks"
 @attribute [Authorize]
 @inject TasksService _tasksService
+@inject TaskStateService _TaskStateService
 
+@using Fistix.Training.Domain.Dtos
 
+@implements IDisposable
+
+<div>@Tasks.Count</div>
+<div>@ErrorMessage</div>
+<button @onclick="RefreshTasks">Refresh</button>
 <Tasks TaskDetails="@taskDetails" OnRefershTask="GetAllTasks" />
 
 @code {
 
   public List<TaskDetail> taskDetails = new List<TaskDetail>();
+  public List<TaskDto> Tasks = new List<TaskDto>();
+  private string ErrorMessage = string.Empty;
+  private IDisposable taskSub;
+  private IDisposable apiCallSub;
 
   protected override Task OnInitializedAsync()
-  {    
+  {
+
+    Subscribes();
+
     return GetAllTasks();
   }
 
   private async Task GetAllTasks()
-  {    
+  {
     taskDetails = await _tasksService.GetTasks();
-    StateHasChanged();   
+    StateHasChanged();
   }
 
+  private void RefreshTasks()
+  {
+    _TaskStateService.GetAllTasks();
+  }
+  private void Subscribes()
+  {
+    taskSub = _TaskStateService.TaskObservable.Subscribe(x =>
+    {
+      this.Tasks = x;
+      StateHasChanged();
+    });
 
+
+    apiCallSub = _TaskStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      if (x.IsSucceed == false && x.Operation == "GetAllTasks")
+      {
+        ErrorMessage = x.ErrorMessage;
+        StateHasChanged();
+      }
+    });
+
+  }
+
+  public void Dispose()
+  {
+    taskSub.Dispose();
+    apiCallSub.Dispose();
+  }
 
 }

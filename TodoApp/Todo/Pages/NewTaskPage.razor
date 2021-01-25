@@ -4,27 +4,28 @@
 @inject HttpClient _http
 @inject AuthHandler _auth
 @inject TasksService _tasksService
+@inject TaskStateService _TaskStateService
 @using System.Net.Http.Headers
 @attribute [Authorize]
 
+@implements IDisposable
 
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-<SfTextBox 
-           @ref="Title" Placeholder="Enter Title" 
+<SfTextBox @ref="Title" Placeholder="Enter Title"
            @bind-Value="@command.Title" FloatLabelType='@FloatLabelType.Auto'>
 </SfTextBox>
 
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-<SfTextBox 
-           @ref="Description" Placeholder="Enter Description" 
+<SfTextBox @ref="Description" Placeholder="Enter Description"
            @bind-Value="@command.Description" FloatLabelType='@FloatLabelType.Auto'>
 </SfTextBox>
 
 <SfCheckBox Label="Is Active" @bind-Checked="@command.Active"></SfCheckBox>
 
 <div class="d-flex justify-content-center mt-4">
-  <div  class="mr-5">
+  <div class="mr-5">
     <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AddTaskRequest">Create</SfButton>
+    <button @onclick="AddNewTask">Save</button>
     <div id="container">
       <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
                  Type="@SpinnerType.Bootstrap" Size="100">
@@ -48,19 +49,15 @@
 
 @code {
 
-  //Toast
-  SfToast ToastObj;
+    //Toast
+    SfToast ToastObj;
   private string ToastTitle = "Record created successfully!";
   private string ToastCssClass = "";
 
   bool IsTaskRunning = false;
   private bool SpinnerVisiblity { get; set; } = false;
 
-
-  protected override async Task OnInitializedAsync()
-  {
-    //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
-  }
+  private IDisposable apiCallSub;
 
   SfTextBox Title;
   SfTextBox Description;
@@ -69,6 +66,51 @@
   //TaskDetail taskDetail = new TaskDetail();
   CreateTaskCommand command = new CreateTaskCommand();
 
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
+
+
+  private void Subscribes()
+  {
+    apiCallSub = _TaskStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      switch (x.Operation)
+      {
+
+        case "CreateTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            ToastObj.Show().GetAwaiter().GetResult();
+
+            command.Title = "";
+            command.Description = "";
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
 
   private async Task AddTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
   {
@@ -101,5 +143,19 @@
         }
       }
     }
+  }
+
+
+  private void AddNewTask()
+  {
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    _TaskStateService.CreateTask(command);
+  }
+
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
   }
 }
