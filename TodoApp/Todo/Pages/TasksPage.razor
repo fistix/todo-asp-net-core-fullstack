@@ -1,27 +1,25 @@
 ﻿@page "/tasks"
 @attribute [Authorize]
 @inject TasksService _tasksService
-@inject List<TaskDetail> _source
 
-<Tasks TaskDetails="@_source" />
+
+<Tasks TaskDetails="@taskDetails" OnRefershTask="GetAllTasks" />
 
 @code {
 
   public List<TaskDetail> taskDetails = new List<TaskDetail>();
-  protected override Task OnInitializedAsync()
-  {
-    StateHasChanged();
-    return GetAllTasks();
 
-    //return base.OnInitializedAsync();
+  protected override Task OnInitializedAsync()
+  {    
+    return GetAllTasks();
   }
 
   private async Task GetAllTasks()
-  {
-    var responseModel = await _tasksService.GetTasks();
-    taskDetails = responseModel.Payload;
-
-    Console.WriteLine(responseModel.Payload.Count());
+  {    
+    taskDetails = await _tasksService.GetTasks();
+    StateHasChanged();   
   }
+
+
 
 }

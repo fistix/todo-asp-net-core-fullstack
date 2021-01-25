@@ -19,9 +19,9 @@
   private async Task GetAllTasks()
   {
     var responseModel = await _tasksService.GetTasks();
-    taskDetails = responseModel.Payload;
+    taskDetails = responseModel;
 
-    Console.WriteLine(responseModel.Payload.Count());
+    Console.WriteLine(responseModel.Count());
   }
 
 }

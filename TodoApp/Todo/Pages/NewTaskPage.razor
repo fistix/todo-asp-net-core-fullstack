@@ -88,12 +88,7 @@
         SpinnerVisiblity = true;
 
         var response = await _tasksService.Create(command);
-        //_http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _auth.GetAuthAccessToken());
 
-        //var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"https://localhost:5001/api/tasks")
-        //{
-        //  Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(taskDetail), System.Text.Encoding.UTF8, "application/json")
-        //});
         if (response.IsSuccessStatusCode)
         {
           IsSucceed = true;
@@ -102,6 +97,7 @@
           await ToastObj.Show();
           command.Title = "";
           command.Description = "";
+          StateHasChanged();
         }
       }
     }

@@ -3,18 +3,15 @@
 @inject HttpClient _http
 @inject AuthHandler _auth
 @inject TasksService _tasksService
-@inject List<TaskDetail> _source
 
   <h1>Tasks - @TaskDetails.Count</h1>
 
-
 <span class="error">@ErrorDetails</span>
-<SfGrid @ref="Grid" DataSource="@_source" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+
+<SfGrid @ref="Grid" DataSource="@TaskDetails" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
 
   <GridPageSettings PageSize="15"></GridPageSettings>
-  @*<GridEditSettings AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal">
-
-    </GridEditSettings>*@
+  
   <GridColumns>
     <GridColumn Field=@nameof(TaskDetail.Title) HeaderText="Title" Type="ColumnType.Date" TextAlign="TextAlign.Left" Width="120"></GridColumn>
     <GridColumn Field=@nameof(TaskDetail.Description) HeaderText="Description" Width="150"></GridColumn>
@@ -67,7 +64,6 @@
         }
       </Template>
     </GridColumn>
-
   </GridColumns>
 
   <GridEvents TValue="TaskDetail" OnActionBegin="ActionBegin"></GridEvents>
@@ -84,75 +80,56 @@
   [Parameter]
   public List<TaskDetail> TaskDetails { get; set; }
 
+  [Parameter]
+  public EventCallback OnRefershTask { get; set; }
 
-  //Guid? idToBeDeleted = null;
-  public Guid? idToBeDeleted { get; set; }
+
+  private Guid? idToBeDeleted { get; set; }
 
   //Toast
   SfToast ToastObj;
   private string ToastTitle = "Record deleted successfully!";
-  private string ToastCssClass = "";
+
 
   bool IsTaskRunning = false;
   private bool SpinnerVisiblity { get; set; } = false;
-
-
   private bool IsVisible { get; set; }
-
-  SfGrid<TaskDetail> Grid;
-  SearchTodoComponent searchTodoComponent;
-
   public string ErrorDetails = "";
 
-  //public ResponseModel responseModel = null;
 
+  SfGrid<TaskDetail> Grid;
 
-
-  ////Added temporary
-  //protected override Task OnInitializedAsync()
-  //{
-  //  StateHasChanged();
-  //  return GetAllTasks();
-
-  //  //return base.OnInitializedAsync();
-  //}
 
   public async Task ActionBegin(ActionEventArgs<TaskDetail> arg)
   {
     //Handles refresh operation
     if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
     {
-      await GetAllTasks();
+      await OnRefershTask.InvokeAsync();
+      //await GetAllTasks();
     }
   }
 
 
   private async Task Delete(Guid? val)
   {
+
     this.IsVisible = false;
     IsTaskRunning = true;
     SpinnerVisiblity = true;
-    var response = await _tasksService.Delete(val);
+    var response = await _tasksService.Delete(val.Value);
     CloseDialog();
     if (response.IsSuccessStatusCode)
     {
       IsTaskRunning = false;
       SpinnerVisiblity = false;
       await ToastObj.Show();
-      //Refresh
 
-      //await GetAllTasks();
+      //Refresh
       Grid.Refresh();
     }
   }
-  //Refresh
-  private async Task GetAllTasks()
-  {
-    var responseModel = await _tasksService.GetTasks();
-    TaskDetails = responseModel.Payload;
 
-    //Console.WriteLine(responseModel.Payload.Count());
-  }
 
   private void StoreId(Guid? id)
   {
@@ -169,6 +146,5 @@
   {
     this.IsVisible = false;
   }
-
 
 }

@@ -74,7 +74,7 @@
     command.Description = taskDetail.Description;
     command.Active = taskDetail.Active;
 
-    StateHasChanged();
+    //StateHasChanged();
   }
 
 
@@ -103,6 +103,7 @@
           IsTaskRunning = false;
           SpinnerVisiblity = false;
           await ToastObj.Show();
+          StateHasChanged();
         }
       }
     }
