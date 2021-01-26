@@ -1,6 +1,6 @@
 ﻿@page "/tasksList"
 @attribute [Authorize]
-@inject TasksService _tasksService
+@*@inject TasksService _tasksService*@
 @inject TaskStateService _TaskStateService
 
 @using Fistix.Training.Domain.Dtos
@@ -9,36 +9,29 @@
 
 <div>@Tasks.Count</div>
 <div>@ErrorMessage</div>
-<button @onclick="RefreshTasks">Refresh</button>
-<TasksListComponent Tasks="@Tasks" OnRefershTask="RefreshTasks" />
+@*<button @onclick="RefreshTasks">Refresh</button>*@
+<TasksListComponent Tasks="@Tasks" />
+@*<TasksListComponent Tasks="@Tasks" OnRefershTask="RefreshTasks" />*@
+
+
 
 @code {
 
-  public List<TaskDetail> taskDetails = new List<TaskDetail>();
   public List<TaskDto> Tasks = new List<TaskDto>();
   private string ErrorMessage = string.Empty;
   private IDisposable taskSub;
   private IDisposable apiCallSub;
 
-  protected override Task OnInitializedAsync()
+  protected override void OnInitialized()
   {
-
     Subscribes();
-
-    return GetAllTasks();
-    //return RefreshTasks();
   }
 
-  private async Task GetAllTasks()
-  {
-    taskDetails = await _tasksService.GetTasks();
-    StateHasChanged();
-  }
+  //private void RefreshTasks()
+  //{
+  //  _TaskStateService.GetAllTasks();
+  //}
 
-  private void RefreshTasks()
-  {
-    _TaskStateService.GetAllTasks();
-  }
   private void Subscribes()
   {
     taskSub = _TaskStateService.TaskObservable.Subscribe(x =>

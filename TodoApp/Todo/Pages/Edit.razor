@@ -1,4 +1,4 @@
-﻿@*@page "/edit/{TaskId}"
+﻿@page "/edit/{TaskId}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject HttpClient _http
 @inject AuthHandler _auth
@@ -7,6 +7,7 @@
 
 @using System.Net.Http.Headers
 @using Fistix.Training.Domain.Commands.Tasks
+@using Fistix.Training.Domain.Dtos
 @attribute [Authorize]
 
 @implements IDisposable
@@ -26,12 +27,7 @@
 
 <div class="d-flex justify-content-center mt-4">
   <div class="mr-5">
-    <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="UpdateTaskRequest">Update</SfButton>
-    <div id="container">
-      <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-                 Type="@SpinnerType.Bootstrap" Size="100">
-      </SfSpinner>
-    </div>
+    <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="UpdateTask">Update</SfButton>
   </div>
 
   <div>
@@ -43,6 +39,12 @@
       </div>
     </SfButton>
   </div>
+</div>
+
+<div id="container">
+  <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+             Type="@SpinnerType.Bootstrap" Size="100">
+  </SfSpinner>
 </div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
@@ -59,7 +61,7 @@
   SfTextBox Description;
   public bool IsSucceed { get; set; }
 
-  public TaskDetail taskDetail = new TaskDetail();
+  public TaskDto taskDto = new TaskDto();
   UpdateTaskCommand command = new UpdateTaskCommand();
 
   //Toast
@@ -74,16 +76,18 @@
 
   protected override async Task OnInitializedAsync()
   {
-    taskDetail = await _tasksService.GetTaskById(Guid.Parse(TaskId));
-    command.Title = taskDetail.Title;
-    command.Description = taskDetail.Description;
-    command.Active = taskDetail.Active;
+    taskDto = await _TaskStateService.GetTaskById(Guid.Parse(TaskId));
+
+    command.Title = taskDto.Title;
+    command.Description = taskDto.Description;
+    command.Active = taskDto.Active;
+    Subscribes();
 
     //StateHasChanged();
   }
 
 
-  private async Task UpdateTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+  private void UpdateTask()
   {
     if (command != null)
     {
@@ -99,18 +103,51 @@
       {
         IsTaskRunning = true;
         SpinnerVisiblity = true;
-        var response = await _tasksService.Update(command, Guid.Parse(TaskId));
-
-
-        if (response.IsSuccessStatusCode)
-        {
-          IsSucceed = true;
-          IsTaskRunning = false;
-          SpinnerVisiblity = false;
-          await ToastObj.Show();
-          StateHasChanged();
-        }
+        _TaskStateService.UpdateTask(Guid.Parse(TaskId), command);
       }
     }
   }
-}*@
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _TaskStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      switch (x.Operation)
+      {
+
+        case "UpdateTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            ToastObj.Show().GetAwaiter().GetResult();
+
+          //command.Title = "";
+          //command.Description = "";
+
+          StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+}

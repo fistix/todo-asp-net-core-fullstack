@@ -49,8 +49,8 @@
 
 @code {
 
-    //Toast
-    SfToast ToastObj;
+  //Toast
+  SfToast ToastObj;
   private string ToastTitle = "Record created successfully!";
   private string ToastCssClass = "";
 
@@ -63,7 +63,6 @@
   SfTextBox Description;
   public string ErrorMessage = "";
   public bool IsSucceed { get; set; }
-  //TaskDetail taskDetail = new TaskDetail();
   CreateTaskCommand command = new CreateTaskCommand();
 
 
@@ -73,7 +72,6 @@
     Subscribes();
     base.OnInitialized();
   }
-
 
   private void Subscribes()
   {
@@ -112,6 +110,19 @@
 
   }
 
+  private void AddNewTask()
+  {
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    _TaskStateService.CreateTask(command);
+  }
+
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+
   private async Task AddTaskRequest(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
   {
     if (command != null)
@@ -146,16 +157,5 @@
   }
 
 
-  private void AddNewTask()
-  {
-    IsTaskRunning = true;
-    SpinnerVisiblity = true;
-    _TaskStateService.CreateTask(command);
-  }
 
-
-  public void Dispose()
-  {
-    apiCallSub.Dispose();
-  }
 }

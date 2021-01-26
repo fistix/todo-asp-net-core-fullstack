@@ -37,6 +37,11 @@ namespace Todo.Shared.Services
     {
       await GetAll();
     }
+    public async Task<TaskDto> GetTaskById(Guid id)
+    {
+      var task = await GetById(id);
+      return task;
+    }
     public async void CreateTask(CreateTaskCommand command)
     {
       await Create(command);
@@ -45,6 +50,12 @@ namespace Todo.Shared.Services
     {
       await Update(id, command);
     }
+    public async void DeleteTask(Guid id)
+    {
+      await Delete(id);
+    }
+
+
 
     private async Task GetAll()
     {
@@ -79,7 +90,7 @@ namespace Todo.Shared.Services
     {
       try
       {
-
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
         var response = await _httpClient.PostAsJsonAsync<CreateTaskCommand>("api/Tasks", command);
         if (response.IsSuccessStatusCode)
         {
@@ -89,6 +100,7 @@ namespace Todo.Shared.Services
           tasks.Add(commandResult.Payload);
 
           _tasksSubject.OnNext(tasks);
+
           _apiCallResultSubject.OnNext(new ApiCallResult()
           {
             IsSucceed = true,
@@ -112,19 +124,28 @@ namespace Todo.Shared.Services
     {
       try
       {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        
+        //For replacing the object
+        var task = await GetById(id);
 
-        var response = await _httpClient.PostAsJsonAsync<UpdateTaskCommand>("api/Tasks", command);
+        var response = await _httpClient.PutAsJsonAsync<UpdateTaskCommand>($"api/Tasks/{id}", command);
         if (response.IsSuccessStatusCode)
         {
-
-
           var commandResult = await response.Content.ReadFromJsonAsync<UpdateTaskCommandResult>();
-
 
           var tasks = new List<TaskDto>(_tasksSubject.Value);
 
-          tasks.Remove(tasks.SingleOrDefault(t => t.TaskId.Equals(id)));
-          tasks.Add(commandResult.Payload);
+
+          //For replacing the object
+          var idx = tasks.IndexOf(task);
+          if(idx >= 0)
+          {
+            tasks[idx] = commandResult.Payload;
+          }
+
+          //tasks.Remove(tasks.SingleOrDefault(t => t.TaskId.Equals(id)));
+          //tasks.Add(commandResult.Payload);
 
           _tasksSubject.OnNext(tasks);
           _apiCallResultSubject.OnNext(new ApiCallResult()
@@ -146,31 +167,104 @@ namespace Todo.Shared.Services
       }
     }
 
-    private async Task<TaskDto> GetTaskById(Guid taskId)
+
+    private async Task<TaskDto> GetById(Guid id)
     {
-      var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
-      return task;
+      try
+      {
+        //var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(id));
+        //return task;
+        TaskDto task = null;
+        if (_tasksSubject != null)
+        {
+          task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(id));
+          return task;
+        }
+        else
+        {
+          _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
 
+          var queryResult = await _httpClient.GetFromJsonAsync<GetTaskDetailByIdQueryResult>("api/tasks/{id}");
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+          tasks.Add(queryResult.Payload);
+          _tasksSubject.OnNext(tasks);
+          return task;
+        }
 
-      //TaskDto task = null;
-      //if (_tasksSubject != null)
-      //{
-      //  task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
-      //}
-      //else
-      //{
-      //  await GetToken();
-
-      //  var response = await _http.GetAsync($"https://localhost:5001/api/tasks/{taskId}");
-      //  if (response.IsSuccessStatusCode)
-      //  {
-      //    string content = await response.Content.ReadAsStringAsync();
-      //    task = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModelForSinglePayload>(content).Payload;
-      //  }
-      //}
-
-      //return task;
+      }
+      catch (Exception ex)
+      {
+         _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetTaskById",
+          ErrorMessage = ex.Message
+        });
+        return null;
+      }
     }
+
+
+    private async Task Delete(Guid id)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+
+        var response = await _httpClient.DeleteAsync($"api/Tasks/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+
+          tasks.Remove(tasks.SingleOrDefault(t => t.TaskId.Equals(id)));
+
+          _tasksSubject.OnNext(tasks);
+          _apiCallResultSubject.OnNext(new ApiCallResult()
+          {
+            IsSucceed = true,
+            Operation = "DeleteTask"
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "DeleteTask",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+
+
+    //private async Task<TaskDto> GetTaskById(Guid taskId)
+    //{
+    //  var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
+    //  return task;
+
+
+    //  //TaskDto task = null;
+    //  //if (_tasksSubject != null)
+    //  //{
+    //  //  task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));
+    //  //}
+    //  //else
+    //  //{
+    //  //  await GetToken();
+
+    //  //  var response = await _http.GetAsync($"https://localhost:5001/api/tasks/{taskId}");
+    //  //  if (response.IsSuccessStatusCode)
+    //  //  {
+    //  //    string content = await response.Content.ReadAsStringAsync();
+    //  //    task = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseModelForSinglePayload>(content).Payload;
+    //  //  }
+    //  //}
+
+    //  //return task;
+    //}
 
   }
 }

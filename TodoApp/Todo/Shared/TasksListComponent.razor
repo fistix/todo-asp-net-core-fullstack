@@ -4,23 +4,41 @@
 @inject AuthHandler _auth
 @inject TasksService _tasksService
 @inject TaskStateService _TaskStateService
-
 @using Fistix.Training.Domain.Dtos
-
-
+@implements IDisposable
 
 <h1>Tasks - @Tasks.Count</h1>
 
 <span class="error">@ErrorDetails</span>
+
+@*<thead>
+    <tr>
+      <td>Title</td>
+      <td>Description</td>
+      <td>Is Active</td>
+    </tr>
+  </thead>
+  @foreach (var task in Tasks)
+  {
+    <tbody>
+      <tr>
+        <td>@task.Title</td>
+        <td>@task.Description</td>
+        <td>@task.Active</td>
+      </tr>
+    </tbody>
+  }*@
+
+<SfButton OnClick="RefreshTasks" Disabled="IsTaskRunning">Refresh</SfButton>
 
 <SfGrid @ref="Grid" DataSource="@Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
 
   <GridPageSettings PageSize="15"></GridPageSettings>
 
   <GridColumns>
-    <GridColumn Field=@nameof(TaskDto.Title) HeaderText="Title" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Title) HeaderText="Title" TextAlign="TextAlign.Left" Width="100"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.Description) HeaderText="Description" Width="150"></GridColumn>
-    <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Is Active" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Active" TextAlign="TextAlign.Left" Width="70"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
 
@@ -46,15 +64,7 @@
 
           <SfButton CssClass="e-danger" Disabled="IsTaskRunning" @onclick="() => StoreId(obj.TaskId)">
             Delete
-            <div>
-              <div id="container">
-                <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-                           Type="@SpinnerType.Bootstrap" Size="100">
-                </SfSpinner>
-              </div>
-            </div>
-
-
+            
             <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
               <DialogTemplates>
                 <Header> Confirm Delete</Header>
@@ -74,7 +84,13 @@
   <GridEvents TValue="TaskDto" OnActionBegin="ActionBegin"></GridEvents>
 </SfGrid>
 
-
+<div>
+  <div id="container">
+    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
@@ -82,13 +98,13 @@
 
 @code {
 
-  //[Parameter]
-  //public List<TaskDetail> TaskDetails { get; set; }
   [Parameter]
   public List<TaskDto> Tasks { get; set; }
 
-  [Parameter]
-  public EventCallback OnRefershTask { get; set; }
+  //[Parameter]
+  //public EventCallback OnRefershTask { get; set; }
+
+
 
 
   private Guid? idToBeDeleted { get; set; }
@@ -97,8 +113,7 @@
   SfToast ToastObj;
   private string ToastTitle = "Record deleted successfully!";
 
-
-  bool IsTaskRunning = false;
+  private bool IsTaskRunning { get; set; } = false;
   private bool SpinnerVisiblity { get; set; } = false;
   private bool IsVisible { get; set; }
   public string ErrorDetails = "";
@@ -106,45 +121,104 @@
 
   SfGrid<TaskDto> Grid;
 
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  public bool IsSucceed { get; set; }
+
 
   public async Task ActionBegin(ActionEventArgs<TaskDto> arg)
   {
     //Handles refresh operation
     if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
     {
-      await OnRefershTask.InvokeAsync();
+
+      //await OnRefershTask.InvokeAsync();
       //await GetAllTasks();
     }
   }
 
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
 
-  private async Task Delete(Guid? val)
+  private void RefreshTasks()
+  {
+    this.IsVisible = false;
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    _TaskStateService.GetAllTasks();
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _TaskStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      switch (x.Operation)
+      {
+
+        case "DeleteTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+
+        case "GetAllTasks":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+  private /*async Task*/void Delete(Guid? val)
   {
 
     this.IsVisible = false;
     IsTaskRunning = true;
     SpinnerVisiblity = true;
-    var response = await _tasksService.Delete(val.Value);
+    _TaskStateService.DeleteTask(val.Value);
     CloseDialog();
-    if (response.IsSuccessStatusCode)
-    {
-      IsTaskRunning = false;
-      SpinnerVisiblity = false;
-      await ToastObj.Show();
-
-      //Refresh
-      Grid.Refresh();
-    }
   }
 
 
   private void StoreId(Guid? id)
   {
     idToBeDeleted = id;
-    OpenDialog().GetAwaiter().GetResult();
+    OpenDialog()/*.GetAwaiter().GetResult()*/;
   }
 
-  private async Task OpenDialog()
+  private /*async Task*/void OpenDialog()
   {
     this.IsVisible = true;
   }
@@ -152,6 +226,10 @@
   private void CloseDialog()
   {
     this.IsVisible = false;
+  }
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
   }
 
 }
