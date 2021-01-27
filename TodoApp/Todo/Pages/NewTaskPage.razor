@@ -26,11 +26,6 @@
   <div class="mr-5">
     <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AddTaskRequest">Create</SfButton>
     <button @onclick="AddNewTask">Save</button>
-    <div id="container">
-      <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-                 Type="@SpinnerType.Bootstrap" Size="100">
-      </SfSpinner>
-    </div>
   </div>
   <div>
     <SfButton CssClass="e-info">
@@ -42,6 +37,12 @@
     </SfButton>
   </div>
 </div>
+
+@*<div id="container">*@
+  <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+             Type="@SpinnerType.Bootstrap" Size="100">
+  </SfSpinner>
+@*</div>*@
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
@@ -112,9 +113,23 @@
 
   private void AddNewTask()
   {
-    IsTaskRunning = true;
-    SpinnerVisiblity = true;
-    _TaskStateService.CreateTask(command);
+    if (command != null)
+    {
+      if (String.IsNullOrWhiteSpace(command.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(command.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+        _TaskStateService.CreateTask(command);
+      }
+    }
   }
 
 

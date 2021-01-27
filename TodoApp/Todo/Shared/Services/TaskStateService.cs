@@ -1,5 +1,6 @@
 ﻿using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.Queries.Profiles;
 using Fistix.Training.Domain.Queries.Tasks;
 using System;
 using System.Collections.Generic;
@@ -29,13 +30,51 @@ namespace Todo.Shared.Services
 
     private BehaviorSubject<List<TaskDto>> _tasksSubject = new BehaviorSubject<List<TaskDto>>(new List<TaskDto>());
     private Subject<ApiCallResult> _apiCallResultSubject = new Subject<ApiCallResult>();
+
+    private BehaviorSubject<ProfileDto> _profilesSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
+   
     public IObservable<List<TaskDto>> TaskObservable { get { return _tasksSubject; } }
     public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
+    
+    public IObservable<ProfileDto> ProfileObservable { get { return _profilesSubject; } }
+
 
 
     public async void GetAllTasks()
     {
       await GetAll();
+    }
+    public async void GetMyProfileDetail()
+    {
+      await GetMyProfile();
+    }
+    private async Task GetMyProfile()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var result = await _httpClient.GetFromJsonAsync< GetProfileDetailByEmailQueryResult >("api/Profiles/MyProfile");
+
+        _profilesSubject.OnNext(result.Payload);
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = true,
+          Operation = "GetMyProfileDetail"
+        });
+
+      }
+      catch (Exception ex)
+      {
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetMyProfileDetail",
+          ErrorMessage = ex.Message
+        });
+      }
+
     }
     public async Task<TaskDto> GetTaskById(Guid id)
     {

@@ -1,0 +1,67 @@
+﻿@page "/getMyProfile"
+@attribute [Authorize]
+@inject TaskStateService _TaskStateService
+@implements IDisposable
+@using Fistix.Training.Domain.Queries.Profiles
+
+GetProfileDetailByEmailQuery
+
+<h3>GetMyProfile</h3>
+
+<SfButton CssClass="e-info" OnClick="GetProfile">
+  Get Profile
+</SfButton>
+@code {
+
+  private IDisposable apiCallSub;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+  }
+  private void GetProfile()
+  {
+    _TaskStateService.GetMyProfileDetail();
+  }
+
+
+  private void Subscribes()
+  {
+    apiCallSub = _TaskStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      switch (x.Operation)
+      {
+
+        case "DeleteTask":
+
+          if (x.IsSucceed == false)
+          {
+            //ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

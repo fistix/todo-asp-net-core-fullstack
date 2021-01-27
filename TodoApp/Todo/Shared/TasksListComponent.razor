@@ -5,6 +5,7 @@
 @inject TasksService _tasksService
 @inject TaskStateService _TaskStateService
 @using Fistix.Training.Domain.Dtos
+@using Fistix.Training.Domain.Commands.Tasks
 @implements IDisposable
 
 <h1>Tasks - @Tasks.Count</h1>
@@ -28,8 +29,98 @@
       </tr>
     </tbody>
   }*@
+@*<div class="d-flex justify-content-center mt-4">*@
+<div class="d-flex justify-content-between mb-2">
+  <div class="mr-5">
+    <SfButton OnClick="RefreshTasks" Disabled="IsTaskRunning">Refresh</SfButton>
+  </div>
 
-<SfButton OnClick="RefreshTasks" Disabled="IsTaskRunning">Refresh</SfButton>
+  <div>
+    <SfButton OnClick="CreateModalOpen" Disabled="IsTaskRunning" CssClass="e-primary">Add New Task</SfButton>
+    @*<button type="button" class="btn btn-secondary" @onclick="OpenModal" >Add New Task</button>*@
+
+  </div>
+</div>
+@if (CreateModalPopup)
+{
+  <div class="modal" tabindex="-1" role="dialog" style="display: block; background: #00000033;">
+    <div class="modal-dialog">
+      <div class="modal-content" style="position: absolute; right: -85px; top: 203px;">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CreateModalClose"></button>
+        </div>
+        <div class="modal-body">
+          @*<p>Modal body text goes here.</p>*@
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Title" Placeholder="Enter Title"
+                     @bind-Value="@CreateCommand.Title" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Description" Placeholder="Enter Description"
+                     @bind-Value="@CreateCommand.Description" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <SfCheckBox Label="Is Active" @bind-Checked="@CreateCommand.Active"></SfCheckBox>
+
+          <div class="d-flex justify-content-center mt-4">
+            <div class="mr-5">
+              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AddNewTask">Create</SfButton>
+              @*<button @onclick="AddNewTask">Save</button>*@
+
+              <SfButton CssClass="e-info" OnClick="CreateModalClose">
+                Close
+              </SfButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (EditModalPopup)
+{
+  <div class="modal" tabindex="-1" role="dialog" style="display: block; background: #00000033;">
+    <div class="modal-dialog">
+      <div class="modal-content" style="position: absolute; right: -85px; top: 203px;">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="EditModalClose"></button>
+        </div>
+        <div class="modal-body">
+          @*<p>Modal body text goes here.</p>*@
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Title" Placeholder="Enter Title"
+                     @bind-Value="@UpdateCommand.Title" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Description" Placeholder="Enter Description"
+                     @bind-Value="@UpdateCommand.Description" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <SfCheckBox Label="Is Active" @bind-Checked="@UpdateCommand.Active"></SfCheckBox>
+
+          <div class="d-flex justify-content-center mt-4">
+            <div class="mr-5">
+              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="UpdateTask">Update</SfButton>
+              @*<button @onclick="AddNewTask">Save</button>*@
+
+              <SfButton CssClass="e-info" OnClick="EditModalClose">
+                Close
+              </SfButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 
 <SfGrid @ref="Grid" DataSource="@Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
 
@@ -37,12 +128,12 @@
 
   <GridColumns>
     <GridColumn Field=@nameof(TaskDto.Title) HeaderText="Title" TextAlign="TextAlign.Left" Width="100"></GridColumn>
-    <GridColumn Field=@nameof(TaskDto.Description) HeaderText="Description" Width="150"></GridColumn>
-    <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Active" TextAlign="TextAlign.Left" Width="70"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Description) HeaderText="Description" Width="100"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Active" TextAlign="TextAlign.Center" Width="70"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
 
-    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="70">
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="100">
       <Template>
         @{
           var myObj = (context as TaskDto);
@@ -51,6 +142,9 @@
               <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
                 Edit
               </a>
+            </SfButton>
+            <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => EditTask(myObj.TaskId)">
+              Edit Modal
             </SfButton>
           </div>
         }
@@ -64,24 +158,24 @@
 
           <SfButton CssClass="e-danger" Disabled="IsTaskRunning" @onclick="() => StoreId(obj.TaskId)">
             Delete
-            
-            <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
-              <DialogTemplates>
-                <Header> Confirm Delete</Header>
-                <Content> Are you sure you want to delete this record? (@idToBeDeleted)</Content>
-              </DialogTemplates>
-              <DialogButtons>
-                <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(idToBeDeleted)" />
-                <DialogButton Content="Cancel" OnClick="@CloseDialog" />
-              </DialogButtons>
-            </SfDialog>
           </SfButton>
+          <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible"
+                    CloseOnEscape="true">
+            <DialogTemplates>
+              <Header> Confirm Delete</Header>
+              <Content> Are you sure you want to delete this record? (@idToBeDeleted)</Content>
+            </DialogTemplates>
+            <DialogButtons>
+              <DialogButton Content="OK" IsPrimary="true" @onclick="() => Delete(idToBeDeleted)" />
+              <DialogButton Content="Cancel" OnClick="@CloseDialog" />
+            </DialogButtons>
+          </SfDialog>
         }
       </Template>
     </GridColumn>
   </GridColumns>
 
-  <GridEvents TValue="TaskDto" OnActionBegin="ActionBegin"></GridEvents>
+  @*<GridEvents TValue="TaskDto" OnActionBegin="ActionBegin"></GridEvents>*@
 </SfGrid>
 
 <div>
@@ -98,14 +192,97 @@
 
 @code {
 
-  [Parameter]
-  public List<TaskDto> Tasks { get; set; }
 
   //[Parameter]
   //public EventCallback OnRefershTask { get; set; }
 
 
+  //Create start
+  private bool CreateModalPopup { get; set; }
+  SfTextBox Title;
+  SfTextBox Description;
+  CreateTaskCommand CreateCommand = new CreateTaskCommand();
 
+  private void CreateModalOpen()
+  {
+    this.CreateModalPopup = true;
+  }
+  private void CreateModalClose()
+  {
+    this.CreateModalPopup = false;
+  }
+
+  private void AddNewTask()
+  {
+    if (CreateCommand != null)
+    {
+      if (String.IsNullOrWhiteSpace(CreateCommand.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(CreateCommand.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+        _TaskStateService.CreateTask(CreateCommand);
+      }
+    }
+  }
+
+  //Edit start
+  //public string TaskId { get; set; }
+  private bool EditModalPopup { get; set; }
+  private TaskDto taskDto = new TaskDto();
+  UpdateTaskCommand UpdateCommand = new UpdateTaskCommand();
+  private void EditModalOpen()
+  {
+    this.EditModalPopup = true;
+  }
+  private void EditModalClose()
+  {
+    this.EditModalPopup = false;
+  }
+
+  private async void EditTask(Guid? TaskId)
+  {
+    taskDto = await _TaskStateService.GetTaskById(Guid.Parse(TaskId.ToString()));
+
+    UpdateCommand.Title = taskDto.Title;
+    UpdateCommand.Description = taskDto.Description;
+    UpdateCommand.Active = taskDto.Active;
+    UpdateCommand.Id = Guid.Parse(taskDto.TaskId.ToString());
+    EditModalOpen();
+    Subscribes();
+
+    //StateHasChanged();
+  }
+  private void UpdateTask()
+  {
+    if (UpdateCommand != null)
+    {
+      if (String.IsNullOrWhiteSpace(UpdateCommand.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(UpdateCommand.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+        _TaskStateService.UpdateTask(UpdateCommand.Id, UpdateCommand);
+      }
+    }
+  }
+
+  [Parameter]
+  public List<TaskDto> Tasks { get; set; }
 
   private Guid? idToBeDeleted { get; set; }
 
@@ -126,16 +303,16 @@
   public bool IsSucceed { get; set; }
 
 
-  public async Task ActionBegin(ActionEventArgs<TaskDto> arg)
-  {
-    //Handles refresh operation
-    if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
-    {
+  //public async Task ActionBegin(ActionEventArgs<TaskDto> arg)
+  //{
+  //  //Handles refresh operation
+  //  if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Refresh))
+  //  {
 
-      //await OnRefershTask.InvokeAsync();
-      //await GetAllTasks();
-    }
-  }
+  //    //await OnRefershTask.InvokeAsync();
+  //    //await GetAllTasks();
+  //  }
+  //}
 
   protected override void OnInitialized()
   {
@@ -196,11 +373,63 @@
           }
 
           break;
+
+        case "CreateTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            ToastObj.Show().GetAwaiter().GetResult();
+
+            CreateCommand.Title = "";
+            CreateCommand.Description = "";
+
+            CreateModalClose();
+
+            StateHasChanged();
+          }
+
+          break;
+
+        case "UpdateTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            ToastObj.Show().GetAwaiter().GetResult();
+
+            //command.Title = "";
+            //command.Description = "";
+
+            EditModalClose();
+
+            StateHasChanged();
+          }
+
+          break;
       }
 
     });
 
   }
+
+  //Delete start
   private /*async Task*/void Delete(Guid? val)
   {
 
@@ -210,7 +439,6 @@
     _TaskStateService.DeleteTask(val.Value);
     CloseDialog();
   }
-
 
   private void StoreId(Guid? id)
   {
@@ -231,5 +459,6 @@
   {
     apiCallSub.Dispose();
   }
+  //Delete end
 
 }
