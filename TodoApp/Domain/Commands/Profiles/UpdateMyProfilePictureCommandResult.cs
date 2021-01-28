@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fistix.Training.Domain.Commands.MyProfile
+namespace Fistix.Training.Domain.Commands.Profiles
 {
   public class UpdateMyProfilePictureCommandResult
   {

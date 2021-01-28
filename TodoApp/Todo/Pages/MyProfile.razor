@@ -1,0 +1,103 @@
+﻿@page "/MyProfile"
+@attribute [Authorize]
+@inject ProfileStateService _ProfileStateService
+@implements IDisposable
+@using Fistix.Training.Domain.Dtos
+
+
+<EditMyProfileComponent Profile="@Profile"/>
+
+
+<div>
+  <div id="container">
+    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
+@*}*@
+
+
+
+@code {
+  public ProfileDto Profile = new ProfileDto();
+  private string ErrorMessage = string.Empty;
+  private IDisposable profileSub;
+  private IDisposable apiCallSub;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+    profileSub.Dispose();
+  }
+
+  
+
+  private bool IsTaskRunning { get; set; } = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+  private bool ShowProfileDetail { get; set; } = false;
+
+
+
+  
+
+  private void GetProfile()
+  {
+    ShowProfileDetail = true;
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    _ProfileStateService.GetMyProfileDetail();
+  }
+
+
+  private void Subscribes()
+  {
+    profileSub = _ProfileStateService.ProfileObservable.Subscribe(x =>
+    {
+      this.Profile = x;
+      StateHasChanged();
+    });
+
+    apiCallSub = _ProfileStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.ErrorMessage);
+      switch (x.Operation)
+      {
+
+        case "GetMyProfileDetail":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+
+
+          else
+          {
+          //IsSucceed = true;
+          IsTaskRunning = false;
+          SpinnerVisiblity = false;
+
+          //ToastObj.Show().GetAwaiter().GetResult();
+
+          StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+
+}

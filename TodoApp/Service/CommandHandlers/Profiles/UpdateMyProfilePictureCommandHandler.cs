@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
 using Fistix.Training.Core.Config;
-using Fistix.Training.Domain.Commands.MyProfile;
+using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Service.AzureFileService;
 using MediatR;
 using System;

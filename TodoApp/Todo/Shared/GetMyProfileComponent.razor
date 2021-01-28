@@ -1,0 +1,16 @@
+﻿@*@attribute [Authorize]
+@inject TaskStateService _TaskStateService
+@implements IDisposable
+@using Fistix.Training.Domain.Queries.Profiles
+@using Fistix.Training.Domain.Dtos
+
+<h3>GetMyProfileComponent</h3>
+
+
+
+
+
+@code {
+  [Parameter]
+  public ProfileDto Profile { get; set; }
+}*@

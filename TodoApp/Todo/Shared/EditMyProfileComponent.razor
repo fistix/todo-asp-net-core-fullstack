@@ -1,0 +1,188 @@
+﻿@inject ProfileStateService _ProfileStateService
+@using Microsoft.AspNetCore.Http
+
+
+@using Fistix.Training.Domain.Dtos
+
+@*@if(ShowProfileDetail)
+  {*@
+<div class="justify-content-center mt-4">
+  <div class="mt-4">
+    <label>Email</label>
+    <SfTextBox Readonly="true" @bind-Value="Profile.Email"></SfTextBox>
+  </div>
+
+  <div class="mt-4">
+    <label>FirstName</label>
+    <SfTextBox @ref="FirstName" @bind-Value="Profile.FirstName"></SfTextBox>
+  </div>
+
+  <div class="mt-4">
+    @*<label style="color: tomato; font-size: 10px">@ErrorDetails>LastName</label>*@
+    <label>LastName</label>
+    <SfTextBox @ref="LastName" @bind-Value="Profile.LastName"></SfTextBox>
+  </div>
+
+  <div class="mt-4">
+    <label>Picture URL</label>
+    <img Readonly="true" src="@Profile.ProfilePictureUrl" width="100" height="100" />
+  </div>
+</div>
+
+
+<div class="mt-4">
+  <label>Profile Picture</label>
+  <InputFile OnChange="HandleInputFileOnChange" ></InputFile>
+      @*       @bind-value="updateProfilePicture.ProfilePicture" AllowedExtensions=".jpg, .png" MinFileSize=10000 MaxFileSize=1000000></InputFile>*@
+</div>
+
+
+
+<div class="mt-4">
+  <SfButton CssClass="e-success" Disabled="IsTaskRunning" OnClick="UpdateProfile">
+    Update
+  </SfButton>
+</div>
+
+
+
+
+<div>
+  <div id="container">
+    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
+
+@code {
+
+  [Parameter]
+  public ProfileDto Profile { get; set; }
+  UpdateMyProfileCommand updateCommand = new UpdateMyProfileCommand();
+
+  UpdateMyProfilePictureCommand updateProfilePicture= new UpdateMyProfilePictureCommand();
+
+  private IFormFile ProfilePicture { get; set; }
+
+  System.IO.Stream File = null;
+  string FileName = null;
+
+  SfTextBox FirstName { get; set; }
+  SfTextBox LastName { get; set; }
+  private string ErrorDetails = "";
+
+  private IDisposable profileSub;
+  private IDisposable apiCallSub;
+
+  private string ErrorMessage = string.Empty;
+
+  private bool IsTaskRunning { get; set; } = false;
+  private bool SpinnerVisiblity { get; set; } = false;
+
+  void HandleInputFileOnChange(InputFileChangeEventArgs args)
+  {
+    File = args.File.OpenReadStream();
+    FileName = args.File.Name;
+  }
+
+  private void UpdateProfile()
+  {
+    //updateCommand.Email= Profile.Email;
+    updateCommand.FirstName = Profile.FirstName;
+    updateCommand.LastName = Profile.LastName;
+
+    updateProfilePicture.ProfilePicture = ProfilePicture;
+
+    if (updateCommand != null)
+    {
+      if (String.IsNullOrWhiteSpace(updateCommand.FirstName))
+      {
+        FirstName.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(updateCommand.LastName))
+      {
+        LastName.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+        //_ProfileStateService.UpdateMyProfile(updateCommand);
+        _ProfileStateService.UpdateMyProfilePicture(File, FileName);// updateProfilePicture);
+      }
+    }
+  }
+
+  private void Subscribes()
+  {
+    profileSub = _ProfileStateService.ProfileObservable.Subscribe(x =>
+    {
+      this.Profile = x;
+      StateHasChanged();
+    });
+
+    apiCallSub = _ProfileStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.ErrorMessage);
+      switch (x.Operation)
+      {
+
+        case "UpdateMyProfile":
+
+          if (x.IsSucceed == false)
+          {
+            SpinnerVisiblity = false;
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+
+
+
+
+          else
+          {
+            //IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+
+        case "UpdateMyProfilePicture":
+
+          if (x.IsSucceed == false)
+          {
+            SpinnerVisiblity = false;
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+
+
+
+
+          else
+          {
+            //IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+}
