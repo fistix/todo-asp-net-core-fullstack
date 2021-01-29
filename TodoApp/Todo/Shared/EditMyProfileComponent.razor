@@ -1,11 +1,11 @@
 ﻿@inject ProfileStateService _ProfileStateService
 @using Microsoft.AspNetCore.Http
+@using System.IO
 
 
 @using Fistix.Training.Domain.Dtos
 
-@*@if(ShowProfileDetail)
-  {*@
+
 <div class="justify-content-center mt-4">
   <div class="mt-4">
     <label>Email</label>
@@ -24,18 +24,24 @@
   </div>
 
   <div class="mt-4">
-    <label>Picture URL</label>
+    <label class="font-weight-bold">Profile Picture</label>
     <img Readonly="true" src="@Profile.ProfilePictureUrl" width="100" height="100" />
   </div>
+
+  <div>
+    <label class="font-weight-bold">Upload Profile Picture</label>
+  </div>
+  <InputFile OnChange="HandleInputFileOnChange"/>
 </div>
 
+<div>
+  <SfUploader AutoUpload="false"
+              AllowedExtensions=".jpg, .png"
+              MinFileSize=10000 MaxFileSize=1000000>
+    <UploaderEvents ValueChange="HandleSfFileOnChange"></UploaderEvents>
 
-<div class="mt-4">
-  <label>Profile Picture</label>
-  <InputFile OnChange="HandleInputFileOnChange" ></InputFile>
-      @*       @bind-value="updateProfilePicture.ProfilePicture" AllowedExtensions=".jpg, .png" MinFileSize=10000 MaxFileSize=1000000></InputFile>*@
+  </SfUploader>
 </div>
-
 
 
 <div class="mt-4">
@@ -44,41 +50,54 @@
   </SfButton>
 </div>
 
-
-
-
-<div>
-  <div id="container">
-    <SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
-               Type="@SpinnerType.Bootstrap" Size="100">
-    </SfSpinner>
-  </div>
-</div>
+@if (SpinnerVisiblity)
+{
+<SfSpinner @bind-Visible="@SpinnerVisiblity" CssClass="e-spin-overlay"
+           Type="@SpinnerType.Bootstrap" Size="100">
+</SfSpinner>
+}
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
 
 @code {
 
   [Parameter]
   public ProfileDto Profile { get; set; }
+
+  private IDisposable profileSub;
+  private IDisposable apiCallSub;
+  private string ErrorMessage = string.Empty;
+
   UpdateMyProfileCommand updateCommand = new UpdateMyProfileCommand();
 
-  UpdateMyProfilePictureCommand updateProfilePicture= new UpdateMyProfilePictureCommand();
+  //UpdateMyProfilePictureCommand updateProfilePicture= new UpdateMyProfilePictureCommand();
 
-  private IFormFile ProfilePicture { get; set; }
+  public IFormFile ProfilePicture { get; set; }
 
   System.IO.Stream File = null;
   string FileName = null;
+
+
+
 
   SfTextBox FirstName { get; set; }
   SfTextBox LastName { get; set; }
   private string ErrorDetails = "";
 
-  private IDisposable profileSub;
-  private IDisposable apiCallSub;
-
-  private string ErrorMessage = string.Empty;
+  //Toast
+  SfToast ToastObj;
+  private string ToastTitle = string.Empty;
 
   private bool IsTaskRunning { get; set; } = false;
   private bool SpinnerVisiblity { get; set; } = false;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
 
   void HandleInputFileOnChange(InputFileChangeEventArgs args)
   {
@@ -86,13 +105,35 @@
     FileName = args.File.Name;
   }
 
+  void HandleSfFileOnChange(UploadChangeEventArgs args)
+  {
+    foreach (var file in args.Files)
+    {
+
+      FileName = file.FileInfo.Name;
+
+
+      var path = file.FileInfo.Name;
+      FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+      file.Stream.WriteTo(filestream);
+      filestream.Close();
+      file.Stream.Close();
+
+      File = filestream;
+    }
+    //File = args.File.OpenReadStream();
+    //FileName = args.File.Name;
+
+  }
+
   private void UpdateProfile()
   {
     //updateCommand.Email= Profile.Email;
     updateCommand.FirstName = Profile.FirstName;
     updateCommand.LastName = Profile.LastName;
-
-    updateProfilePicture.ProfilePicture = ProfilePicture;
+    _ProfileStateService.UpdateMyProfile(updateCommand, File, FileName);
+    return;
+    //updateProfilePicture.ProfilePicture = ProfilePicture;
 
     if (updateCommand != null)
     {
@@ -109,7 +150,8 @@
         IsTaskRunning = true;
         SpinnerVisiblity = true;
         //_ProfileStateService.UpdateMyProfile(updateCommand);
-        _ProfileStateService.UpdateMyProfilePicture(File, FileName);// updateProfilePicture);
+        _ProfileStateService.UpdateMyProfile(updateCommand, File, FileName);
+        //_ProfileStateService.UpdateMyProfilePicture(File, FileName);// updateProfilePicture);
       }
     }
   }
@@ -127,6 +169,7 @@
       Console.WriteLine(x.Operation);
       Console.WriteLine(x.IsSucceed);
       Console.WriteLine(x.ErrorMessage);
+
       switch (x.Operation)
       {
 
@@ -138,17 +181,15 @@
             ErrorMessage = x.ErrorMessage;
             StateHasChanged();
           }
-
-
-
-
           else
           {
             //IsSucceed = true;
             IsTaskRunning = false;
             SpinnerVisiblity = false;
 
-            //ToastObj.Show().GetAwaiter().GetResult();
+            ToastObj.Content = "Profile is Updated successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
+            ToastObj.Dispose();
 
             StateHasChanged();
           }
@@ -163,10 +204,6 @@
             ErrorMessage = x.ErrorMessage;
             StateHasChanged();
           }
-
-
-
-
           else
           {
             //IsSucceed = true;

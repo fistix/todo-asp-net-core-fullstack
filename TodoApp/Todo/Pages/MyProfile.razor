@@ -15,19 +15,16 @@
     </SfSpinner>
   </div>
 </div>
-@*}*@
-
-
 
 @code {
-  public ProfileDto Profile = new ProfileDto();
-  private string ErrorMessage = string.Empty;
   private IDisposable profileSub;
   private IDisposable apiCallSub;
-
+  public ProfileDto Profile = new ProfileDto();
+  private string ErrorMessage = string.Empty;
 
   protected override void OnInitialized()
   {
+    SpinnerVisiblity = true;
     Subscribes();
   }
 
@@ -37,24 +34,16 @@
     profileSub.Dispose();
   }
 
-  
 
-  private bool IsTaskRunning { get; set; } = false;
   private bool SpinnerVisiblity { get; set; } = false;
-  private bool ShowProfileDetail { get; set; } = false;
 
-
-
-  
-
-  private void GetProfile()
-  {
-    ShowProfileDetail = true;
-    IsTaskRunning = true;
-    SpinnerVisiblity = true;
-    _ProfileStateService.GetMyProfileDetail();
-  }
-
+  //private void GetProfile()
+  //{
+  //  ShowProfileDetail = true;
+  //  IsTaskRunning = true;
+  //  SpinnerVisiblity = true;
+  //  _ProfileStateService.GetMyProfileDetail();
+  //}
 
   private void Subscribes()
   {
@@ -77,27 +66,41 @@
           if (x.IsSucceed == false)
           {
             ErrorMessage = x.ErrorMessage;
+            SpinnerVisiblity = false;
             StateHasChanged();
           }
 
-
           else
           {
-          //IsSucceed = true;
-          IsTaskRunning = false;
-          SpinnerVisiblity = false;
-
-          //ToastObj.Show().GetAwaiter().GetResult();
-
-          StateHasChanged();
+            SpinnerVisiblity = false;
+            StateHasChanged();
           }
 
           break;
+          //case "UpdateMyProfile":
+
+          //  if (x.IsSucceed == false)
+          //  {
+          //    SpinnerVisiblity = false;
+          //    ErrorMessage = x.ErrorMessage;
+          //    StateHasChanged();
+          //  }
+          //  else
+          //  {
+          //    //IsSucceed = true;
+          //    IsTaskRunning = false;
+          //    SpinnerVisiblity = false;
+
+          //    //ToastObj.Show().GetAwaiter().GetResult();
+
+          //    StateHasChanged();
+          //  }
+
+          //  break;
       }
 
     });
 
   }
-
 
 }

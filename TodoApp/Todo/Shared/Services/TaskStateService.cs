@@ -137,7 +137,6 @@ namespace Todo.Shared.Services
 
           var tasks = new List<TaskDto>(_tasksSubject.Value);
 
-
           //For replacing the object
           var idx = tasks.IndexOf(task);
           if(idx >= 0)

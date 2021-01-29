@@ -3,6 +3,7 @@ using Fistix.Training.Domain.Dtos;
 using Fistix.Training.Domain.Queries.Profiles;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,13 +25,12 @@ namespace Todo.Shared.Services
       _authHandler = authHandler;
 
       GetMyProfileDetail();
-
     }
 
-    private BehaviorSubject<ProfileDto> _profileSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
+    private BehaviorSubject<ProfileDto> _profileBehaviorSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
     private Subject<ApiCallResult> _apiCallResultSubject = new Subject<ApiCallResult>();
 
-    public IObservable<ProfileDto> ProfileObservable { get { return _profileSubject; } }
+    public IObservable<ProfileDto> ProfileObservable { get { return _profileBehaviorSubject; } }
     public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
 
@@ -38,37 +38,64 @@ namespace Todo.Shared.Services
     {
       await GetMyProfile();
     }
-    public async void UpdateMyProfile(UpdateMyProfileCommand command)
+    
+    public async void UpdateMyProfilePicture(Stream file, string fileName)//UpdateMyProfilePictureCommand command)
     {
-      await Update(command);
+      await UpdateMyPicture(file, fileName);
     }
-    private async Task Update(UpdateMyProfileCommand command)
+
+
+    public async void UpdateMyProfile(UpdateMyProfileCommand command, System.IO.Stream file, string fileName)
+    {
+      if(file != null && fileName != null) 
+      {
+        var pictureResponse = await UpdateMyPicture(file, fileName);
+        
+        if (pictureResponse!=null && pictureResponse.IsSuccessStatusCode)
+        {
+          var profileResponse = await Update(command);
+          if (profileResponse != null)
+          {
+            _profileBehaviorSubject.OnNext(profileResponse.Payload);
+            _apiCallResultSubject.OnNext(new ApiCallResult()
+            {
+              IsSucceed = true,
+              Operation = "UpdateMyProfile"
+            });
+          }
+        }
+      }
+      
+    }
+
+    private async Task<UpdateMyProfileCommandResult> Update(UpdateMyProfileCommand command)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-
+        UpdateMyProfileCommandResult commandResult = null;
         var response = await _httpClient.PutAsJsonAsync<UpdateMyProfileCommand>("api/Profiles/MyProfile", command);
         if (response.IsSuccessStatusCode)
         {
-          var commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfileCommandResult>();
+          commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfileCommandResult>();
 
-          var profile = new ProfileDto();
+          //var profile = new ProfileDto();
 
-          //profile.ProfileId = commandResult.Payload.ProfileId;
-          //profile.Email = commandResult.Payload.Email;
-          profile.FirstName = commandResult.Payload.FirstName;
-          profile.LastName = commandResult.Payload.LastName;
-          //profile.ProfilePictureUrl = commandResult.Payload.ProfilePictureUrl;
+          ////profile.ProfileId = commandResult.Payload.ProfileId;
+          ////profile.Email = commandResult.Payload.Email;
+          //profile.FirstName = commandResult.Payload.FirstName;
+          //profile.LastName = commandResult.Payload.LastName;
+          ////profile.ProfilePictureUrl = commandResult.Payload.ProfilePictureUrl;
 
-          _profileSubject.OnNext(profile);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
-          {
-            IsSucceed = true,
-            Operation = "UpdateMyProfile"
-          });
+          //_profileSubject.OnNext(profile);
+          //_apiCallResultSubject.OnNext(new ApiCallResult()
+          //{
+          //  IsSucceed = true,
+          //  Operation = "UpdateMyProfile"
+          //});
 
         }
+        return commandResult;
       }
       catch (Exception ex)
       {
@@ -78,13 +105,11 @@ namespace Todo.Shared.Services
           Operation = "UpdateMyProfile",
           ErrorMessage = ex.Message
         });
+        return null;
       }
     }
-    public async void UpdateMyProfilePicture(System.IO.Stream file, string fileName)//UpdateMyProfilePictureCommand command)
-    {
-      await UpdateMyPicture(file, fileName);
-    }
-    private async Task UpdateMyPicture(System.IO.Stream file, string fileName)//UpdateMyProfilePictureCommand command)
+  
+    private async Task<HttpResponseMessage> UpdateMyPicture(System.IO.Stream file, string fileName)//UpdateMyProfilePictureCommand command)
     {
       try
       {
@@ -99,20 +124,21 @@ namespace Todo.Shared.Services
         {
           formData.Dispose();
 
-          var commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfilePictureCommandResult>();
+          //var commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfilePictureCommandResult>();
 
-          var profile = new ProfileDto();
+          //var profile = new ProfileDto();
 
-          profile.ProfilePictureUrl = commandResult.ProfilePictureUrl;
+          //profile.ProfilePictureUrl = commandResult.ProfilePictureUrl;
 
-          _profileSubject.OnNext(profile);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
-          {
-            IsSucceed = true,
-            Operation = "UpdateMyProfilePicture"
-          });
+          //_profileSubject.OnNext(profile);
+          //_apiCallResultSubject.OnNext(new ApiCallResult()
+          //{
+          //  IsSucceed = true,
+          //  Operation = "UpdateMyProfilePicture"
+          //});
 
         }
+        return response;
       }
       catch (Exception ex)
       {
@@ -122,6 +148,7 @@ namespace Todo.Shared.Services
           Operation = "UpdateMyProfilePicture",
           ErrorMessage = ex.Message
         });
+        return null;
       }
     }
 
@@ -132,7 +159,7 @@ namespace Todo.Shared.Services
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
         var result = await _httpClient.GetFromJsonAsync<GetProfileDetailByEmailQueryResult>("api/Profiles/MyProfile");
 
-        _profileSubject.OnNext(result.Payload);
+        _profileBehaviorSubject.OnNext(result.Payload);
 
         _apiCallResultSubject.OnNext(new ApiCallResult()
         {

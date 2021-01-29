@@ -256,7 +256,7 @@
     UpdateCommand.Active = taskDto.Active;
     UpdateCommand.Id = Guid.Parse(taskDto.TaskId.ToString());
     EditModalOpen();
-    Subscribes();
+    //Subscribes();
 
     //StateHasChanged();
   }
@@ -288,7 +288,7 @@
 
   //Toast
   SfToast ToastObj;
-  private string ToastTitle = "Record deleted successfully!";
+  private string ToastTitle = string.Empty;
 
   private bool IsTaskRunning { get; set; } = false;
   private bool SpinnerVisiblity { get; set; } = false;
@@ -299,6 +299,8 @@
   SfGrid<TaskDto> Grid;
 
   private IDisposable apiCallSub;
+  private IDisposable taskSub;
+
   public string ErrorMessage = "";
   public bool IsSucceed { get; set; }
 
@@ -336,27 +338,6 @@
       Console.WriteLine(x.IsSucceed);
       switch (x.Operation)
       {
-
-        case "DeleteTask":
-
-          if (x.IsSucceed == false)
-          {
-            ErrorMessage = x.ErrorMessage;
-            StateHasChanged();
-          }
-          else
-          {
-            IsSucceed = true;
-            IsTaskRunning = false;
-            SpinnerVisiblity = false;
-
-            ToastObj.Show().GetAwaiter().GetResult();
-
-            StateHasChanged();
-          }
-
-          break;
-
         case "GetAllTasks":
 
           if (x.IsSucceed == false)
@@ -387,13 +368,14 @@
             IsTaskRunning = false;
             SpinnerVisiblity = false;
 
-            ToastObj.Show().GetAwaiter().GetResult();
-
             CreateCommand.Title = "";
             CreateCommand.Description = "";
 
             CreateModalClose();
 
+
+            ToastObj.Content = "Task is Created successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
             StateHasChanged();
           }
 
@@ -412,17 +394,36 @@
             IsTaskRunning = false;
             SpinnerVisiblity = false;
 
-            ToastObj.Show().GetAwaiter().GetResult();
-
-            //command.Title = "";
-            //command.Description = "";
-
             EditModalClose();
+
+            ToastObj.Content = "Task is Updated successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
+            StateHasChanged();
+            apiCallSub.Dispose();
+          }
+
+          break;
+
+        case "DeleteTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+            ToastObj.Content = "Task is Deleted successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
 
             StateHasChanged();
           }
 
           break;
+
       }
 
     });
@@ -457,6 +458,7 @@
   }
   public void Dispose()
   {
+    taskSub.Dispose();
     apiCallSub.Dispose();
   }
   //Delete end
