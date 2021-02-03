@@ -4,6 +4,10 @@
 @inject AuthHandler _auth
 @inject TasksService _tasksService
 @inject TaskStateService _TaskStateService
+//
+@inject ProfileStateService _ProfileStateService
+@using Fistix.Training
+
 @using Fistix.Training.Domain.Dtos
 @using Fistix.Training.Domain.Commands.Tasks
 @implements IDisposable
@@ -29,6 +33,8 @@
       </tr>
     </tbody>
   }*@
+
+
 @*<div class="d-flex justify-content-center mt-4">*@
 <div class="d-flex justify-content-between mb-2">
   <div class="mr-5">
@@ -122,6 +128,38 @@
 }
 
 
+@if (AssignUserModal)
+{
+  <div class="modal" tabindex="-1" role="dialog" style="display: block; background: #00000033;">
+    <div class="modal-dialog">
+      <div class="modal-content" style="position: absolute; right: -85px; top: 203px;">
+        <div class="modal-header">
+          <h5 class="modal-title">Assign User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="AssignUserModalClose"></button>
+        </div>
+        <div class="modal-body">
+
+          <SfDropDownList ValueChanged="StoreUserid" TValue="string" TItem="@ProfileDto" Placeholder="Select a User" DataSource="@Profiles">
+            <DropDownListFieldSettings Value="ProfileId" Text="FirstName"></DropDownListFieldSettings>
+          </SfDropDownList>
+
+          <div class="d-flex justify-content-center mt-4">
+            <div class="mr-5">
+              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AssignUser">Update</SfButton>
+              @*<button @onclick="AddNewTask">Save</button>*@
+
+              <SfButton CssClass="e-info" OnClick="AssignUserModalClose">
+                Close
+              </SfButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+}
+
 <SfGrid @ref="Grid" DataSource="@Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
 
   <GridPageSettings PageSize="15"></GridPageSettings>
@@ -131,27 +169,32 @@
     <GridColumn Field=@nameof(TaskDto.Description) HeaderText="Description" Width="100"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Active" TextAlign="TextAlign.Center" Width="70"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
-    <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="80" Type="ColumnType.Date"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.UserProfileId) HeaderText="Attached User" TextAlign="TextAlign.Left" Width="80"></GridColumn>
 
-    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="100">
+    <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="160">
       <Template>
         @{
           var myObj = (context as TaskDto);
-          <div>
-            <SfButton CssClass="e-info">
-              <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
-                Edit
-              </a>
-            </SfButton>
-            <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => EditTask(myObj.TaskId)">
-              Edit Modal
-            </SfButton>
-          </div>
+                <div>
+                  @*<SfButton CssClass="e-info">
+                    <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
+                      Edit
+                    </a>
+                  </SfButton>*@
+                  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => EditTask(myObj.TaskId)">
+                    Edit Modal
+                  </SfButton>
+
+                  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => AssignUserWithTask(myObj.TaskId)">
+                    Assign User
+                  </SfButton>
+                </div>
         }
       </Template>
     </GridColumn>
 
-    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="70">
+    <GridColumn HeaderText="Delete" TextAlign="TextAlign.Center" Width="40">
       <Template>
         @{
           var obj = (context as TaskDto);
@@ -191,7 +234,6 @@
 </SfToast>
 
 @code {
-
 
   //[Parameter]
   //public EventCallback OnRefershTask { get; set; }
@@ -256,7 +298,6 @@
     UpdateCommand.Active = taskDto.Active;
     UpdateCommand.Id = Guid.Parse(taskDto.TaskId.ToString());
     EditModalOpen();
-    //Subscribes();
 
     //StateHasChanged();
   }
@@ -281,6 +322,74 @@
     }
   }
 
+
+
+  //AssignUser start
+
+  //
+  //[Parameter]
+  //public List<ProfileDto> Profiles { get; set; }
+  //private IEnumerable<ProfileDto> Profiless { get; set; }
+
+  //private ProfileDto profileDto = new ProfileDto();
+  //private TaskDto taskDto = new TaskDto();
+
+  private Guid TaskId { get; set; }/* = Guid.Empty;*/
+
+  private bool AssignUserModal { get; set; } = false;
+
+  private IDisposable profilesSub;
+  private IDisposable profilesApiCallSub;
+
+  public List<ProfileDto> Profiles = new List<ProfileDto>();
+
+  AttachUserWithTaskCommand AttachUserCommand = new AttachUserWithTaskCommand();
+
+  private void AssignUserModalOpen()
+  {
+    this.AssignUserModal = true;
+  }
+  private void AssignUserModalClose()
+  {
+    this.AssignUserModal = false;
+  }
+
+  private async void AssignUserWithTask(Guid? taskId)
+  {
+    //Guid id = Guid.Parse(taskId.ToString());
+    TaskId = Guid.Parse(taskId.ToString());
+
+
+    //taskDto = await _TaskStateService.GetTaskById(TaskId);
+    //AttachUserCommand.TaskId = TaskId/*Guid.Parse(taskDto.TaskId.ToString())*/;
+
+    Console.WriteLine($"Id from parameter is: {taskId}");
+    //TaskId = id;
+    Console.WriteLine($"Id from variable is: {TaskId}");
+
+    AssignUserModalOpen();
+  }
+
+  //private Guid UserId = Guid.Empty;
+
+  private void StoreUserid(string id)
+  {
+    //UserId = Guid.Parse(id);
+    AttachUserCommand.UserId= Guid.Parse(id);
+    Console.WriteLine($"Item Select ID: {id}");
+  }
+
+  private void AssignUser()
+  {
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    Console.WriteLine($"Profile id is: {AttachUserCommand.UserId}");
+    Console.WriteLine($"Task id is: {TaskId}");
+    _TaskStateService.AssignUserWithTask(TaskId, AttachUserCommand);
+
+  }
+  //AssignUser end
+
   [Parameter]
   public List<TaskDto> Tasks { get; set; }
 
@@ -300,6 +409,8 @@
 
   private IDisposable apiCallSub;
   private IDisposable taskSub;
+
+
 
   public string ErrorMessage = "";
   public bool IsSucceed { get; set; }
@@ -424,6 +535,60 @@
 
           break;
 
+        case "AssignUserWithTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            AssignUserModalClose();
+
+            ToastObj.Content = "Task is assigned to user successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
+
+            StateHasChanged();
+          }
+
+          break;
+
+      }
+
+    });
+
+    //
+    profilesSub = _ProfileStateService.AllProfilesObservable.Subscribe(x =>
+    {
+      this.Profiles = x;
+      //this.Profiless = x;
+      StateHasChanged();
+    });
+
+    profilesApiCallSub = _ProfileStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      switch (x.Operation)
+      {
+        case "GetAllProfiles":
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+            StateHasChanged();
+          }
+
+          break;
       }
 
     });
@@ -456,11 +621,16 @@
   {
     this.IsVisible = false;
   }
+
+  //Delete end
+
   public void Dispose()
   {
     taskSub.Dispose();
     apiCallSub.Dispose();
+    //
+    profilesSub.Dispose();
+    profilesApiCallSub.Dispose();
   }
-  //Delete end
 
 }

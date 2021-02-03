@@ -47,7 +47,7 @@
 
   private void Subscribes()
   {
-    profileSub = _ProfileStateService.ProfileObservable.Subscribe(x =>
+    profileSub = _ProfileStateService.MyProfileObservable.Subscribe(x =>
     {
       this.Profile = x;
       StateHasChanged();

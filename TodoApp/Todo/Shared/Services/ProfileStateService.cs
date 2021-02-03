@@ -25,15 +25,55 @@ namespace Todo.Shared.Services
       _authHandler = authHandler;
 
       GetMyProfileDetail();
+
+      //
+      GetAllProfiles();
     }
 
-    private BehaviorSubject<ProfileDto> _profileBehaviorSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
+    private BehaviorSubject<ProfileDto> _myProfileBehaviorSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
     private Subject<ApiCallResult> _apiCallResultSubject = new Subject<ApiCallResult>();
 
-    public IObservable<ProfileDto> ProfileObservable { get { return _profileBehaviorSubject; } }
+    public IObservable<ProfileDto> MyProfileObservable { get { return _myProfileBehaviorSubject; } }
     public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
 
+    private BehaviorSubject<List<ProfileDto>> _allProfilesBeahiourSubject = new BehaviorSubject<List<ProfileDto>>(new List<ProfileDto>());
+    public IObservable<List<ProfileDto>> AllProfilesObservable { get { return _allProfilesBeahiourSubject; } }
+
+
+    public async void GetAllProfiles()
+    {
+      await GetAll();
+    }
+
+    private async Task GetAll()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var result = await _httpClient.GetFromJsonAsync<GetAllProfilesQueryResult>("api/profiles");
+
+        _allProfilesBeahiourSubject.OnNext(result.Payload);
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = true,
+          Operation = "GetAllProfiles"
+        });
+
+      }
+      catch (Exception ex)
+      {
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetAllProfiles",
+          ErrorMessage = ex.Message
+        });
+      }
+
+    }
     public async void GetMyProfileDetail()
     {
       await GetMyProfile();
@@ -56,7 +96,7 @@ namespace Todo.Shared.Services
           var profileResponse = await Update(command);
           if (profileResponse != null)
           {
-            _profileBehaviorSubject.OnNext(profileResponse.Payload);
+            _myProfileBehaviorSubject.OnNext(profileResponse.Payload);
             _apiCallResultSubject.OnNext(new ApiCallResult()
             {
               IsSucceed = true,
@@ -159,7 +199,7 @@ namespace Todo.Shared.Services
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
         var result = await _httpClient.GetFromJsonAsync<GetProfileDetailByEmailQueryResult>("api/Profiles/MyProfile");
 
-        _profileBehaviorSubject.OnNext(result.Payload);
+        _myProfileBehaviorSubject.OnNext(result.Payload);
 
         _apiCallResultSubject.OnNext(new ApiCallResult()
         {

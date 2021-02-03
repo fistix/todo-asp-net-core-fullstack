@@ -57,6 +57,52 @@ namespace Todo.Shared.Services
     }
 
 
+    public async void AssignUserWithTask(Guid id, AttachUserWithTaskCommand attachUserWithTaskCommand)
+    {
+      await AssignUser(id, attachUserWithTaskCommand);
+    }
+
+    private async Task AssignUser(Guid id, AttachUserWithTaskCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var task = await GetById(id);
+
+        var response = await _httpClient.PutAsJsonAsync<AttachUserWithTaskCommand>($"api/Tasks/{id}/AssignUser", command);
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<AttachUserWithTaskCommandResult>();
+
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+
+          //For replacing the object
+          var idx = tasks.IndexOf(task);
+          if (idx >= 0)
+          {
+            tasks[idx] = commandResult.Payload;
+          }
+
+          _tasksSubject.OnNext(tasks);
+          _apiCallResultSubject.OnNext(new ApiCallResult()
+          {
+            IsSucceed = true,
+            Operation = "AssignUserWithTask"
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "AssignUserWithTask",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
 
     private async Task GetAll()
     {

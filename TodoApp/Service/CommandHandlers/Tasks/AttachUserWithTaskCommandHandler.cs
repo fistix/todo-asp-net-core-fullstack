@@ -34,7 +34,7 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
       {
         return new AttachUserWithTaskCommandResult()
         {
-          Payload = _mapper.Map<Domain.Dtos.TaskDto>(response)
+          Payload = _mapper.Map<Domain.Dtos.TaskDto>(task)
         };
       }
       else
