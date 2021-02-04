@@ -33,8 +33,8 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
       
       var task = _mapper.Map<Domain.DataModels.Task>(command);
 
-      task.UserProfileId = profile.ProfileId;
-      task.TaskId = Guid.NewGuid();
+      task.UserId = profile.Id;
+      task.Id = Guid.NewGuid();
       task.CreatedOn = DateTime.Now;
 
       var response = await _taskRepository.Create(task);

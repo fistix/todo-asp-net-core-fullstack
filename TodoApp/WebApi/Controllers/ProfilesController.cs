@@ -46,13 +46,14 @@ namespace Fistix.Training.WebApi.Controllers
         }
 
         var result = await _mediator.Send<CreateProfileCommandResult>(command);
-        return base.Created($"api/Profiles/{result.Payload.ProfileId}", result);
+        return base.Created($"api/Profiles/{result.Payload.Id}", result);
       }
       catch (InvalidOperationException ex)
       {
         return base.Conflict(ex.Message);
       }
     }
+
 
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(UpdateProfileCommandResult), StatusCodes.Status200OK)]
@@ -76,6 +77,7 @@ namespace Fistix.Training.WebApi.Controllers
         return base.NotFound();
       }
     }
+
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -104,6 +106,16 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
+    [HttpGet]
+    [ProducesResponseType(typeof(GetAllProfilesQueryResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
+    {
+      var result = await _mediator.Send(new GetAllProfilesQuery());
+      return base.Ok(result);
+    }
+
+
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GetProfileDetailByIdQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +143,7 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
     [HttpGet("ByEmail")]
     [ProducesResponseType(typeof(GetProfileDetailByEmailQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -156,14 +169,7 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(GetAllProfilesQueryResult), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
-    {
-      var result = await _mediator.Send(new GetAllProfilesQuery());
-      return base.Ok(result);
-    }
-
+    
     [HttpPut("{id}/ProfilePicture")]
     [ProducesResponseType(typeof(UpdateProfilePictureCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -188,6 +194,7 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
     [HttpPost("MyProfile")]
     [ProducesResponseType(typeof(CreateMyProfileCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -202,7 +209,7 @@ namespace Fistix.Training.WebApi.Controllers
         //}
 
         var result = await _mediator.Send<CreateMyProfileCommandResult>(command);
-        return base.Created($"api/Profiles/{result.Payload.ProfileId}", result);
+        return base.Created($"api/Profiles/{result.Payload.Id}", result);
       }
       catch (InvalidOperationException ex)
       {
@@ -210,11 +217,12 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
     [HttpPut("MyProfile")]
     [ProducesResponseType(typeof(UpdateMyProfileCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update([FromBody] UpdateMyProfileCommand command)
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateMyProfileCommand command)
     {
       try
       {
@@ -224,6 +232,30 @@ namespace Fistix.Training.WebApi.Controllers
         //}
 
         var result = await _mediator.Send<UpdateMyProfileCommandResult>(command);
+        return base.Ok(result);
+      }
+      catch (NotFoundException)
+      {
+        return base.NotFound();
+      }
+    }
+
+
+    [HttpPut("MyProfile/ProfileImage")]
+    [ProducesResponseType(typeof(UpdateMyProfilePictureCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateMyProfileImage([FromForm] UpdateMyProfilePictureCommand command)
+    {
+      try
+      {
+
+        //if (!ModelState.IsValid)
+        //{
+        //  return base.BadRequest(ModelState);
+        //}
+
+        var result = await _mediator.Send<UpdateMyProfilePictureCommandResult>(command);
         return base.Ok(result);
       }
       catch (NotFoundException)
@@ -254,28 +286,5 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
-
-    [HttpPut("MyProfile/ProfileImage")]
-    [ProducesResponseType(typeof(UpdateMyProfilePictureCommandResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateMyProfileImage([FromForm] UpdateMyProfilePictureCommand command)
-    {
-      try
-      {
-        
-        //if (!ModelState.IsValid)
-        //{
-        //  return base.BadRequest(ModelState);
-        //}
-
-        var result = await _mediator.Send<UpdateMyProfilePictureCommandResult>(command);
-        return base.Ok(result);
-      }
-      catch (NotFoundException)
-      {
-        return base.NotFound();
-      }
-    }
   }
 }

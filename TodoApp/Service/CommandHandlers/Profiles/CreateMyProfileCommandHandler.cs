@@ -30,7 +30,7 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
 
       profile.Email = _currentUserService.Email;
 
-      profile.ProfileId = Guid.NewGuid();
+      profile.Id = Guid.NewGuid();
       var response = await _profileRepository.Create(profile);
       if (response)
       {

@@ -34,15 +34,6 @@ namespace Todo.Shared.Services
     public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
     
 
-    public async void GetAllTasks()
-    {
-      await GetAll();
-    }
-    public async Task<TaskDto> GetTaskById(Guid id)
-    {
-      var task = await GetById(id);
-      return task;
-    }
     public async void CreateTask(CreateTaskCommand command)
     {
       await Create(command);
@@ -55,84 +46,28 @@ namespace Todo.Shared.Services
     {
       await Delete(id);
     }
-
-
+    public async Task<TaskDto> GetTaskById(Guid id)
+    {
+      var task = await GetById(id);
+      return task;
+    }
+    public async void GetAllTasks()
+    {
+      await GetAll();
+    }
+    public async void CreateMyTask(CreateMyTaskCommand command)
+    {
+      await AddMyTask(command);
+    }
     public async void AssignUserWithTask(Guid id, AttachUserWithTaskCommand attachUserWithTaskCommand)
     {
       await AssignUser(id, attachUserWithTaskCommand);
     }
 
-    private async Task AssignUser(Guid id, AttachUserWithTaskCommand command)
+    public async void GetMyAllTasks()
     {
-      try
-      {
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var task = await GetById(id);
-
-        var response = await _httpClient.PutAsJsonAsync<AttachUserWithTaskCommand>($"api/Tasks/{id}/AssignUser", command);
-        if (response.IsSuccessStatusCode)
-        {
-          var commandResult = await response.Content.ReadFromJsonAsync<AttachUserWithTaskCommandResult>();
-
-          var tasks = new List<TaskDto>(_tasksSubject.Value);
-
-          //For replacing the object
-          var idx = tasks.IndexOf(task);
-          if (idx >= 0)
-          {
-            tasks[idx] = commandResult.Payload;
-          }
-
-          _tasksSubject.OnNext(tasks);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
-          {
-            IsSucceed = true,
-            Operation = "AssignUserWithTask"
-          });
-
-        }
-      }
-      catch (Exception ex)
-      {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = false,
-          Operation = "AssignUserWithTask",
-          ErrorMessage = ex.Message
-        });
-      }
+      await GetMyAll();
     }
-
-
-    private async Task GetAll()
-    {
-      try
-      {
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var result = await _httpClient.GetFromJsonAsync<GetAllTasksQueryResult>("api/tasks");
-
-        _tasksSubject.OnNext(result.Payload);
-
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = true,
-          Operation = "GetAllTasks"
-        });
-
-      }
-      catch (Exception ex)
-      {
-
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = false,
-          Operation = "GetAllTasks",
-          ErrorMessage = ex.Message
-        });
-      }
-
-    }
-
     private async Task Create(CreateTaskCommand command)
     {
       try
@@ -166,13 +101,12 @@ namespace Todo.Shared.Services
         });
       }
     }
-
     private async Task Update(Guid id, UpdateTaskCommand command)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        
+
         //For replacing the object
         var task = await GetById(id);
 
@@ -185,7 +119,7 @@ namespace Todo.Shared.Services
 
           //For replacing the object
           var idx = tasks.IndexOf(task);
-          if(idx >= 0)
+          if (idx >= 0)
           {
             tasks[idx] = commandResult.Payload;
           }
@@ -212,45 +146,6 @@ namespace Todo.Shared.Services
         });
       }
     }
-
-
-    private async Task<TaskDto> GetById(Guid id)
-    {
-      try
-      {
-        //var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(id));
-        //return task;
-        TaskDto task = null;
-        if (_tasksSubject != null)
-        {
-          task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(id));
-          return task;
-        }
-        else
-        {
-          _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-
-          var queryResult = await _httpClient.GetFromJsonAsync<GetTaskDetailByIdQueryResult>("api/tasks/{id}");
-          var tasks = new List<TaskDto>(_tasksSubject.Value);
-          tasks.Add(queryResult.Payload);
-          _tasksSubject.OnNext(tasks);
-          return task;
-        }
-
-      }
-      catch (Exception ex)
-      {
-         _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = false,
-          Operation = "GetTaskById",
-          ErrorMessage = ex.Message
-        });
-        return null;
-      }
-    }
-
-
     private async Task Delete(Guid id)
     {
       try
@@ -262,7 +157,7 @@ namespace Todo.Shared.Services
         {
           var tasks = new List<TaskDto>(_tasksSubject.Value);
 
-          tasks.Remove(tasks.SingleOrDefault(t => t.TaskId.Equals(id)));
+          tasks.Remove(tasks.SingleOrDefault(t => t.Id.Equals(id)));
 
           _tasksSubject.OnNext(tasks);
           _apiCallResultSubject.OnNext(new ApiCallResult()
@@ -283,9 +178,170 @@ namespace Todo.Shared.Services
         });
       }
     }
+    private async Task<TaskDto> GetById(Guid id)
+    {
+      try
+      {
+        //var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(id));
+        //return task;
+        TaskDto task = null;
+        if (_tasksSubject != null)
+        {
+          task = _tasksSubject.Value.SingleOrDefault(t => t.Id.Equals(id));
+          return task;
+        }
+        else
+        {
+          _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
 
+          var queryResult = await _httpClient.GetFromJsonAsync<GetTaskDetailByIdQueryResult>("api/tasks/{id}");
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+          tasks.Add(queryResult.Payload);
+          _tasksSubject.OnNext(tasks);
+          return task;
+        }
 
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetTaskById",
+          ErrorMessage = ex.Message
+        });
+        return null;
+      }
+    }
+    private async Task GetAll()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var result = await _httpClient.GetFromJsonAsync<GetAllTasksQueryResult>("api/tasks");
 
+        _tasksSubject.OnNext(result.Payload);
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = true,
+          Operation = "GetAllTasks"
+        });
+
+      }
+      catch (Exception ex)
+      {
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetAllTasks",
+          ErrorMessage = ex.Message
+        });
+      }
+
+    }
+    private async Task AddMyTask(CreateMyTaskCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var response = await _httpClient.PostAsJsonAsync<CreateMyTaskCommand>("api/Tasks/MyTask", command);
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<CreateMyTaskCommandResult>();
+
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+          tasks.Add(commandResult.Payload);
+
+          _tasksSubject.OnNext(tasks);
+
+          _apiCallResultSubject.OnNext(new ApiCallResult()
+          {
+            IsSucceed = true,
+            Operation = "CreateMyTask"
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "CreateMyTask",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+    private async Task AssignUser(Guid id, AttachUserWithTaskCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var task = await GetById(id);
+
+        var response = await _httpClient.PutAsJsonAsync<AttachUserWithTaskCommand>($"api/Tasks/{id}/AssignUser", command);
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<AttachUserWithTaskCommandResult>();
+
+          var tasks = new List<TaskDto>(_tasksSubject.Value);
+
+          //For replacing the object
+          var idx = tasks.IndexOf(task);
+          if (idx >= 0)
+          {
+            tasks[idx] = commandResult.Payload;
+          }
+
+          _tasksSubject.OnNext(tasks);
+          _apiCallResultSubject.OnNext(new ApiCallResult()
+          {
+            IsSucceed = true,
+            Operation = "AttachUserWithTask"
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "AttachUserWithTask",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+    private async Task GetMyAll()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var result = await _httpClient.GetFromJsonAsync<GetMyAllTasksQueryResult>("api/tasks/MyTask");
+
+        _tasksSubject.OnNext(result.Payload);
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = true,
+          Operation = "GetMyAllTasks"
+        });
+
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetMyAllTasks",
+          ErrorMessage = ex.Message
+        });
+      }
+
+    }
     //private async Task<TaskDto> GetTaskById(Guid taskId)
     //{
     //  var task = _tasksSubject.Value.SingleOrDefault(t => t.TaskId.Equals(taskId));

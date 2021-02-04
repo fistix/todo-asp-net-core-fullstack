@@ -42,13 +42,14 @@ namespace Fistix.Training.WebApi.Controllers
         }
 
         var result = await _mediator.Send<CreateTaskCommandResult>(command);
-        return base.Created($"api/Tasks/{result.Payload.TaskId}", result);
+        return base.Created($"api/Tasks/{result.Payload.Id}", result);
       }
       catch (ArgumentException ex)
       {
         return base.BadRequest(ex.Message);
       }
     }
+
 
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(UpdateTaskCommandResult), StatusCodes.Status200OK)]
@@ -73,6 +74,7 @@ namespace Fistix.Training.WebApi.Controllers
         return base.NotFound(nfx.Message);
       }
     }
+
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -102,6 +104,24 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
+    [HttpGet]
+    [ProducesResponseType(typeof(GetAllTasksQueryResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
+    {
+      var result = await _mediator.Send(new GetAllTasksQuery());
+      return base.Ok(result);
+
+      //if (result.Payload.Count > 0)
+      //{
+      //    return base.Ok(result);
+      //}
+      //else
+      //{
+      //    return base.NotFound();
+      //}
+    }
+    
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GetTaskDetailByIdQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -129,22 +149,6 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(GetAllTasksQueryResult), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
-    {
-      var result = await _mediator.Send(new GetAllTasksQuery());
-      return base.Ok(result);
-
-      //if (result.Payload.Count > 0)
-      //{
-      //    return base.Ok(result);
-      //}
-      //else
-      //{
-      //    return base.NotFound();
-      //}
-    }
 
     [HttpPut("{id}/AssignUser")]
     [ProducesResponseType(typeof(AttachUserWithTaskCommandResult), StatusCodes.Status200OK)]
@@ -171,11 +175,11 @@ namespace Fistix.Training.WebApi.Controllers
       }
     }
 
+
     [HttpPut("{id}/UnAssignUser")]
     [ProducesResponseType(typeof(UnAttachUserWithTaskCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-
     public async Task<IActionResult> UnAssignUser([FromRoute] Guid id, [FromBody] UnAttachUserWithTaskCommand command)
     {
       try
@@ -208,13 +212,14 @@ namespace Fistix.Training.WebApi.Controllers
         //}
 
         var result = await _mediator.Send<CreateMyTaskCommandResult>(command);
-        return base.Created($"api/Tasks/{result.Payload.TaskId}", result);
+        return base.Created($"api/Tasks/{result.Payload.Id}", result);
       }
       catch (ArgumentException ex)
       {
         return base.BadRequest(ex.Message);
       }
     }
+
 
     [HttpPut("MyTask/{id}")]
     [ProducesResponseType(typeof(UpdateMyTaskCommandResult), StatusCodes.Status200OK)]
@@ -245,11 +250,27 @@ namespace Fistix.Training.WebApi.Controllers
     }
 
 
+    [HttpGet("MyTask")]
+    [ProducesResponseType(typeof(GetMyAllTasksQueryResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyAllTasks()
+    {
+      try
+      {
+        var result = await _mediator.Send(new GetMyAllTasksQuery());
+        return base.Ok(result);
+      }
+      catch (NotFoundException nfx)
+      {
+        return base.NotFound(nfx.Message);
+      }
+    }
+
+
     [HttpGet("MyTask/{id}")]
     [ProducesResponseType(typeof(GetMyTaskDetailQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetMyTask([FromRoute] Guid id)
+    public async Task<IActionResult> GetMyTaskById([FromRoute] Guid id)
     {
       try
       {
@@ -275,5 +296,6 @@ namespace Fistix.Training.WebApi.Controllers
         return base.Conflict(ix.Message);
       }
     }
+  
   }
 }

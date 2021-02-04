@@ -25,12 +25,12 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
       var task = await _taskRepository.GetById(command.TaskId);
       //var assignedUser = await _taskRepository.CheckAssignedUser(command.UserId);
 
-      if (task.UserProfileId != command.UserId)
+      if (task.UserId != command.UserId)
       {
         throw new InvalidOperationException("User is not assigned to this task!");
       }
 
-      task.UserProfileId = null;
+      task.UserId = null;
       var response = await _taskRepository.Update(task);
       if (response)
       {

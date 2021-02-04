@@ -41,57 +41,13 @@ namespace Todo.Shared.Services
     public IObservable<List<ProfileDto>> AllProfilesObservable { get { return _allProfilesBeahiourSubject; } }
 
 
-    public async void GetAllProfiles()
-    {
-      await GetAll();
-    }
-
-    private async Task GetAll()
-    {
-      try
-      {
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var result = await _httpClient.GetFromJsonAsync<GetAllProfilesQueryResult>("api/profiles");
-
-        _allProfilesBeahiourSubject.OnNext(result.Payload);
-
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = true,
-          Operation = "GetAllProfiles"
-        });
-
-      }
-      catch (Exception ex)
-      {
-
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = false,
-          Operation = "GetAllProfiles",
-          ErrorMessage = ex.Message
-        });
-      }
-
-    }
-    public async void GetMyProfileDetail()
-    {
-      await GetMyProfile();
-    }
-    
-    public async void UpdateMyProfilePicture(Stream file, string fileName)//UpdateMyProfilePictureCommand command)
-    {
-      await UpdateMyPicture(file, fileName);
-    }
-
-
     public async void UpdateMyProfile(UpdateMyProfileCommand command, System.IO.Stream file, string fileName)
     {
-      if(file != null && fileName != null) 
+      if (file != null && fileName != null)
       {
         var pictureResponse = await UpdateMyPicture(file, fileName);
-        
-        if (pictureResponse!=null && pictureResponse.IsSuccessStatusCode)
+
+        if (pictureResponse != null && pictureResponse.IsSuccessStatusCode)
         {
           var profileResponse = await Update(command);
           if (profileResponse != null)
@@ -105,50 +61,21 @@ namespace Todo.Shared.Services
           }
         }
       }
-      
-    }
 
-    private async Task<UpdateMyProfileCommandResult> Update(UpdateMyProfileCommand command)
+    }
+    public async void UpdateMyProfilePicture(Stream file, string fileName)//UpdateMyProfilePictureCommand command)
     {
-      try
-      {
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        UpdateMyProfileCommandResult commandResult = null;
-        var response = await _httpClient.PutAsJsonAsync<UpdateMyProfileCommand>("api/Profiles/MyProfile", command);
-        if (response.IsSuccessStatusCode)
-        {
-          commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfileCommandResult>();
-
-          //var profile = new ProfileDto();
-
-          ////profile.ProfileId = commandResult.Payload.ProfileId;
-          ////profile.Email = commandResult.Payload.Email;
-          //profile.FirstName = commandResult.Payload.FirstName;
-          //profile.LastName = commandResult.Payload.LastName;
-          ////profile.ProfilePictureUrl = commandResult.Payload.ProfilePictureUrl;
-
-          //_profileSubject.OnNext(profile);
-          //_apiCallResultSubject.OnNext(new ApiCallResult()
-          //{
-          //  IsSucceed = true,
-          //  Operation = "UpdateMyProfile"
-          //});
-
-        }
-        return commandResult;
-      }
-      catch (Exception ex)
-      {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
-        {
-          IsSucceed = false,
-          Operation = "UpdateMyProfile",
-          ErrorMessage = ex.Message
-        });
-        return null;
-      }
+      await UpdateMyPicture(file, fileName);
     }
-  
+    public async void GetAllProfiles()
+    {
+      await GetAll();
+    }
+    public async void GetMyProfileDetail()
+    {
+      await GetMyProfile();
+    }
+
     private async Task<HttpResponseMessage> UpdateMyPicture(System.IO.Stream file, string fileName)//UpdateMyProfilePictureCommand command)
     {
       try
@@ -191,7 +118,74 @@ namespace Todo.Shared.Services
         return null;
       }
     }
+    private async Task<UpdateMyProfileCommandResult> Update(UpdateMyProfileCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        UpdateMyProfileCommandResult commandResult = null;
+        var response = await _httpClient.PutAsJsonAsync<UpdateMyProfileCommand>("api/Profiles/MyProfile", command);
+        if (response.IsSuccessStatusCode)
+        {
+          commandResult = await response.Content.ReadFromJsonAsync<UpdateMyProfileCommandResult>();
 
+          //var profile = new ProfileDto();
+
+          ////profile.ProfileId = commandResult.Payload.ProfileId;
+          ////profile.Email = commandResult.Payload.Email;
+          //profile.FirstName = commandResult.Payload.FirstName;
+          //profile.LastName = commandResult.Payload.LastName;
+          ////profile.ProfilePictureUrl = commandResult.Payload.ProfilePictureUrl;
+
+          //_profileSubject.OnNext(profile);
+          //_apiCallResultSubject.OnNext(new ApiCallResult()
+          //{
+          //  IsSucceed = true,
+          //  Operation = "UpdateMyProfile"
+          //});
+
+        }
+        return commandResult;
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "UpdateMyProfile",
+          ErrorMessage = ex.Message
+        });
+        return null;
+      }
+    }
+    private async Task GetAll()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var result = await _httpClient.GetFromJsonAsync<GetAllProfilesQueryResult>("api/profiles");
+
+        _allProfilesBeahiourSubject.OnNext(result.Payload);
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = true,
+          Operation = "GetAllProfiles"
+        });
+
+      }
+      catch (Exception ex)
+      {
+
+        _apiCallResultSubject.OnNext(new ApiCallResult()
+        {
+          IsSucceed = false,
+          Operation = "GetAllProfiles",
+          ErrorMessage = ex.Message
+        });
+      }
+
+    }
     private async Task GetMyProfile()
     {
       try
@@ -210,7 +204,6 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-
         _apiCallResultSubject.OnNext(new ApiCallResult()
         {
           IsSucceed = false,
@@ -218,9 +211,7 @@ namespace Todo.Shared.Services
           ErrorMessage = ex.Message
         });
       }
-
     }
-
 
   }
 }

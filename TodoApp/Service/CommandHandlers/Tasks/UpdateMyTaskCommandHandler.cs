@@ -32,7 +32,7 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
 
       var task = await _taskRepository.GetById(command.Id);
       //
-      if (task.UserProfileId.Equals(profile.ProfileId))
+      if (task.UserId.Equals(profile.Id))
       {
         var updatedTask = _mapper.Map(command, task);
 

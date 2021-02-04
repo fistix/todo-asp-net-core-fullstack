@@ -23,6 +23,7 @@ namespace Fistix.Training.DataLayer.Repositories
       var dbChangesCount = await _efContext.SaveChangesAsync();
       return dbChangesCount > 0;
     }
+   
     public async Task<bool> Update(Domain.DataModels.Task task)
     {
       _efContext.Tasks.Update(task);
@@ -41,10 +42,15 @@ namespace Fistix.Training.DataLayer.Repositories
       }
       throw new NotFoundException();
     }
+    
+    public async Task<List<Domain.DataModels.Task>> GetAll()
+    {
+      return await _efContext.Tasks.ToListAsync();
+    }
 
     public async Task<Domain.DataModels.Task> GetById(Guid id)
     {
-      var task = await _efContext.Tasks.FirstOrDefaultAsync(t => t.TaskId.Equals(id));
+      var task = await _efContext.Tasks.FirstOrDefaultAsync(t => t.Id.Equals(id));
       if (task == null)
       {
         throw new NotFoundException("Task not found!");
@@ -52,9 +58,14 @@ namespace Fistix.Training.DataLayer.Repositories
       return task;
     }
 
-    public async Task<List<Domain.DataModels.Task>> GetAll()
+    public async Task<List<Domain.DataModels.Task>> GetTasksByProfileId(Guid id)
     {
-      return await _efContext.Tasks.ToListAsync();
+      var tasks = await _efContext.Tasks.Where(t => t.UserId.Equals(id)).ToListAsync();
+      if (tasks == null)
+      {
+        throw new NotFoundException("Tasks not found!");
+      }
+      return tasks;
     }
 
     //public async Task<Domain.DataModels.Task> CheckAssignedUser(Guid id)
@@ -66,5 +77,6 @@ namespace Fistix.Training.DataLayer.Repositories
     //    }
     //    return user;
     //}
+  
   }
 }

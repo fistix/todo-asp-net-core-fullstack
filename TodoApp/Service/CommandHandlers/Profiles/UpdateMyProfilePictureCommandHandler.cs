@@ -47,7 +47,7 @@ namespace Fistix.Training.Service.CommandHandlers.MyProfile
       }
       //For generating file name
       var extension = Path.GetExtension(command.ProfilePicture.FileName);
-      var fileName = Path.Combine($"{profile.ProfileId}{extension}");
+      var fileName = Path.Combine($"{profile.Id}{extension}");
 
       var fileUploadURI = await _fileService.UploadFileAsync(
           _masterConfig.AzureStorageConfig.AzureContainer, command.ProfilePicture.OpenReadStream(),

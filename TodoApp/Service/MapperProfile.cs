@@ -25,7 +25,7 @@ namespace Fistix.Training.Service
 
       CreateMap<UpdateTaskCommand, Task>()
           .ForMember(x => x.CreatedOn, v => v.UseDestinationValue())
-          .ForMember(x => x.UserProfileId, v => v.UseDestinationValue());
+          .ForMember(x => x.UserId, v => v.UseDestinationValue());
       CreateMap<Task, UpdateTaskCommand>();
 
       //My Task's mapping
@@ -34,7 +34,7 @@ namespace Fistix.Training.Service
 
       CreateMap<UpdateMyTaskCommand, Task>()
           .ForMember(x => x.CreatedOn, v => v.UseDestinationValue())
-          .ForMember(x => x.UserProfileId, v => v.UseDestinationValue());
+          .ForMember(x => x.UserId, v => v.UseDestinationValue());
       CreateMap<Task, UpdateMyTaskCommand>();
 
       //Profile's mapping
@@ -45,7 +45,7 @@ namespace Fistix.Training.Service
       CreateMap<Domain.DataModels.Profile, CreateProfileCommand>();
 
       CreateMap<UpdateProfileCommand, Domain.DataModels.Profile>()
-          .ForMember(x => x.ProfileId, v => v.UseDestinationValue())
+          .ForMember(x => x.Id, v => v.UseDestinationValue())
           .ForMember(x => x.Email, v => v.UseDestinationValue())
           .ForMember(x => x.ProfilePictureUrl, v => v.UseDestinationValue());
       CreateMap<Domain.DataModels.Profile, UpdateProfileCommand>();
@@ -55,7 +55,7 @@ namespace Fistix.Training.Service
       CreateMap<Domain.DataModels.Profile, CreateMyProfileCommand>();
 
       CreateMap<UpdateMyProfileCommand, Domain.DataModels.Profile>()
-          .ForMember(x => x.ProfileId, v => v.UseDestinationValue())
+          .ForMember(x => x.Id, v => v.UseDestinationValue())
           .ForMember(x => x.Email, v => v.UseDestinationValue())
           .ForMember(x => x.ProfilePictureUrl, v => v.UseDestinationValue());
       CreateMap<Domain.DataModels.Profile, UpdateMyProfileCommand>();

@@ -49,10 +49,15 @@ namespace Fistix.Training.DataLayer.Repositories
       throw new NotFoundException();
     }
 
+    public async Task<List<Profile>> GetAll()
+    {
+      return await _efContext.Profiles.ToListAsync();
+    }
+
     public async Task<Profile> GetById(Guid id)
     {
       //var profile = await _efContext.Profiles.FindAsync(id);
-      var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.ProfileId.Equals(id));
+      var profile = await _efContext.Profiles.FirstOrDefaultAsync(x => x.Id.Equals(id));
       if (profile == null)
       {
         throw new NotFoundException("Profile not found!");
@@ -70,10 +75,6 @@ namespace Fistix.Training.DataLayer.Repositories
       }
       return profile;
     }
-
-    public async Task<List<Profile>> GetAll()
-    {
-      return await _efContext.Profiles.ToListAsync();
-    }
+  
   }
 }

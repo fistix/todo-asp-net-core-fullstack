@@ -28,7 +28,7 @@ namespace Fistix.Training.Service.CommandHandlers.Tasks
       var task = await _taskRepository.GetById(command.TaskId);
       var profile = await _profileRepository.GetById(command.UserId);
 
-      task.UserProfileId = profile.ProfileId;
+      task.UserId = profile.Id;
       var response = await _taskRepository.Update(task);
       if (response)
       {

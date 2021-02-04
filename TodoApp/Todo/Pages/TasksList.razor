@@ -1,10 +1,11 @@
 ﻿@page "/tasksList"
 @attribute [Authorize]
-@*@inject TasksService _tasksService*@
 @inject TaskStateService _TaskStateService
-@inject ProfileStateService _ProfileStateService 
-
 @using Fistix.Training.Domain.Dtos
+
+@*@inject TasksService _tasksService*@
+@*@inject ProfileStateService _ProfileStateService*@
+
 
 @implements IDisposable
 

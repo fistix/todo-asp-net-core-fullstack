@@ -25,7 +25,7 @@ namespace Fistix.Training.Service.CommandHandlers.Profiles
     {
       var profile = _mapper.Map<Domain.DataModels.Profile>(command);
 
-      profile.ProfileId = Guid.NewGuid();
+      profile.Id = Guid.NewGuid();
       var response = await _profileRepository.Create(profile);
       if (response)
       {

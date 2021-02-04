@@ -25,12 +25,12 @@ namespace Fistix.Training.DataLayer
     private void TaskModelConfig(ModelBuilder builder)
     {
       builder.Entity<Task>().ToTable("Tasks");
-      builder.Entity<Task>().HasKey(x => x.TaskId);
+      builder.Entity<Task>().HasKey(x => x.Id);
     }
     private void ProfileModelConfig(ModelBuilder builder)
     {
       builder.Entity<Profile>().ToTable("Profiles");
-      builder.Entity<Profile>().HasKey(x => x.ProfileId);
+      builder.Entity<Profile>().HasKey(x => x.Id);
     }
   }
 }

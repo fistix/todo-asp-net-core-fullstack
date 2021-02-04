@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Service.QueryHandlers.Tasks
 {
-  public class GetMyTaskDetailQueryHandler : IRequestHandler<GetMyTaskDetailQuery, GetMyTaskDetailQueryResult>
+  public class GetMyAllTasksQueryhandler : IRequestHandler<GetMyAllTasksQuery, GetMyAllTasksQueryResult>
   {
     private readonly IMapper _mapper = null;
     private readonly ITaskRepository _taskRepository = null;
     private readonly IProfileRepository _profileRepository = null;
     private readonly ICurrentUserService _currentUserService = null;
-    public GetMyTaskDetailQueryHandler(ITaskRepository taskRepository, IMapper mapper,
+    public GetMyAllTasksQueryhandler(IMapper mapper, ITaskRepository taskRepository,
       IProfileRepository profileRepository, ICurrentUserService currentUserService)
     {
       _mapper = mapper;
@@ -27,28 +27,18 @@ namespace Fistix.Training.Service.QueryHandlers.Tasks
       _currentUserService = currentUserService;
     }
 
-    public async Task<GetMyTaskDetailQueryResult> Handle(GetMyTaskDetailQuery request, CancellationToken cancellationToken)
+    public async Task<GetMyAllTasksQueryResult> Handle(GetMyAllTasksQuery request, CancellationToken cancellationToken)
     {
-      
-
-      var result = _mapper.Map<TaskDto>(await _taskRepository.GetById(request.Id));
-
       var profile = await _profileRepository.GetByEmail(_currentUserService.Email);
-      if (result.UserId.Equals(profile.Id))
+      var tasks = _mapper.Map<List<TaskDto>>(await _taskRepository.GetTasksByProfileId(profile.Id));
+
+      //var result = await _taskRepository.GetAllById(Guid.Parse(profile.ProfileId.ToString()));
+      return new GetMyAllTasksQueryResult()
       {
-        return new GetMyTaskDetailQueryResult()
-        {
-          Payload = result
-        };
-      }
-      else
-      {
-        //return new GetMyTaskDetailQueryResult()
-        //{
-        //  Payload = null
-        //};
-        throw new InvalidOperationException("Task with this Profile does not exists!");
-      }
+        Payload = tasks
+      };
+
+      //throw new NotImplementedException();
     }
   }
 }

@@ -4,7 +4,8 @@
 @inject AuthHandler _auth
 @inject TasksService _tasksService
 @inject TaskStateService _TaskStateService
-//
+
+
 @inject ProfileStateService _ProfileStateService
 @using Fistix.Training
 
@@ -44,7 +45,14 @@
   <div>
     <SfButton OnClick="CreateModalOpen" Disabled="IsTaskRunning" CssClass="e-primary">Add New Task</SfButton>
     @*<button type="button" class="btn btn-secondary" @onclick="OpenModal" >Add New Task</button>*@
+  </div>
+  
+  <div>
+    <SfButton OnClick="CreateMyTaskModalOpen" Disabled="IsTaskRunning" CssClass="e-secondary">Add My Task</SfButton>
+  </div>
 
+  <div>
+    <SfButton OnClick="GetMyAllTasks" Disabled="IsTaskRunning" CssClass="e-secondary">Get My Tasks</SfButton>
   </div>
 </div>
 @if (CreateModalPopup)
@@ -93,7 +101,7 @@
     <div class="modal-dialog">
       <div class="modal-content" style="position: absolute; right: -85px; top: 203px;">
         <div class="modal-header">
-          <h5 class="modal-title">Add New Task</h5>
+          <h5 class="modal-title">Edit Task</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="EditModalClose"></button>
         </div>
         <div class="modal-body">
@@ -139,16 +147,59 @@
         </div>
         <div class="modal-body">
 
-          <SfDropDownList ValueChanged="StoreUserid" TValue="string" TItem="@ProfileDto" Placeholder="Select a User" DataSource="@Profiles">
+          <SfDropDownList ValueChanged="StoreUserid" TValue="string" TItem="@ProfileDto" Placeholder="Select User" DataSource="@Profiles">
             <DropDownListFieldSettings Value="ProfileId" Text="FirstName"></DropDownListFieldSettings>
           </SfDropDownList>
 
           <div class="d-flex justify-content-center mt-4">
             <div class="mr-5">
-              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AssignUser">Update</SfButton>
+              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AssignUser">Assign</SfButton>
+              @*<button @onclick="AddNewTask">Save</button>*@
+            </div>
+
+            <div class="mr-5">
+              <SfButton CssClass="e-info" OnClick="AssignUserModalClose">
+                Close
+              </SfButton>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (CreateMyTaskModalPopup)
+{
+  <div class="modal" tabindex="-1" role="dialog" style="display: block; background: #00000033;">
+    <div class="modal-dialog">
+      <div class="modal-content" style="position: absolute; right: -85px; top: 203px;">
+        <div class="modal-header">
+          <h5 class="modal-title">Add My Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CreateMyTaskModalClose"></button>
+        </div>
+        <div class="modal-body">
+          @*<p>Modal body text goes here.</p>*@
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Title" Placeholder="Enter Title"
+                     @bind-Value="@CreateMyTaskCommand.Title" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+          <SfTextBox @ref="Description" Placeholder="Enter Description"
+                     @bind-Value="@CreateMyTaskCommand.Description" FloatLabelType='@FloatLabelType.Auto'>
+          </SfTextBox>
+
+          <SfCheckBox Label="Is Active" @bind-Checked="@CreateMyTaskCommand.Active"></SfCheckBox>
+
+          <div class="d-flex justify-content-center mt-4">
+            <div class="mr-5">
+              <SfButton CssClass="e-success" Disabled="IsTaskRunning" @onclick="AddMyNewTask">Create</SfButton>
               @*<button @onclick="AddNewTask">Save</button>*@
 
-              <SfButton CssClass="e-info" OnClick="AssignUserModalClose">
+              <SfButton CssClass="e-info" OnClick="CreateMyTaskModalClose">
                 Close
               </SfButton>
             </div>
@@ -157,7 +208,6 @@
       </div>
     </div>
   </div>
-}
 }
 
 <SfGrid @ref="Grid" DataSource="@Tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
@@ -170,26 +220,26 @@
     <GridColumn Field=@nameof(TaskDto.Active) HeaderText="Active" TextAlign="TextAlign.Center" Width="70"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.CreatedOn) HeaderText="Created Date" TextAlign="TextAlign.Left" Width="120" Type="ColumnType.Date"></GridColumn>
     <GridColumn Field=@nameof(TaskDto.ModifiedOn) HeaderText="Modified Date" TextAlign="TextAlign.Left" Width="80" Type="ColumnType.Date"></GridColumn>
-    <GridColumn Field=@nameof(TaskDto.UserProfileId) HeaderText="Attached User" TextAlign="TextAlign.Left" Width="80"></GridColumn>
+    <GridColumn Field=@nameof(TaskDto.UserId) HeaderText="Attached User" TextAlign="TextAlign.Left" Width="80"></GridColumn>
 
     <GridColumn HeaderText="Update" TextAlign="TextAlign.Center" Width="160">
       <Template>
         @{
           var myObj = (context as TaskDto);
-                <div>
-                  @*<SfButton CssClass="e-info">
-                    <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
-                      Edit
-                    </a>
-                  </SfButton>*@
-                  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => EditTask(myObj.TaskId)">
-                    Edit Modal
-                  </SfButton>
+          <div>
+            @*<SfButton CssClass="e-info">
+                <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
+                  Edit
+                </a>
+              </SfButton>*@
+            <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => EditTask(myObj.Id)">
+              Edit Modal
+            </SfButton>
 
-                  <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => AssignUserWithTask(myObj.TaskId)">
-                    Assign User
-                  </SfButton>
-                </div>
+            <SfButton CssClass="e-info" Disabled="IsTaskRunning" @onclick="() => AssignUserWithTask(myObj.Id)">
+              Assign User
+            </SfButton>
+          </div>
         }
       </Template>
     </GridColumn>
@@ -199,7 +249,7 @@
         @{
           var obj = (context as TaskDto);
 
-          <SfButton CssClass="e-danger" Disabled="IsTaskRunning" @onclick="() => StoreId(obj.TaskId)">
+          <SfButton CssClass="e-danger" Disabled="IsTaskRunning" @onclick="() => StoreId(obj.Id)">
             Delete
           </SfButton>
           <SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible"
@@ -234,6 +284,40 @@
 </SfToast>
 
 @code {
+
+  private bool CreateMyTaskModalPopup { get; set; } = false;
+  CreateMyTaskCommand CreateMyTaskCommand = new CreateMyTaskCommand();
+
+  private void CreateMyTaskModalOpen()
+  {
+    this.CreateMyTaskModalPopup = true;
+  }
+  private void CreateMyTaskModalClose()
+  {
+    this.CreateMyTaskModalPopup = false;
+  }
+
+  private void AddMyNewTask()
+  {
+    if (CreateMyTaskCommand != null)
+    {
+      if (String.IsNullOrWhiteSpace(CreateMyTaskCommand.Title))
+      {
+        Title.CssClass = "e-error";
+      }
+      else if (String.IsNullOrWhiteSpace(CreateMyTaskCommand.Description))
+      {
+        Description.CssClass = "e-error";
+      }
+      else
+      {
+        IsTaskRunning = true;
+        SpinnerVisiblity = true;
+
+        _TaskStateService.CreateMyTask(CreateMyTaskCommand);
+      }
+    }
+  }
 
   //[Parameter]
   //public EventCallback OnRefershTask { get; set; }
@@ -296,11 +380,10 @@
     UpdateCommand.Title = taskDto.Title;
     UpdateCommand.Description = taskDto.Description;
     UpdateCommand.Active = taskDto.Active;
-    UpdateCommand.Id = Guid.Parse(taskDto.TaskId.ToString());
+    UpdateCommand.Id = Guid.Parse(taskDto.Id.ToString());
     EditModalOpen();
-
-    //StateHasChanged();
   }
+
   private void UpdateTask()
   {
     if (UpdateCommand != null)
@@ -356,26 +439,21 @@
 
   private async void AssignUserWithTask(Guid? taskId)
   {
-    //Guid id = Guid.Parse(taskId.ToString());
     TaskId = Guid.Parse(taskId.ToString());
-
 
     //taskDto = await _TaskStateService.GetTaskById(TaskId);
     //AttachUserCommand.TaskId = TaskId/*Guid.Parse(taskDto.TaskId.ToString())*/;
 
     Console.WriteLine($"Id from parameter is: {taskId}");
-    //TaskId = id;
     Console.WriteLine($"Id from variable is: {TaskId}");
 
     AssignUserModalOpen();
   }
 
-  //private Guid UserId = Guid.Empty;
-
   private void StoreUserid(string id)
   {
     //UserId = Guid.Parse(id);
-    AttachUserCommand.UserId= Guid.Parse(id);
+    AttachUserCommand.UserId = Guid.Parse(id);
     Console.WriteLine($"Item Select ID: {id}");
   }
 
@@ -439,6 +517,14 @@
     IsTaskRunning = true;
     SpinnerVisiblity = true;
     _TaskStateService.GetAllTasks();
+  }
+
+  private void GetMyAllTasks()
+  {
+    this.IsVisible = false;
+    IsTaskRunning = true;
+    SpinnerVisiblity = true;
+    _TaskStateService.GetMyAllTasks();
   }
 
   private void Subscribes()
@@ -510,7 +596,7 @@
             ToastObj.Content = "Task is Updated successfully!";
             ToastObj.Show()/*.GetAwaiter().GetResult()*/;
             StateHasChanged();
-            apiCallSub.Dispose();
+            //apiCallSub.Dispose();
           }
 
           break;
@@ -535,7 +621,7 @@
 
           break;
 
-        case "AssignUserWithTask":
+        case "AttachUserWithTask":
 
           if (x.IsSucceed == false)
           {
@@ -558,6 +644,47 @@
 
           break;
 
+        case "CreateMyTask":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+
+            CreateMyTaskCommand.Title = "";
+            CreateMyTaskCommand.Description = "";
+
+            CreateMyTaskModalClose();
+
+            ToastObj.Content = "My Task is Created successfully!";
+            ToastObj.Show()/*.GetAwaiter().GetResult()*/;
+            StateHasChanged();
+          }
+
+          break;
+
+        case "GetMyAllTasks":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            IsSucceed = true;
+            IsTaskRunning = false;
+            SpinnerVisiblity = false;
+            StateHasChanged();
+          }
+
+          break;
       }
 
     });
