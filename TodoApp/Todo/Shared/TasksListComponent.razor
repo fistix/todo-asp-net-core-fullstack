@@ -46,14 +46,15 @@
     <SfButton OnClick="CreateModalOpen" Disabled="IsTaskRunning" CssClass="e-primary">Add New Task</SfButton>
     @*<button type="button" class="btn btn-secondary" @onclick="OpenModal" >Add New Task</button>*@
   </div>
-  
-  <div>
-    <SfButton OnClick="CreateMyTaskModalOpen" Disabled="IsTaskRunning" CssClass="e-secondary">Add My Task</SfButton>
-  </div>
 
   <div>
     <SfButton OnClick="GetMyAllTasks" Disabled="IsTaskRunning" CssClass="e-secondary">Get My Tasks</SfButton>
   </div>
+
+  <div>
+    <SfButton OnClick="CreateMyTaskModalOpen" Disabled="IsTaskRunning" CssClass="e-primary">Add My Task</SfButton>
+  </div>
+
 </div>
 @if (CreateModalPopup)
 {

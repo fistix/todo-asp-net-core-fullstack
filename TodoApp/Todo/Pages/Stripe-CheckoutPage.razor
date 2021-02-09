@@ -1,0 +1,56 @@
+﻿@page "/stripe-checkout"
+@inject StripeStateService _StripeStateService 
+
+@using Stripe.Checkout
+
+
+<h3>Stripe Checkout Page</h3>
+
+@code {
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+      switch (x.Operation)
+      {
+
+        case "CreateSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

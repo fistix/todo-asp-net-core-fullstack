@@ -28,10 +28,10 @@ namespace Todo.Shared.Services
     }
 
     private BehaviorSubject<List<TaskDto>> _tasksSubject = new BehaviorSubject<List<TaskDto>>(new List<TaskDto>());
-    private Subject<ApiCallResult> _apiCallResultSubject = new Subject<ApiCallResult>();
+    private Subject<ApiCallResult<string>> _apiCallResultSubject = new Subject<ApiCallResult<string>>();
 
     public IObservable<List<TaskDto>> TaskObservable { get { return _tasksSubject; } }
-    public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
+    public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
     
 
     public async void CreateTask(CreateTaskCommand command)
@@ -83,7 +83,7 @@ namespace Todo.Shared.Services
 
           _tasksSubject.OnNext(tasks);
 
-          _apiCallResultSubject.OnNext(new ApiCallResult()
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "CreateTask"
@@ -93,7 +93,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "CreateTask",
@@ -128,7 +128,7 @@ namespace Todo.Shared.Services
           //tasks.Add(commandResult.Payload);
 
           _tasksSubject.OnNext(tasks);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "UpdateTask"
@@ -138,7 +138,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "UpdateTask",
@@ -160,7 +160,7 @@ namespace Todo.Shared.Services
           tasks.Remove(tasks.SingleOrDefault(t => t.Id.Equals(id)));
 
           _tasksSubject.OnNext(tasks);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "DeleteTask"
@@ -170,7 +170,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "DeleteTask",
@@ -204,7 +204,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "GetTaskById",
@@ -222,7 +222,7 @@ namespace Todo.Shared.Services
 
         _tasksSubject.OnNext(result.Payload);
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = true,
           Operation = "GetAllTasks"
@@ -232,7 +232,7 @@ namespace Todo.Shared.Services
       catch (Exception ex)
       {
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "GetAllTasks",
@@ -256,7 +256,7 @@ namespace Todo.Shared.Services
 
           _tasksSubject.OnNext(tasks);
 
-          _apiCallResultSubject.OnNext(new ApiCallResult()
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "CreateMyTask"
@@ -266,7 +266,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "CreateMyTask",
@@ -296,7 +296,7 @@ namespace Todo.Shared.Services
           }
 
           _tasksSubject.OnNext(tasks);
-          _apiCallResultSubject.OnNext(new ApiCallResult()
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "AttachUserWithTask"
@@ -306,7 +306,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "AttachUserWithTask",
@@ -324,7 +324,7 @@ namespace Todo.Shared.Services
 
         _tasksSubject.OnNext(result.Payload);
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = true,
           Operation = "GetMyAllTasks"
@@ -333,7 +333,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "GetMyAllTasks",

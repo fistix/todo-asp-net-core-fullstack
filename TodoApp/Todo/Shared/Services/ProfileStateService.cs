@@ -31,10 +31,10 @@ namespace Todo.Shared.Services
     }
 
     private BehaviorSubject<ProfileDto> _myProfileBehaviorSubject = new BehaviorSubject<ProfileDto>(new ProfileDto());
-    private Subject<ApiCallResult> _apiCallResultSubject = new Subject<ApiCallResult>();
+    private Subject<ApiCallResult<string>> _apiCallResultSubject = new Subject<ApiCallResult<string>>();
 
     public IObservable<ProfileDto> MyProfileObservable { get { return _myProfileBehaviorSubject; } }
-    public IObservable<ApiCallResult> ApiCallResultObservable { get { return _apiCallResultSubject; } }
+    public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
 
     private BehaviorSubject<List<ProfileDto>> _allProfilesBeahiourSubject = new BehaviorSubject<List<ProfileDto>>(new List<ProfileDto>());
@@ -53,7 +53,7 @@ namespace Todo.Shared.Services
           if (profileResponse != null)
           {
             _myProfileBehaviorSubject.OnNext(profileResponse.Payload);
-            _apiCallResultSubject.OnNext(new ApiCallResult()
+            _apiCallResultSubject.OnNext(new ApiCallResult<string>()
             {
               IsSucceed = true,
               Operation = "UpdateMyProfile"
@@ -98,7 +98,7 @@ namespace Todo.Shared.Services
           //profile.ProfilePictureUrl = commandResult.ProfilePictureUrl;
 
           //_profileSubject.OnNext(profile);
-          //_apiCallResultSubject.OnNext(new ApiCallResult()
+          //_apiCallResultSubject.OnNext(new ApiCallResult<string>()
           //{
           //  IsSucceed = true,
           //  Operation = "UpdateMyProfilePicture"
@@ -109,7 +109,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "UpdateMyProfilePicture",
@@ -138,7 +138,7 @@ namespace Todo.Shared.Services
           ////profile.ProfilePictureUrl = commandResult.Payload.ProfilePictureUrl;
 
           //_profileSubject.OnNext(profile);
-          //_apiCallResultSubject.OnNext(new ApiCallResult()
+          //_apiCallResultSubject.OnNext(new ApiCallResult<string>()
           //{
           //  IsSucceed = true,
           //  Operation = "UpdateMyProfile"
@@ -149,7 +149,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "UpdateMyProfile",
@@ -167,7 +167,7 @@ namespace Todo.Shared.Services
 
         _allProfilesBeahiourSubject.OnNext(result.Payload);
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = true,
           Operation = "GetAllProfiles"
@@ -177,7 +177,7 @@ namespace Todo.Shared.Services
       catch (Exception ex)
       {
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "GetAllProfiles",
@@ -195,7 +195,7 @@ namespace Todo.Shared.Services
 
         _myProfileBehaviorSubject.OnNext(result.Payload);
 
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = true,
           Operation = "GetMyProfileDetail"
@@ -204,7 +204,7 @@ namespace Todo.Shared.Services
       }
       catch (Exception ex)
       {
-        _apiCallResultSubject.OnNext(new ApiCallResult()
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
           Operation = "GetMyProfileDetail",

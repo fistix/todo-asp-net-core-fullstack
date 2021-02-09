@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace Fistix.Training.WebApi
       MasterConfig.AzureStorageConfig = Configuration.GetSection("AzureStorage").Get<AzureStorageConfig>();
       MasterConfig.Auth0Config = Configuration.GetSection("Auth0").Get<Auth0Config>();
 
+
     }
 
     public IConfiguration Configuration { get; }
@@ -45,6 +47,8 @@ namespace Fistix.Training.WebApi
     {
 
       services.AddControllers().AddFluentValidation(x => x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
+
+      services.Configure<StripeConfig>(Configuration.GetSection("Stripe"));
 
       //services.AddSwaggerGen(c =>
       //  {
@@ -140,6 +144,9 @@ namespace Fistix.Training.WebApi
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["SecretKey"];
+
+
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();

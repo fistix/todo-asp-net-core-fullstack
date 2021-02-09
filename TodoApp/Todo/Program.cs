@@ -31,6 +31,7 @@ namespace Todo
       builder.Services.AddScoped<TasksService>();
       builder.Services.AddScoped<TaskStateService>();
       builder.Services.AddScoped<ProfileStateService>();
+      builder.Services.AddScoped<StripeStateService>();
       //builder.Services.AddScoped<List<TaskDetail>>();
       builder.Services.AddSyncfusionBlazor();
 
