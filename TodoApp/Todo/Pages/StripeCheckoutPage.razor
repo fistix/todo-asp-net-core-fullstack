@@ -1,0 +1,61 @@
+﻿@page "/checkout"
+@inject StripeStateService _StripeStateService
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+
+
+<h3>Stripe Checkout Page</h3>
+
+@code {
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  string sessionId = String.Empty;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+    jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+      sessionId = x.Data;
+      switch (x.Operation)
+      {
+
+        case "CreateSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            NavManager.NavigateTo("/checkoutCancel");
+            StateHasChanged();
+          }
+          else
+          {
+            NavManager.NavigateTo("/checkoutSuccess");
+            await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
+          //StateHasChanged();
+        }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}
