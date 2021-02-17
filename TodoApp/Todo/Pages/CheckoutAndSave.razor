@@ -1,0 +1,91 @@
+﻿@page "/CheckoutAndSave"
+@inject StripeStateService _StripeStateService
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+
+<h3>Checkout And Save</h3>
+
+
+<SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
+
+
+<div id="card-element">
+  <!-- Elements will create input elements here -->
+</div>
+
+<!-- We'll put the error messages in this element -->
+<div id="card-errors" role="alert"></div>
+
+@*<button id="submit" onclick="Confirm">Pay Default</button>*@
+<SfButton ID="submit" OnClick="Confirm">Pay</SfButton>
+
+
+
+@code {
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  private string clientSecret = String.Empty;
+
+  protected override void OnInitialized()
+  {
+    //jsRuntime.InvokeVoidAsync("elements");
+
+    Subscribes();
+    base.OnInitialized();
+    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+    jsRuntime.InvokeVoidAsync("setupElements");
+
+
+  }
+
+  private void Checkout()
+  {
+    _StripeStateService.CreateAndSave();
+  }
+
+  private void Confirm()
+  {
+    Console.WriteLine("button is clicked !");
+    jsRuntime.InvokeVoidAsync("pay"/*, clientSecret*/);
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+
+      clientSecret = x.Data;
+
+      switch (x.Operation)
+      {
+
+        case "CreateSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            //NavManager.NavigateTo("/checkoutCancel");
+            StateHasChanged();
+          }
+          else
+          {
+            //NavManager.NavigateTo("/checkoutSuccess");
+            //await jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+            //StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

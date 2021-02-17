@@ -1,0 +1,82 @@
+﻿@page "/StripeOffSessionPaymentPage"
+@inject StripeStateService _StripeStateService
+@implements IDisposable
+
+<h3>OffSession Payment page</h3>
+
+@*<SfNumericTextBox @ref="AmountSf" TValue="int?" @bind-Value="@Amount" ></SfNumericTextBox>*@
+<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
+<SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
+
+
+@code {
+  //SfNumericTextBox AmountSf;
+  SfTextBox AmountSf;
+  public string Amount { get; set; }
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
+
+  private async void Deduct()
+  {
+    if (String.IsNullOrEmpty(Amount) /*Amount <= 0*/)
+    {
+      AmountSf.CssClass = "e-error";
+
+    }
+    else
+    {
+      await _StripeStateService.OffSessionPayment(long.Parse(Amount));
+
+    }
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      //Console.WriteLine(x.Data);
+      switch (x.Operation)
+      {
+
+        case "OffSessionPayment":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

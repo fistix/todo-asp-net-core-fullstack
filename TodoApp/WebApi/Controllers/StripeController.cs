@@ -1,4 +1,4 @@
-﻿using Domain.Commands.Strip;
+﻿using Fistix.Training.Domain.Commands.Stripe;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
@@ -11,15 +11,20 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.WebApi.Controllers
 {
-  [Route("api/[controller]")]
-  //[Route("webhook")]
 
+  [Route("api/[controller]")]
   [ApiController]
   public class StripeController : ControllerBase
   {
 
     // You can find your endpoint's secret in your webhook settings
     const string secret = "whsec_82Ut3MRXob9ZDzQwquSq1Eal7uXVKI4C";
+
+    private static string PublicKey = "pk_test_51IIUm0KsuYyFXhSvPIN8vpVEOwJuLMLVqoqBEwPVOXO3RC2Rh8CTRs2kxWbK51SQWsR8mBvAIltGDMY0bjheLavT00NKFlsOxO";
+    private static string CustomerId { get; set; } = "cus_IxHNEF1I7JCgZl";
+    private static int ProductAmount { get; set; } = 2000;
+
+    //private static string PaymentMethodId = "";
 
     //[Route("webhook")]
     [HttpPost("index")]
@@ -44,7 +49,7 @@ namespace Fistix.Training.WebApi.Controllers
           return Content("Order is Fulfilled!");
 
           // Fulfill the purchase...
-          this.FulfillOrder(session);
+          //this.FulfillOrder(session);
         }
 
         return Ok();
@@ -53,7 +58,7 @@ namespace Fistix.Training.WebApi.Controllers
       {
         return BadRequest();
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
       }
@@ -65,14 +70,25 @@ namespace Fistix.Training.WebApi.Controllers
       //throw new NotImplementedException();
     }
 
-    [HttpPost]
+    [HttpPost("CheckoutSample")]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> CheckoutSample()
     {
       //await Index();
 
       var domain = "https://localhost:5200";
+
+      //var sessionListOptions = new SessionListOptions
+      //{
+      //  Limit = 3,
+      //};
+      //var ssessionService = new SessionService();
+      //StripeList<Session> sessions = ssessionService.List(
+      //  sessionListOptions
+      //);
+
       var options = new SessionCreateOptions
       {
         PaymentMethodTypes = new List<string>
@@ -96,15 +112,162 @@ namespace Fistix.Training.WebApi.Controllers
                   },
                 },
         Mode = "payment",
-        SuccessUrl = domain + "/checkoutSuccess",
-        CancelUrl = domain + "/checkoutCancel",
+        SuccessUrl = domain + "/checkoutSampleSuccess",
+        CancelUrl = domain + "/checkoutSampleCancel",
       };
       var service = new SessionService();
       Session session = service.Create(options);
 
+      return Ok(new CreateSessionCommandResult() { SessionId = session.Id });
+    }
 
 
-      return Ok(new CreateSessionCommandResult(){ SessionId = session.Id });
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateCustomer(CreateCustomerCommand command)
+    {
+      Customer customer = new Customer();
+
+      #region GetCustomersList
+      var CustomerOptions = new CustomerListOptions
+      {
+        Limit = 50,
+        Email = command.Email
+      };
+      var customerService = new CustomerService();
+      StripeList<Customer> customersList = customerService.List(
+        CustomerOptions
+        );
+      #endregion
+
+      if (customersList.Any(x => x.Email.Equals(command.Email)))
+      {
+        var temp = customersList.FirstOrDefault(x => x.Email.Equals(command.Email));
+        customer.Id = temp.Id;
+      }
+      else
+      {
+        customer = customerService.Create(new CustomerCreateOptions
+        {
+          Email = command.Email
+        });
+      }
+
+      CustomerId = customer.Id;
+      return Ok(new CreateCustomerCommandResult() { CustomerId = customer.Id });
+
+    }
+
+
+    [HttpPost("CreatePaymentIntent")]
+    //[HttpPost("create-payment-intent")]
+    public async Task<IActionResult> CreatePaymentIntent()
+    {
+      var optionss = new PaymentIntentCreateOptions
+      {
+        Amount = ProductAmount/*1099*/,
+        Currency = "usd",
+        SetupFutureUsage = "off_session",
+        Customer = CustomerId
+      };
+
+      var servicee = new PaymentIntentService();
+      var paymentIntent = servicee.Create(optionss);
+
+      //return null;
+      return Ok(new
+      {
+        PublicKey,
+        ClientSecret = paymentIntent.ClientSecret,
+        Id = paymentIntent.Id
+      });
+
+    }
+
+
+    [HttpPost("OffSessionPayment")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult OffSessionPayment(long amount)
+    {
+      try
+      {
+
+        //var amountt=long.Parse(amount);
+        var methodOptions = new PaymentMethodListOptions
+        {
+          Customer = CustomerId,
+          Type = "card",
+        };
+
+        var methodService = new PaymentMethodService();
+        var paymentMethods = methodService.List(methodOptions);
+
+        //To get the first payment method
+        var payment = paymentMethods.ToList().FirstOrDefault();
+
+        var service = new PaymentIntentService();
+        var options = new PaymentIntentCreateOptions
+        {
+          Amount = amount/*ProductAmount*//*1099*/,
+          Currency = "usd",
+          Customer = CustomerId,
+          PaymentMethod = payment.Id,
+          Confirm = true,
+          OffSession = true,
+        };
+        var paymentIntentt = service.Create(options);
+
+        return Ok();
+        //return View("ButtonsView");
+
+      }
+      catch (StripeException e)
+      {
+        switch (e.StripeError.Error/*.ErrorType*/)
+        {
+          case "card_error":
+            // Error code will be authentication_required if authentication is needed
+            Console.WriteLine("Error code: " + e.StripeError.Code);
+            var paymentIntentId = e.StripeError.PaymentIntent.Id;
+            var service = new PaymentIntentService();
+            var paymentIntent = service.Get(paymentIntentId);
+
+            Console.WriteLine(paymentIntent.Id);
+            break;
+          default:
+            break;
+        }
+        ////
+        return null;
+      }
+    }
+
+
+    [HttpGet("CreateAndSave")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAndSave()
+    {
+      //Step 2
+      var options = new CustomerCreateOptions { };
+
+      var service = new CustomerService();
+      var customer = service.Create(options);
+
+      //Step 3
+      var optionss = new PaymentIntentCreateOptions
+      {
+        Amount = 1099,
+        Currency = "usd",
+        Customer = customer.Id //"{{CUSTOMER_ID}}",
+      };
+
+      var servicee = new PaymentIntentService();
+      var paymentIntent = servicee.Create(optionss);
+      return Ok(new SaveCustomerDetailsCommandResult() { ClientSecret = paymentIntent.ClientSecret });
+
     }
 
 

@@ -1,0 +1,73 @@
+﻿@page "/StripeCheckoutSamplePage"
+@inject StripeStateService _StripeStateService
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+
+
+<h3>Stripe Checkout Sample Page</h3>
+
+<SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
+
+@code {
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  string sessionId = String.Empty;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+    jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
+
+  private void Checkout()
+  {
+    _StripeStateService.CheckoutSample();
+    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+
+      sessionId = x.Data;
+
+      switch (x.Operation)
+      {
+
+        case "CreateCheckoutSampleSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            NavManager.NavigateTo("/CheckoutSampleCancel");
+            StateHasChanged();
+          }
+          else
+          {
+            NavManager.NavigateTo("/CheckoutSampleSuccess");
+            await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
+            //StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

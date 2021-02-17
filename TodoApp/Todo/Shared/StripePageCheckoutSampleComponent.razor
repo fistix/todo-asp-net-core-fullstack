@@ -1,10 +1,11 @@
-﻿@page "/checkout"
-@inject StripeStateService _StripeStateService
+﻿@inject StripeStateService _StripeStateService
 @inject NavigationManager NavManager
 @inject IJSRuntime jsRuntime
 
 
-<h3>Stripe Checkout Page</h3>
+<h3>Checkout Sample Component</h3>
+
+<SfButton CssClass="e-info" OnClick="Checkout">Checkout Sample</SfButton>
 
 @code {
 
@@ -21,6 +22,14 @@
 
   }
 
+
+  private void Checkout()
+  {
+    _StripeStateService.CheckoutSample();
+    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
   private void Subscribes()
   {
     apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
@@ -28,24 +37,26 @@
       Console.WriteLine(x.Operation);
       Console.WriteLine(x.IsSucceed);
       Console.WriteLine(x.Data);
+
       sessionId = x.Data;
+
       switch (x.Operation)
       {
 
-        case "CreateSession":
+        case "CreateCheckoutSampleSession":
 
           if (x.IsSucceed == false)
           {
             ErrorMessage = x.ErrorMessage;
-            NavManager.NavigateTo("/checkoutCancel");
+            NavManager.NavigateTo("/CheckoutSampleCancel");
             StateHasChanged();
           }
           else
           {
-            NavManager.NavigateTo("/checkoutSuccess");
+            NavManager.NavigateTo("/CheckoutSampleSuccess");
             await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
           //StateHasChanged();
-        }
+          }
 
           break;
       }

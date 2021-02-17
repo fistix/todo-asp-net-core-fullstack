@@ -2,22 +2,17 @@
 @attribute [Authorize]
 @inject TaskStateService _TaskStateService
 @using Fistix.Training.Domain.Dtos
-
+@implements IDisposable
 @*@inject TasksService _tasksService*@
 @*@inject ProfileStateService _ProfileStateService*@
-
-
-@implements IDisposable
 
 <div>@Tasks.Count</div>
 <div>@ErrorMessage</div>
 @*<button @onclick="RefreshTasks">Refresh</button>*@
 
 <TasksListComponent Tasks="@Tasks" />
+
 @*<TasksListComponent Tasks="@Tasks" Profiles="@Profiles" />*@
-
-
-
 @*<TasksListComponent Tasks="@Tasks" OnRefershTask="RefreshTasks" />*@
 
 

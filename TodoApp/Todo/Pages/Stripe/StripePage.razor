@@ -1,0 +1,116 @@
+﻿@page "/stripe"
+@inject StripeStateService _StripeStateService
+@implements IDisposable
+@inject NavigationManager NavManager
+@*@inject IJSRuntime jsRuntime*@
+
+
+<h3>Stripe Page</h3>
+
+<SfTextBox @ref="EmailSf" Placeholder="Enter Email..." @bind-Value="@Email"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
+@*<SfButton CssClass="e-info" @onclick="">Create or Get Customer</SfButton>*@
+
+@*<SfButton CssClass="e-info">
+    <a href="edit/@myObj.TaskId" class="text-white" Match="NavLinkMatch.All">
+      Edit
+    </a>
+  </SfButton>*@
+
+<StripePageAddCustomerComponent Email="@Email" />
+<StripePageCheckoutSampleComponent />
+<StripePageOffSessionPaymentComponent />
+@*<StripePageCheckoutComponent />*@
+
+@code {
+
+  //string sessionId = String.Empty;
+
+  public static string CustomerId = String.Empty;
+  public static string Email = String.Empty;
+  SfTextBox EmailSf;
+  public string ErrorMessage = "";
+  //CreateCustomerCommand CreateCustomerCommand = new CreateCustomerCommand();
+  private IDisposable apiCallSub;
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(/*async */x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+
+      switch (x.Operation)
+      {
+        case "CreateOrGetStripeCustomer":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+            CustomerId = x.Data;
+            StateHasChanged();
+          }
+
+          break;
+
+        case "CreateCheckoutSampleSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            NavManager.NavigateTo("/CheckoutSampleCancel");
+            StateHasChanged();
+          }
+          else
+          {
+            NavManager.NavigateTo("/CheckoutSampleSuccess");
+            //await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
+            StateHasChanged();
+          }
+
+          break;
+
+        case "OffSessionPayment":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+
+}

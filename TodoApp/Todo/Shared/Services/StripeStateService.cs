@@ -1,4 +1,4 @@
-﻿using Domain.Commands.Strip;
+﻿using Fistix.Training.Domain.Commands.Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,19 +21,20 @@ namespace Todo.Shared.Services
       _httpClient = httpClient;
       _authHandler = authHandler;
 
-      Create();
+      //Create();
+      //CreateAndSave();
     }
 
     private Subject<ApiCallResult<string>> _apiCallResultSubject = new Subject<ApiCallResult<string>>();
     public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
 
-    public async void Create()
+    public async void CheckoutSample()
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var response = await _httpClient.PostAsync("api/Stripe",null);
+        var response = await _httpClient.PostAsync("api/Stripe/CheckoutSample", null);
         if (response.IsSuccessStatusCode)
         {
           var commandResult = await response.Content.ReadFromJsonAsync<CreateSessionCommandResult>();
@@ -46,7 +47,7 @@ namespace Todo.Shared.Services
           _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
-            Operation = "CreateSession",
+            Operation = "CreateCheckoutSampleSession",
             Data = commandResult.SessionId
           });
 
@@ -57,7 +58,103 @@ namespace Todo.Shared.Services
         _apiCallResultSubject.OnNext(new ApiCallResult<string>()
         {
           IsSucceed = false,
-          Operation = "CreateSession",
+          Operation = "CreateCheckoutSampleSession",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+    public async Task CreateCustomer(CreateCustomerCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var response = await _httpClient.PostAsJsonAsync<CreateCustomerCommand>("api/Stripe", command);
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
+
+          //var tasks = new List<TaskDto>(_tasksSubject.Value);
+          //tasks.Add(commandResult.Payload);
+
+          //_tasksSubject.OnNext(tasks);
+
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = true,
+            Operation = "CreateOrGetStripeCustomer",
+            Data= commandResult.CustomerId
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+        {
+          IsSucceed = false,
+          Operation = "CreateOrGetStripeCustomer",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+
+    public async Task OffSessionPayment(long amount)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?amount={amount}", null);
+        if (response.IsSuccessStatusCode)
+        {
+          //var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
+
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = true,
+            Operation = "OffSessionPayment",
+            //Data = commandResult.CustomerId
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+        {
+          IsSucceed = false,
+          Operation = "OffSessionPayment",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
+
+    public async void CreateAndSave()
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var response = await _httpClient.GetAsync("api/Stripe/CreateAndSave");
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<SaveCustomerDetailsCommandResult>();
+
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = true,
+            Operation = "CreateAndSave",
+            Data = commandResult.ClientSecret
+          });
+
+        }
+      }
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+        {
+          IsSucceed = false,
+          Operation = "CreateAndSave",
           ErrorMessage = ex.Message
         });
       }

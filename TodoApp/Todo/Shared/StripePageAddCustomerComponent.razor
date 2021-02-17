@@ -1,0 +1,73 @@
+﻿@inject StripeStateService _StripeStateService
+@implements IDisposable
+
+<h3>Add Customer Component</h3>
+
+
+<SfButton CssClass="e-info" @onclick="CreateOrGetCustomer">Create or Get Customer</SfButton>
+<label style="color: tomato; font-size: 100px">@ErrorMessage</label>
+
+@code {
+
+  [Parameter] public string Email { get; set; }
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  CreateCustomerCommand CreateCustomerCommand = new CreateCustomerCommand();
+
+
+  private async void CreateOrGetCustomer()
+  {
+    CreateCustomerCommand.Email = Email;
+    if (String.IsNullOrEmpty(CreateCustomerCommand.Email))
+    {
+      ErrorMessage = "Please insert an Email";
+    }
+    else
+    {
+      await _StripeStateService.CreateCustomer(CreateCustomerCommand);
+    }
+
+  }
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+
+      switch (x.Operation)
+      {
+        case "CreateOrGetStripeCustomer":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

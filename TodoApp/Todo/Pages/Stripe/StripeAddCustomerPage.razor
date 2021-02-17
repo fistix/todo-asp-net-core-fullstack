@@ -1,0 +1,82 @@
+﻿@page "/StripeAddCustomerPage"
+@inject StripeStateService _StripeStateService
+@implements IDisposable
+
+
+<h3>Add Customer</h3>
+
+
+<SfTextBox @ref="Email" Placeholder="Enter Email..." @bind-Value="@CreateCustomerCommand.Email"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
+<SfButton CssClass="e-info" @onclick="AddCustomerRequest">Add</SfButton>
+
+@code {
+  SfTextBox Email;
+  public string ErrorMessage = "";
+  CreateCustomerCommand CreateCustomerCommand = new CreateCustomerCommand();
+  private IDisposable apiCallSub;
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
+
+  private async void AddCustomerRequest()
+  {
+
+    if (String.IsNullOrWhiteSpace(CreateCustomerCommand.Email))
+    {
+      Email.CssClass = "e-error";
+    }
+    else
+    {
+      await _StripeStateService.CreateCustomer(CreateCustomerCommand);
+    }
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub =_StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+      switch (x.Operation)
+      {
+
+        case "CreateStripeCustomer":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            CreateCustomerCommand.Email= "";
+            StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+
+}
