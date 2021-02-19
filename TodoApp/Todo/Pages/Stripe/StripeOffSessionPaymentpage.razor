@@ -5,16 +5,15 @@
 <h3>OffSession Payment page</h3>
 
 @*<SfNumericTextBox @ref="AmountSf" TValue="int?" @bind-Value="@Amount" ></SfNumericTextBox>*@
-<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
-<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
 
 <SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
 
 
 @code {
-  //SfNumericTextBox AmountSf;
-  SfTextBox AmountSf;
-  public string Amount { get; set; }
+
+  [Parameter] public string CustomerId { get; set; }
+  [Parameter] public string Amount { get; set; }
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -27,16 +26,18 @@
 
   private async void Deduct()
   {
-    if (String.IsNullOrEmpty(Amount) /*Amount <= 0*/)
-    {
-      AmountSf.CssClass = "e-error";
+    Console.WriteLine(Amount);
+    Console.WriteLine(CustomerId);
+    //if (String.IsNullOrEmpty(Amount) /*Amount <= 0*/)
+    //{
+    //  //AmountSf.CssClass = "e-error";
 
-    }
-    else
-    {
-      await _StripeStateService.OffSessionPayment(long.Parse(Amount));
+    //}
+    //else
+    //{
+    //  await _StripeStateService.OffSessionPayment(long.Parse(Amount));
 
-    }
+    //}
 
   }
 

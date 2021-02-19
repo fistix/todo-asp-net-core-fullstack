@@ -9,6 +9,12 @@
 <SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
 
 @code {
+  /*[Parameter] */
+  public string Amount { get; set; }
+  /*[Parameter] */
+  public string Email { get; set; }
+
+
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -26,7 +32,7 @@
 
   private void Checkout()
   {
-    _StripeStateService.CheckoutSample();
+    //_StripeStateService.CheckoutSample(Email,long.Parse(Amount),);
     //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
 
   }

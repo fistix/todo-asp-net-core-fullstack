@@ -21,7 +21,8 @@ namespace Fistix.Training.WebApi.Controllers
     const string secret = "whsec_82Ut3MRXob9ZDzQwquSq1Eal7uXVKI4C";
 
     private static string PublicKey = "pk_test_51IIUm0KsuYyFXhSvPIN8vpVEOwJuLMLVqoqBEwPVOXO3RC2Rh8CTRs2kxWbK51SQWsR8mBvAIltGDMY0bjheLavT00NKFlsOxO";
-    private static string CustomerId { get; set; } = "cus_IxHNEF1I7JCgZl";
+    //private static string CustomerId { get; set; }/* = "cus_IxHNEF1I7JCgZl";*/
+    //private static string PaymentId { get; set; } = "pm_1IMBZtKsuYyFXhSv758bkjyd";
     private static int ProductAmount { get; set; } = 2000;
 
     //private static string PaymentMethodId = "";
@@ -70,11 +71,12 @@ namespace Fistix.Training.WebApi.Controllers
       //throw new NotImplementedException();
     }
 
+
     [HttpPost("CheckoutSample")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CheckoutSample()
+    public async Task<IActionResult> CheckoutSample(string Email, long amount, string productName)
     {
       //await Index();
 
@@ -91,6 +93,8 @@ namespace Fistix.Training.WebApi.Controllers
 
       var options = new SessionCreateOptions
       {
+         
+        CustomerEmail = Email,
         PaymentMethodTypes = new List<string>
                 {
                   "card",
@@ -101,11 +105,11 @@ namespace Fistix.Training.WebApi.Controllers
                   {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                      UnitAmount = 2000,
+                      UnitAmount = amount,
                       Currency = "usd",
                       ProductData = new SessionLineItemPriceDataProductDataOptions
                       {
-                        Name = "Stubborn Attachments",
+                        Name = productName/*"Stubborn Attachments"*/,
                       },
                     },
                     Quantity = 1,
@@ -155,7 +159,7 @@ namespace Fistix.Training.WebApi.Controllers
         });
       }
 
-      CustomerId = customer.Id;
+      //CustomerId = customer.Id;
       return Ok(new CreateCustomerCommandResult() { CustomerId = customer.Id });
 
     }
@@ -163,14 +167,14 @@ namespace Fistix.Training.WebApi.Controllers
 
     [HttpPost("CreatePaymentIntent")]
     //[HttpPost("create-payment-intent")]
-    public async Task<IActionResult> CreatePaymentIntent()
+    public async Task<IActionResult> Checkout()
     {
       var optionss = new PaymentIntentCreateOptions
       {
         Amount = ProductAmount/*1099*/,
         Currency = "usd",
         SetupFutureUsage = "off_session",
-        Customer = CustomerId
+        //Customer = CustomerId
       };
 
       var servicee = new PaymentIntentService();
@@ -189,7 +193,7 @@ namespace Fistix.Training.WebApi.Controllers
 
     [HttpPost("OffSessionPayment")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult OffSessionPayment(long amount)
+    public IActionResult OffSessionPayment(string customerId, long amount)
     {
       try
       {
@@ -197,7 +201,7 @@ namespace Fistix.Training.WebApi.Controllers
         //var amountt=long.Parse(amount);
         var methodOptions = new PaymentMethodListOptions
         {
-          Customer = CustomerId,
+          Customer = customerId,
           Type = "card",
         };
 
@@ -212,8 +216,8 @@ namespace Fistix.Training.WebApi.Controllers
         {
           Amount = amount/*ProductAmount*//*1099*/,
           Currency = "usd",
-          Customer = CustomerId,
-          PaymentMethod = payment.Id,
+          Customer = customerId,
+          PaymentMethod = /*PaymentId*//*"card"*/payment.Id,
           Confirm = true,
           OffSession = true,
         };
@@ -243,6 +247,9 @@ namespace Fistix.Training.WebApi.Controllers
         return null;
       }
     }
+
+
+
 
 
     [HttpGet("CreateAndSave")]

@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>Fistix.Training.WebApi</RootNamespace>
+		<UserSecretsId>c77b2542-bfea-4ed7-8fdc-459016d0b8d5</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>

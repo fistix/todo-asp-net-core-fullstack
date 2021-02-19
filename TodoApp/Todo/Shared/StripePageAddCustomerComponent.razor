@@ -5,11 +5,16 @@
 
 
 <SfButton CssClass="e-info" @onclick="CreateOrGetCustomer">Create or Get Customer</SfButton>
-<label style="color: tomato; font-size: 100px">@ErrorMessage</label>
+<label style="color: tomato; font-size: 15px">@ErrorMessage</label>
 
 @code {
 
-  [Parameter] public string Email { get; set; }
+  [Parameter] 
+  public string Email { get; set; }
+
+  [Parameter]
+  public EventCallback<string> OnSendCustomerIdToParent { get; set; }
+
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -37,7 +42,7 @@
 
   private void Subscribes()
   {
-    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
     {
       Console.WriteLine(x.Operation);
       Console.WriteLine(x.IsSucceed);
@@ -54,6 +59,9 @@
           }
           else
           {
+            //OnRefershTask(x.Data);
+            await OnSendCustomerIdToParent.InvokeAsync(x.Data);
+            //CustomerId = x.Data;
             //IsSucceed = true;
             //IsTaskRunning = false;
             //SpinnerVisiblity = false;

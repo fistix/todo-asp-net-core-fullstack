@@ -3,37 +3,42 @@ var stripe = Stripe("pk_test_51IIUm0KsuYyFXhSvPIN8vpVEOwJuLMLVqoqBEwPVOXO3RC2Rh8
 
 // Information about the order
 // Used on the server to calculate order total
-var orderData = {
-  items: [{ id: "photo-subscription" }],
-  currency: "usd"
-};
+//var orderData = {
+//  items: [{ id: "photo-subscription" }],
+//  currency: "usd"
+//};
 
-var fetchElements = function(){ 
-fetch("https://localhost:5001/api/Stripe/CreatePaymentIntent", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(orderData)
-})
-  .then(function (result) {
-    return result.json();
-  })
-  .then(function (data) {
-    return setupElements(data);
-  })
-  .then(function (stripeData) {
-    document.querySelector("#submit").addEventListener("click", function (evt) {
-      evt.preventDefault();
-      // Initiate payment
-      pay(stripeData.stripe, stripeData.card, stripeData.clientSecret);
-    });
-  });
+var fetchElements = function (stripe, card, clientSecret){ 
+//fetch("https://localhost:5001/api/Stripe/CreatePaymentIntent", {
+//  method: "POST",
+//  headers: {
+//    "Content-Type": "application/json"
+//  },
+//  body: JSON.stringify(orderData)
+//})
+//  .then(function (result) {
+//    return result.json();
+//  })
+//  .then(function (data) {
+//    return setupElements(data);
+//  })
+//  .then(function (stripeData) {
+
+document.querySelector("#submit").addEventListener("click", function (evt) {
+  evt.preventDefault();
+//  // Initiate payment
+  pay(JSON.parse(stripe), JSON.parse(card), clientSecret);
+});
+//  });
 };
 
 // Set up Stripe.js and Elements to use in checkout form
 var setupElements = function (data) {
-  stripe = Stripe(data.publicKey);
+
+  var parsedData = JSON.parse(data);
+
+  //stripe = Stripe(dt.publicKey);
+  stripe = Stripe(parsedData.publicKey);
   var elements = stripe.elements();
   var style = {
     base: {
@@ -54,12 +59,12 @@ var setupElements = function (data) {
   var card = elements.create("card", { style: style });
   card.mount("#card-element");
 
-  return {
-    stripe: stripe,
-    card: card, 
-    clientSecret: data.clientSecret,
-    id: data.id
-  };
+  return JSON.stringify({
+    Stripe: stripe,
+    Card: card,
+    ClientSecret: parsedData.clientSecret,
+    Id: parsedData.id
+  });
 };
 
 /*
@@ -85,8 +90,7 @@ var pay = function (stripe, card, clientSecret) {
   // If authentication is required, confirmCardPayment will automatically display a modal
 
   // Use setup_future_usage to save the card and tell Stripe how you plan to charge it in the future
-  stripe
-    .confirmCardPayment(clientSecret, {
+  stripe.confirmCardPayment(clientSecret, {
       payment_method: data,
       setup_future_usage: isSavingCard ? "off_session" : ""
     })

@@ -4,20 +4,18 @@
 <h3>OffSession Payment Component</h3>
 
 
-@*<SfNumericTextBox @ref="AmountSf" TValue="int?" @bind-Value="@Amount" ></SfNumericTextBox>*@
-<SfTextBox @ref="AmountSf"  Placeholder="Enter Amount..." @bind-Value="Amount" ></SfTextBox>
-<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-
-
 @*<SfButton CssClass="e-info"  @onclick="() => Deduct(Amount)" >Deduct</SfButton>*@
-<SfButton CssClass="e-info"  @onclick="Deduct" >Deduct</SfButton>
+<SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
+<label style="color: tomato; font-size: 15px">@ErrorMessage</label>
+
 
 
 @code {
+  [Parameter] public string CustomerId { get; set; }
+  [Parameter] public string Amount { get; set; }
   //SfNumericTextBox AmountSf;
-  SfTextBox AmountSf;
+  //SfTextBox AmountSf;
   //public string Amount { get; set; }
-  public string Amount { get; set; }
 
 
 
@@ -33,15 +31,18 @@
 
   private async void Deduct()
   {
-    if (String.IsNullOrEmpty(Amount) /*Amount <= 0*/)
+    if (String.IsNullOrEmpty(CustomerId))
     {
-      AmountSf.CssClass = "e-error";
-
+      ErrorMessage = "Please Create/Get any customer before !";
+    }
+    else if (String.IsNullOrEmpty(Amount))
+    {
+      ErrorMessage = "Please insert an Amount";
     }
     else
     {
       //Console.WriteLine("Deduct button is clicked",Amount);
-      await _StripeStateService.OffSessionPayment(long.Parse(Amount));
+      await _StripeStateService.OffSessionPayment(CustomerId, long.Parse(Amount));
     }
 
   }
@@ -52,8 +53,8 @@
     {
       Console.WriteLine(x.Operation);
       Console.WriteLine(x.IsSucceed);
-      //Console.WriteLine(x.Data);
-      switch (x.Operation)
+    //Console.WriteLine(x.Data);
+    switch (x.Operation)
       {
 
         case "OffSessionPayment":
@@ -65,13 +66,13 @@
           }
           else
           {
-            //IsSucceed = true;
-            //IsTaskRunning = false;
-            //SpinnerVisiblity = false;
+          //IsSucceed = true;
+          //IsTaskRunning = false;
+          //SpinnerVisiblity = false;
 
-            //ToastObj.Show().GetAwaiter().GetResult();
+          //ToastObj.Show().GetAwaiter().GetResult();
 
-            StateHasChanged();
+          StateHasChanged();
           }
 
           break;

@@ -29,12 +29,12 @@ namespace Todo.Shared.Services
     public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
 
-    public async void CheckoutSample()
+    public async void CheckoutSample(string email, long amount, string productName)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var response = await _httpClient.PostAsync("api/Stripe/CheckoutSample", null);
+        var response = await _httpClient.PostAsync($"api/Stripe/CheckoutSample?email={email}&amount={amount}&productName={productName}", null);
         if (response.IsSuccessStatusCode)
         {
           var commandResult = await response.Content.ReadFromJsonAsync<CreateSessionCommandResult>();
@@ -100,12 +100,12 @@ namespace Todo.Shared.Services
     }
 
 
-    public async Task OffSessionPayment(long amount)
+    public async Task OffSessionPayment(string customerId, long amount)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?amount={amount}", null);
+        var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?customerId={customerId}&amount={amount}", null);
         if (response.IsSuccessStatusCode)
         {
           //var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
