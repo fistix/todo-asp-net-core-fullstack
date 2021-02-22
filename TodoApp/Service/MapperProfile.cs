@@ -2,6 +2,7 @@
 using Fistix.Training.Domain.Commands;
 using Fistix.Training.Domain.Commands.MyProfile;
 using Fistix.Training.Domain.Commands.Profiles;
+using Fistix.Training.Domain.Commands.Stripe;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
 using Fistix.Training.Domain.Dtos;
@@ -74,6 +75,13 @@ namespace Fistix.Training.Service
       CreateMap<AttachUserWithTaskCommand, Domain.DataModels.Profile>();
       CreateMap<Domain.DataModels.Profile, AttachUserWithTaskCommand>();
 
+
+      //Customer's mapping
+      CreateMap<Customer, CustomerDto>();
+      CreateMap<CustomerDto, Customer>();
+
+      CreateMap<CreateCustomerCommand, Customer>();
+      CreateMap<Customer, CreateCustomerCommand>();
     }
   }
 }

@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Fistix.Training.Domain.Commands.Stripe
 {
-  public class CreateCustomerCommand : IRequest<CreateCustomerCommandResult>
+  public class SampleCheckoutCommand : IRequest<SampleCheckoutCommandResult>
   {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
     public string Email { get; set; }
+    public long Amount { get; set; }
+    public string ProductName { get; set; }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fistix.Training.Domain.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,9 @@ namespace Fistix.Training.Domain.Commands.Stripe
 {
   public class CreateCustomerCommandResult
   {
-    public string CustomerId { get; set; }
+    public string Id { get; set; }
+    public string Email { get; set; }
+    public string FullName { get; set; }
+    public CustomerDto Payload { get; set; }
   }
 }

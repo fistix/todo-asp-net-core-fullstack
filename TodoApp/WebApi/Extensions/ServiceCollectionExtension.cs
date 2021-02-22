@@ -36,6 +36,7 @@ namespace Fistix.Training.WebApi.Extensions
       services.AddMediatR(typeof(CreateTaskCommand).Assembly, typeof(CreateTaskCommandHandler).Assembly);
       services.AddScoped<ITaskRepository, TaskRepository>();
       services.AddScoped<IProfileRepository, ProfileRepository>();
+      services.AddScoped<IStripeRepository, StripeRepository>();
 
       services.AddDbContext<EfContext>(options =>
         options.UseSqlServer(masterConfig.ConnectionStringConfig.TodoDatabase)

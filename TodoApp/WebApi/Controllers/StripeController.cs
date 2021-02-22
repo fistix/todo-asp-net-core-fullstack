@@ -1,4 +1,8 @@
-﻿using Fistix.Training.Domain.Commands.Stripe;
+﻿using Fistix.Training.Core.Exceptions;
+using Fistix.Training.Domain.Commands.Stripe;
+using Fistix.Training.Domain.Queries.Stripe;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
@@ -14,8 +18,16 @@ namespace Fistix.Training.WebApi.Controllers
 
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
+
   public class StripeController : ControllerBase
   {
+    private readonly IMediator _mediator = null;
+
+    public StripeController(IMediator mediator)
+    {
+      _mediator = mediator;
+    }
 
     // You can find your endpoint's secret in your webhook settings
     const string secret = "whsec_82Ut3MRXob9ZDzQwquSq1Eal7uXVKI4C";
@@ -23,9 +35,10 @@ namespace Fistix.Training.WebApi.Controllers
     private static string PublicKey = "pk_test_51IIUm0KsuYyFXhSvPIN8vpVEOwJuLMLVqoqBEwPVOXO3RC2Rh8CTRs2kxWbK51SQWsR8mBvAIltGDMY0bjheLavT00NKFlsOxO";
     //private static string CustomerId { get; set; }/* = "cus_IxHNEF1I7JCgZl";*/
     //private static string PaymentId { get; set; } = "pm_1IMBZtKsuYyFXhSv758bkjyd";
+    //private static string PaymentMethodId = "";
+
     private static int ProductAmount { get; set; } = 2000;
 
-    //private static string PaymentMethodId = "";
 
     //[Route("webhook")]
     [HttpPost("index")]
@@ -70,6 +83,127 @@ namespace Fistix.Training.WebApi.Controllers
       // TODO: fill me in
       //throw new NotImplementedException();
     }
+
+    #region Server
+
+    [HttpPost("Create")]
+    [ProducesResponseType(typeof(CreateCustomerCommandResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Create([FromBody] CreateCustomerCommand command)
+    {
+      try
+      {
+        if (!ModelState.IsValid)
+        {
+          return base.BadRequest(ModelState);
+        }
+
+        var result = await _mediator.Send<CreateCustomerCommandResult>(command);
+        return base.Created($"api/Stripe/Create/{result.Id}", result);
+        //return base.Created($"api/Stripe/{result.Payload.Id}", result);
+        //return Ok(new CreateCustomerCommandResult() { CustomerId = customer.Id });
+      }
+
+      catch (InvalidOperationException ex)
+      {
+        return base.Conflict(ex.Message);
+      }
+
+    }
+
+
+    [HttpGet("ByEmail")]
+    [ProducesResponseType(typeof(GetCustomerDetailByEmailQueryResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByEmail([FromQuery] string email)
+    {
+      try
+      {
+        if (String.IsNullOrWhiteSpace(email))
+        {
+          return base.BadRequest();
+        }
+
+        var query = new GetCustomerDetailByEmailQuery() { Email = email };
+
+        var result = await _mediator.Send(query);
+
+        return base.Ok(result);
+      }
+      catch (NotFoundException)
+      {
+        return base.NotFound();
+      }
+    }
+
+
+    [HttpPost("PaymentDeduction")]
+    [ProducesResponseType(typeof(PaymentDeductionCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PaymentDeduction(PaymentDeductionCommand command)
+    {
+      try
+      {
+        if (!ModelState.IsValid)
+        {
+          return base.BadRequest(ModelState);
+        }
+
+        var result = await _mediator.Send<PaymentDeductionCommandResult>(command);
+        return base.Ok(result);
+        //return base.Ok($"api/Stripe/Create/{result.PaymentIntentId}", result);
+      }
+
+      catch (StripeException e)
+      {
+        switch (e.StripeError.Error/*.ErrorType*/)
+        {
+          case "card_error":
+            // Error code will be authentication_required if authentication is needed
+            Console.WriteLine("Error code: " + e.StripeError.Code);
+            var paymentIntentId = e.StripeError.PaymentIntent.Id;
+            var service = new PaymentIntentService();
+            var paymentIntent = service.Get(paymentIntentId);
+
+            Console.WriteLine(paymentIntent.Id);
+            break;
+          default:
+            break;
+        }
+        ////
+        return null;
+      }
+    }
+
+    [HttpPost("SampleCheckout")]
+    //[ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(SampleCheckoutCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SampleCheckout([FromBody] SampleCheckoutCommand command)
+    {
+      try
+      {
+        if (!ModelState.IsValid)
+        {
+          return base.BadRequest(ModelState);
+        }
+
+        var result = await _mediator.Send<SampleCheckoutCommandResult>(command);
+        return base.Ok(result);
+      }
+      catch (Exception)
+      {
+
+        throw;
+      }
+      return null;
+      //return Ok(new CreateSessionCommandResult() { SessionId = session.Id });
+    }
+
+
+    #endregion
 
 
     [HttpPost("CheckoutSample")]
@@ -160,7 +294,7 @@ namespace Fistix.Training.WebApi.Controllers
       }
 
       //CustomerId = customer.Id;
-      return Ok(new CreateCustomerCommandResult() { CustomerId = customer.Id });
+      return Ok(new CreateCustomerCommandResult() { Id = customer.Id });
 
     }
 
@@ -197,7 +331,6 @@ namespace Fistix.Training.WebApi.Controllers
     {
       try
       {
-
         //var amountt=long.Parse(amount);
         var methodOptions = new PaymentMethodListOptions
         {

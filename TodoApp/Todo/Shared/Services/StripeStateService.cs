@@ -83,7 +83,7 @@ namespace Todo.Shared.Services
           {
             IsSucceed = true,
             Operation = "CreateOrGetStripeCustomer",
-            Data= commandResult.CustomerId
+            Data= commandResult.Id/*.Payload.Id.ToString()*/
           });
 
         }

@@ -152,7 +152,7 @@ namespace Fistix.Training.WebApi.Controllers
     {
       try
       {
-        if (!String.IsNullOrWhiteSpace(email))
+        if (String.IsNullOrWhiteSpace(email))
         {
           return base.BadRequest();
         }

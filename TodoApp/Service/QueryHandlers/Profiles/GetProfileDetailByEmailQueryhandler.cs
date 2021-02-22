@@ -16,6 +16,7 @@ namespace Fistix.Training.Service.QueryHandlers.Profiles
   {
     private readonly IMapper _mapper = null;
     private readonly IProfileRepository _profileRepository = null;
+
     public GetProfileDetailByEmailQueryHandler(IMapper mapper, IProfileRepository profileRepository)
     {
       _mapper = mapper;
