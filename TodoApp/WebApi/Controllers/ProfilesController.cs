@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
 using Fistix.Training.Core.Exceptions;
-using Fistix.Training.Domain.Commands.MyProfile;
 using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Queries.MyProfile;
 using Fistix.Training.Domain.Queries.Profiles;

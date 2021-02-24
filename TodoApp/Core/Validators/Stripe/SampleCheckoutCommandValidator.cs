@@ -1,4 +1,4 @@
-﻿using Fistix.Training.Domain.Commands.Stripe;
+﻿using Fistix.Training.Domain.Commands.Customers;
 using FluentValidation;
 using System;
 using System.Collections.Generic;

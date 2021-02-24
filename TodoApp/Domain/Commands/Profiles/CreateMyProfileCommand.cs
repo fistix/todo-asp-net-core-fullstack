@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Fistix.Training.Domain.Commands.MyProfile
+namespace Fistix.Training.Domain.Commands.Profiles
 {
   public class CreateMyProfileCommand : IRequest<CreateMyProfileCommandResult>
   {

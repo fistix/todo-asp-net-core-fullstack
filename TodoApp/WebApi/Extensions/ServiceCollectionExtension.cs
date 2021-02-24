@@ -29,14 +29,16 @@ namespace Fistix.Training.WebApi.Extensions
   public static class ServiceCollectionExtension
   {
 
-    public static void AddCommonServices(this IServiceCollection services, /*IConfiguration Configuration,*/ MasterConfig masterConfig)
+    public static void AddCommonServices(this IServiceCollection services, MasterConfig masterConfig /*,IConfiguration Configuration*/)
     {
       services.AddScoped(x => masterConfig);
       services.AddAutoMapper(typeof(MapperProfile));
       services.AddMediatR(typeof(CreateTaskCommand).Assembly, typeof(CreateTaskCommandHandler).Assembly);
       services.AddScoped<ITaskRepository, TaskRepository>();
       services.AddScoped<IProfileRepository, ProfileRepository>();
-      services.AddScoped<IStripeRepository, StripeRepository>();
+      services.AddScoped<ICustomerRepository, CustomerRepository>();
+      services.AddScoped<StripeService>();
+
 
       services.AddDbContext<EfContext>(options =>
         options.UseSqlServer(masterConfig.ConnectionStringConfig.TodoDatabase)

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Fistix.Training.Domain.Commands;
-using Fistix.Training.Domain.Commands.MyProfile;
+using Fistix.Training.Domain.Commands.Customers;
 using Fistix.Training.Domain.Commands.Profiles;
-using Fistix.Training.Domain.Commands.Stripe;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
 using Fistix.Training.Domain.Dtos;
@@ -82,6 +81,15 @@ namespace Fistix.Training.Service
 
       CreateMap<CreateCustomerCommand, Customer>();
       CreateMap<Customer, CreateCustomerCommand>();
+
+      //CreateMap<PaymentDeductionCommand, Domain.DataModels.Customer>()
+      //    .ForMember(x => x.Id, v => v.UseDestinationValue())
+      //    .ForMember(x => x.FirstName, v => v.UseDestinationValue())
+      //    .ForMember(x => x.LastName, v => v.UseDestinationValue())
+      //    .ForMember(x => x.Email, v => v.UseDestinationValue())
+      //    .ForMember(x => x.StripeCustomerId, v => v.UseDestinationValue())
+      //    .ForMember(x => x.StripeCustomerName, v => v.UseDestinationValue());
+      //CreateMap<Domain.DataModels.Customer, PaymentDeductionCommand>();
     }
   }
 }

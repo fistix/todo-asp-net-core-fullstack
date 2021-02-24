@@ -1,4 +1,4 @@
-﻿using Fistix.Training.Domain.Commands.Stripe;
+﻿using Fistix.Training.Domain.Commands.Customers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,21 +69,21 @@ namespace Todo.Shared.Services
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var response = await _httpClient.PostAsJsonAsync<CreateCustomerCommand>("api/Stripe", command);
+        var response = await _httpClient.PostAsJsonAsync<CreateCustomerCommand>("api/Customers/Create", command);
         if (response.IsSuccessStatusCode)
         {
           var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
 
           //var tasks = new List<TaskDto>(_tasksSubject.Value);
           //tasks.Add(commandResult.Payload);
-
           //_tasksSubject.OnNext(tasks);
 
           _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "CreateOrGetStripeCustomer",
-            Data= commandResult.Id/*.Payload.Id.ToString()*/
+            Data = commandResult.Payload.StripeCustomerId/*Id*//*.Payload.Id.ToString()*/,
+            Payload = commandResult.Payload
           });
 
         }
@@ -100,12 +100,14 @@ namespace Todo.Shared.Services
     }
 
 
-    public async Task OffSessionPayment(string customerId, long amount)
+    public async Task OffSessionPayment(PaymentDeductionCommand paymentDeductionCommand/*string customerId, long amount*/)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?customerId={customerId}&amount={amount}", null);
+        //var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?customerId={customerId}&amount={amount}", null);
+        //var response = await _httpClient.PostAsJsonAsync<PaymentDeductionCommand>($"api/Stripe/OffSessionPayment", paymentDeductionCommand);
+        var response = await _httpClient.PostAsJsonAsync<PaymentDeductionCommand>($"api/Stripe/PaymentDeduction", paymentDeductionCommand);
         if (response.IsSuccessStatusCode)
         {
           //var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();

@@ -7,12 +7,6 @@
 
 <h3>Stripe Page</h3>
 
-<SfTextBox @ref="EmailSf" Placeholder="Enter Email..." @bind-Value="@Email"></SfTextBox>
-<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
-
-
-<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
-<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
 
 
 @*<SfButton CssClass="e-info" @onclick="">Create or Get Customer</SfButton>*@
@@ -23,22 +17,19 @@
     </a>
   </SfButton>*@
 
-<StripePageAddCustomerComponent Email="@Email" OnSendCustomerIdToParent="@GetCustomerIdFromChild" />
+<StripePageAddCustomerComponent Email="@Email" OnSendStripeCustomerIdToParent="@GetStripeCustomerIdFromComponent" />
+@*<StripePageAddCustomerComponent Email="@Email" OnSendStripeCustomerIdToParent="@GetStripeCustomerIdFromComponent" OnSendCustomerIdToParent="@GetCustomerIdFromComponent"/>*@
 
-<StripePageCheckoutSampleComponent Email="@Email" Amount="@Amount"/>
+<StripePageCheckoutSampleComponent Email="@Email" Amount="@Amount" />
 
-<StripePageOffSessionPaymentComponent CustomerId="@CustomerId" Amount="@Amount" />
+<StripePageOffSessionPaymentComponent StripeCustomerId="@StripeCustomerId" CustomerId="@CustomerId"/>
 
 @*<StripePageCheckoutComponent />*@
 
 @code {
 
-
-  //SfNumericTextBox AmountSf;
-  SfTextBox EmailSf;
-  SfTextBox AmountSf;
-
   public static string CustomerId = String.Empty;
+  public static string StripeCustomerId = String.Empty;
   public static string Email = String.Empty;
   public string Amount { get; set; }
   public string ErrorMessage = "";
@@ -48,10 +39,16 @@
   //CreateCustomerCommand CreateCustomerCommand = new CreateCustomerCommand();
   //private IDisposable apiCallSub;
 
-  public void GetCustomerIdFromChild(string customerId)
+  public void GetStripeCustomerIdFromComponent(CustomerDto customerDto)
   {
-    CustomerId = customerId;
+    StripeCustomerId = customerDto.StripeCustomerId;
+    CustomerId = customerDto.Id.ToString();
   }
+
+  //public void GetCustomerIdFromComponent(string customerId)
+  //{
+  //  CustomerId = customerId;
+  //}
 
   //protected override void OnInitialized()
   //{

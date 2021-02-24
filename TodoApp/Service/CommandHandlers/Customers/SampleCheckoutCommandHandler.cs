@@ -1,4 +1,4 @@
-﻿using Fistix.Training.Domain.Commands.Stripe;
+﻿using Fistix.Training.Domain.Commands.Customers;
 using MediatR;
 using Stripe.Checkout;
 using System;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fistix.Training.Service.CommandHandlers.Stripe
+namespace Fistix.Training.Service.CommandHandlers.Customers
 {
   public class SampleCheckoutCommandHandler : IRequestHandler<SampleCheckoutCommand, SampleCheckoutCommandResult>
   {

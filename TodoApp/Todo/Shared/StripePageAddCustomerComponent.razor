@@ -3,35 +3,75 @@
 
 <h3>Add Customer Component</h3>
 
+<SfTextBox @ref="SfFirstName" Placeholder="Enter First Name..." @bind-Value="CreateCustomerCommand.FirstName"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
 
-<SfButton CssClass="e-info" @onclick="CreateOrGetCustomer">Create or Get Customer</SfButton>
-<label style="color: tomato; font-size: 15px">@ErrorMessage</label>
+<SfTextBox @ref="SfLastName" Placeholder="Enter Last Name..." @bind-Value="CreateCustomerCommand.LastName"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
+<SfTextBox @ref="SfEmail" Placeholder="Enter Email..." @bind-Value="CreateCustomerCommand.Email"></SfTextBox>
+<label style="color: tomato; font-size: 10px">@ErrorMessage</label>
+
+
+<SfButton CssClass="e-info" @onclick="CreateCustomer">Create or Get Customer</SfButton>
+@*<label style="color: tomato; font-size: 15px">@ErrorMessage</label>*@
 
 @code {
 
-  [Parameter] 
+  [Parameter]
   public string Email { get; set; }
 
   [Parameter]
-  public EventCallback<string> OnSendCustomerIdToParent { get; set; }
+  public EventCallback<CustomerDto> OnSendStripeCustomerIdToParent { get; set; }
+
+  //[Parameter]
+  //public EventCallback<string> OnSendCustomerIdToParent { get; set; }
+
+
+  SfTextBox SfFirstName;
+  SfTextBox SfLastName;
+  SfTextBox SfEmail;
+
+  //public string FirstName { get; set; }
+  //public string LastName { get; set; }
 
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
   CreateCustomerCommand CreateCustomerCommand = new CreateCustomerCommand();
+  CustomerDto CustomerDto = new CustomerDto();
 
 
-  private async void CreateOrGetCustomer()
+  private async void CreateCustomer()
   {
-    CreateCustomerCommand.Email = Email;
-    if (String.IsNullOrEmpty(CreateCustomerCommand.Email))
+    if (CreateCustomerCommand != null)
     {
-      ErrorMessage = "Please insert an Email";
+      //CreateCustomerCommand.Email = Email;
+      if (String.IsNullOrEmpty(CreateCustomerCommand.Email))
+      {
+        SfEmail.CssClass = "e-error";
+        ErrorMessage = "Please insert an Email";
+      }
+
+      else if (String.IsNullOrEmpty(CreateCustomerCommand.FirstName))
+      {
+        SfFirstName.CssClass = "e-error";
+        ErrorMessage = "Please insert First name";
+
+      }
+
+      else if (String.IsNullOrEmpty(CreateCustomerCommand.LastName))
+      {
+        SfLastName.CssClass = "e-error";
+        ErrorMessage = "Please insert Last name";
+      }
+
+      else
+      {
+        await _StripeStateService.CreateCustomer(CreateCustomerCommand);
+      }
     }
-    else
-    {
-      await _StripeStateService.CreateCustomer(CreateCustomerCommand);
-    }
+
 
   }
 
@@ -44,9 +84,11 @@
   {
     apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
     {
-      Console.WriteLine(x.Operation);
-      Console.WriteLine(x.IsSucceed);
-      Console.WriteLine(x.Data);
+      //Console.WriteLine(x.Operation);
+      //Console.WriteLine(x.IsSucceed);
+      //Console.WriteLine(x.Data);
+
+      Console.WriteLine(x.Payload);
 
       switch (x.Operation)
       {
@@ -60,7 +102,11 @@
           else
           {
             //OnRefershTask(x.Data);
-            await OnSendCustomerIdToParent.InvokeAsync(x.Data);
+            await OnSendStripeCustomerIdToParent.InvokeAsync(x.Payload/*.Data*/);
+            //await OnSendCustomerIdToParent.InvokeAsync(x.Payload.Id.ToString());
+
+            //await OnSendCustomerIdToParent.InvokeAsync(x.Payload.StripeCustomerId, x.Payload.Id/*.Data*/);
+
             //CustomerId = x.Data;
             //IsSucceed = true;
             //IsTaskRunning = false;

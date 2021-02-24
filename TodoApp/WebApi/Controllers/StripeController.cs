@@ -1,5 +1,5 @@
 ﻿using Fistix.Training.Core.Exceptions;
-using Fistix.Training.Domain.Commands.Stripe;
+using Fistix.Training.Domain.Commands.Customers;
 using Fistix.Training.Domain.Queries.Stripe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +18,7 @@ namespace Fistix.Training.WebApi.Controllers
 
   [Route("api/[controller]")]
   [ApiController]
-  [Authorize]
+  //[Authorize]
 
   public class StripeController : ControllerBase
   {
@@ -86,57 +86,7 @@ namespace Fistix.Training.WebApi.Controllers
 
     #region Server
 
-    [HttpPost("Create")]
-    [ProducesResponseType(typeof(CreateCustomerCommandResult), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody] CreateCustomerCommand command)
-    {
-      try
-      {
-        if (!ModelState.IsValid)
-        {
-          return base.BadRequest(ModelState);
-        }
-
-        var result = await _mediator.Send<CreateCustomerCommandResult>(command);
-        return base.Created($"api/Stripe/Create/{result.Id}", result);
-        //return base.Created($"api/Stripe/{result.Payload.Id}", result);
-        //return Ok(new CreateCustomerCommandResult() { CustomerId = customer.Id });
-      }
-
-      catch (InvalidOperationException ex)
-      {
-        return base.Conflict(ex.Message);
-      }
-
-    }
-
-
-    [HttpGet("ByEmail")]
-    [ProducesResponseType(typeof(GetCustomerDetailByEmailQueryResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByEmail([FromQuery] string email)
-    {
-      try
-      {
-        if (String.IsNullOrWhiteSpace(email))
-        {
-          return base.BadRequest();
-        }
-
-        var query = new GetCustomerDetailByEmailQuery() { Email = email };
-
-        var result = await _mediator.Send(query);
-
-        return base.Ok(result);
-      }
-      catch (NotFoundException)
-      {
-        return base.NotFound();
-      }
-    }
+    
 
 
     [HttpPost("PaymentDeduction")]
@@ -152,8 +102,7 @@ namespace Fistix.Training.WebApi.Controllers
         }
 
         var result = await _mediator.Send<PaymentDeductionCommandResult>(command);
-        return base.Ok(result);
-        //return base.Ok($"api/Stripe/Create/{result.PaymentIntentId}", result);
+        return base.Ok();
       }
 
       catch (StripeException e)
@@ -178,7 +127,6 @@ namespace Fistix.Training.WebApi.Controllers
     }
 
     [HttpPost("SampleCheckout")]
-    //[ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(SampleCheckoutCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SampleCheckout([FromBody] SampleCheckoutCommand command)
@@ -205,6 +153,8 @@ namespace Fistix.Training.WebApi.Controllers
 
     #endregion
 
+
+    #region PreviousWork
 
     [HttpPost("CheckoutSample")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -294,7 +244,10 @@ namespace Fistix.Training.WebApi.Controllers
       }
 
       //CustomerId = customer.Id;
-      return Ok(new CreateCustomerCommandResult() { Id = customer.Id });
+
+      //Fix the issue, till then return null
+      return null;
+      //return Ok(new CreateCustomerCommandResult() { Payload = customer.Id });
 
     }
 
@@ -411,6 +364,7 @@ namespace Fistix.Training.WebApi.Controllers
     }
 
 
+    #endregion
 
   }
 }

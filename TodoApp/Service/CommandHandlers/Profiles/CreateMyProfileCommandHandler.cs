@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
-using Fistix.Training.Domain.Commands.MyProfile;
+using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Dtos;
 using MediatR;
 using System;

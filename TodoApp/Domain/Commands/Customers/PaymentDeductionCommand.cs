@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fistix.Training.Domain.Commands.Stripe
+namespace Fistix.Training.Domain.Commands.Customers
 {
   public class PaymentDeductionCommand : IRequest<PaymentDeductionCommandResult>
   {
     //public string Email { get; set; }
+    public string StripeCustomerId { get; set; }
     public string CustomerId { get; set; }
     public long Amount { get; set; }
   }

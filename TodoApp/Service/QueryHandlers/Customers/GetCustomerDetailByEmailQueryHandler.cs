@@ -16,16 +16,17 @@ namespace Fistix.Training.Service.QueryHandlers.Stripe
   public class GetCustomerDetailByEmailQueryHandler : IRequestHandler<GetCustomerDetailByEmailQuery, GetCustomerDetailByEmailQueryResult>
   {
     private readonly IMapper _mapper = null;
-    private readonly IStripeRepository _stripeRepository = null;
+    private readonly ICustomerRepository _customerRepository = null;
 
-    public GetCustomerDetailByEmailQueryHandler(IMapper mapper, IStripeRepository stripeRepository)
+
+    public GetCustomerDetailByEmailQueryHandler(IMapper mapper, ICustomerRepository customerRepository)
     {
       _mapper = mapper;
-      _stripeRepository = stripeRepository;
+      _customerRepository = customerRepository;
     }
     public async Task<GetCustomerDetailByEmailQueryResult> Handle(GetCustomerDetailByEmailQuery query, CancellationToken cancellationToken)
     {
-      var result = _mapper.Map<CustomerDto>(await _stripeRepository.GetByEmail(query.Email));
+      var result = _mapper.Map<CustomerDto>(await _customerRepository.GetByEmail(query.Email));
       return new GetCustomerDetailByEmailQueryResult()
       {
         Payload = result
