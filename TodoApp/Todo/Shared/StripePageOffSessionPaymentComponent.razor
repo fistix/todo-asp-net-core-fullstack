@@ -4,29 +4,20 @@
 <h3>OffSession Payment Component</h3>
 
 
-<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
+@*<SfNumericTextBox @ref="AmountSf" TValue="int?" @bind-Value="@Amount" ></SfNumericTextBox>*@
+<SfTextBox @ref="AmountSf"  Placeholder="Enter Amount..." @bind-Value="Amount" ></SfTextBox>
 <label style="color: tomato; font-size: 10px">@ErrorMessage</label>
 
-@*<SfButton CssClass="e-info"  @onclick="() => Deduct(Amount)" >Deduct</SfButton>*@
-<SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
-<label style="color: tomato; font-size: 15px">@ErrorMessage</label>
 
+@*<SfButton CssClass="e-info"  @onclick="() => Deduct(Amount)" >Deduct</SfButton>*@
+<SfButton CssClass="e-info"  @onclick="Deduct" >Deduct</SfButton>
 
 
 @code {
-  [Parameter] public string StripeCustomerId { get; set; }
-  [Parameter] public string CustomerId { get; set; }
-  /*[Parameter] */
-  public string Amount { get; set; }
-
   //SfNumericTextBox AmountSf;
   SfTextBox AmountSf;
-  //SfNumericTextBox AmountSf;
-  //SfTextBox AmountSf;
   //public string Amount { get; set; }
-
-
-  PaymentDeductionCommand PaymentDeductionCommand = new PaymentDeductionCommand();
+  public string Amount { get; set; }
 
 
 
@@ -42,23 +33,15 @@
 
   private async void Deduct()
   {
-    PaymentDeductionCommand.Amount = long.Parse(Amount);
-    PaymentDeductionCommand.StripeCustomerId = StripeCustomerId;
-    PaymentDeductionCommand.CustomerId = CustomerId;
+    if (String.IsNullOrEmpty(Amount) /*Amount <= 0*/)
+    {
+      AmountSf.CssClass = "e-error";
 
-    if (String.IsNullOrEmpty(StripeCustomerId))
-    {
-      ErrorMessage = "Please Create/Get any customer before !";
-    }
-    else if (String.IsNullOrEmpty(Amount))
-    {
-      ErrorMessage = "Please insert an Amount";
     }
     else
     {
       //Console.WriteLine("Deduct button is clicked",Amount);
-      //await _StripeStateService.OffSessionPayment(StripeCustomerId, long.Parse(Amount), CustomerId);
-      await _StripeStateService.OffSessionPayment(PaymentDeductionCommand);
+      //await _StripeStateService.OffSessionPayment(long.Parse(Amount));
     }
 
   }

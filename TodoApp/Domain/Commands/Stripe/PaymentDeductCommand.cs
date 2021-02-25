@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fistix.Training.Domain.Commands.Customers
+namespace Fistix.Training.Domain.Commands.Stripe
 {
-  public class PaymentDeductionCommand : IRequest<PaymentDeductionCommandResult>
+  public class PaymentDeductCommand : IRequest<PaymentDeductCommandResult>
   {
     //public string Email { get; set; }
     public string StripeCustomerId { get; set; }

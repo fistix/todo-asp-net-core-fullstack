@@ -17,12 +17,13 @@
     </a>
   </SfButton>*@
 
-<StripePageAddCustomerComponent Email="@Email" OnSendStripeCustomerIdToParent="@GetStripeCustomerIdFromComponent" />
-@*<StripePageAddCustomerComponent Email="@Email" OnSendStripeCustomerIdToParent="@GetStripeCustomerIdFromComponent" OnSendCustomerIdToParent="@GetCustomerIdFromComponent"/>*@
+<StripePageAddCustomerComponent OnSendStripeCustomerIdToParent="@GetStripeCustomerIdFromComponent" />
 
-<StripePageCheckoutSampleComponent Email="@Email" Amount="@Amount" />
+<StripePageSampleCheckoutComponent />
+@*<StripePageSampleCheckoutComponent Email="@Email" />*@
+@*<StripePageSampleCheckoutComponent Email="@Email" Amount="@Amount"/>*@
 
-<StripePageOffSessionPaymentComponent StripeCustomerId="@StripeCustomerId" CustomerId="@CustomerId"/>
+<StripePageDeductPaymentComponent StripeCustomerId="@StripeCustomerId" CustomerId="@CustomerId"/>
 
 @*<StripePageCheckoutComponent />*@
 
@@ -31,8 +32,8 @@
   public static string CustomerId = String.Empty;
   public static string StripeCustomerId = String.Empty;
   public static string Email = String.Empty;
-  public string Amount { get; set; }
-  public string ErrorMessage = "";
+  //public string Amount { get; set; }
+  //public string ErrorMessage = "";
 
   //string sessionId = String.Empty;
 
@@ -43,6 +44,7 @@
   {
     StripeCustomerId = customerDto.StripeCustomerId;
     CustomerId = customerDto.Id.ToString();
+    Email = customerDto.Email;
   }
 
   //public void GetCustomerIdFromComponent(string customerId)

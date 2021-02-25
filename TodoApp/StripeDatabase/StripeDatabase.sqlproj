@@ -59,6 +59,6 @@
     <Folder Include="Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\Customers.sql" />
+    <Build Include="Customers.sql" />
   </ItemGroup>
 </Project>

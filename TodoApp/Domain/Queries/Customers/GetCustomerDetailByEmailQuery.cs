@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fistix.Training.Domain.Queries.Stripe
+namespace Fistix.Training.Domain.Queries.Customers
 {
   public class GetCustomerDetailByEmailQuery : IRequest<GetCustomerDetailByEmailQueryResult>
   {

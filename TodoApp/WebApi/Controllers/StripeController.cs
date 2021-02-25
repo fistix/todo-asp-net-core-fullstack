@@ -1,6 +1,6 @@
 ﻿using Fistix.Training.Core.Exceptions;
 using Fistix.Training.Domain.Commands.Customers;
-using Fistix.Training.Domain.Queries.Stripe;
+using Fistix.Training.Domain.Commands.Stripe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +18,7 @@ namespace Fistix.Training.WebApi.Controllers
 
   [Route("api/[controller]")]
   [ApiController]
-  //[Authorize]
+  [Authorize]
 
   public class StripeController : ControllerBase
   {
@@ -86,13 +86,13 @@ namespace Fistix.Training.WebApi.Controllers
 
     #region Server
 
-    
 
 
-    [HttpPost("PaymentDeduction")]
-    [ProducesResponseType(typeof(PaymentDeductionCommandResult), StatusCodes.Status200OK)]
+
+    [HttpPost("PaymentDeduct")]
+    [ProducesResponseType(typeof(PaymentDeductCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> PaymentDeduction(PaymentDeductionCommand command)
+    public async Task<IActionResult> PaymentDeduction(PaymentDeductCommand command)
     {
       try
       {
@@ -101,30 +101,17 @@ namespace Fistix.Training.WebApi.Controllers
           return base.BadRequest(ModelState);
         }
 
-        var result = await _mediator.Send<PaymentDeductionCommandResult>(command);
-        return base.Ok();
+        var result = await _mediator.Send<PaymentDeductCommandResult>(command);
+        return base.Ok(result);
       }
 
-      catch (StripeException e)
+      catch (NotFoundException)
       {
-        switch (e.StripeError.Error/*.ErrorType*/)
-        {
-          case "card_error":
-            // Error code will be authentication_required if authentication is needed
-            Console.WriteLine("Error code: " + e.StripeError.Code);
-            var paymentIntentId = e.StripeError.PaymentIntent.Id;
-            var service = new PaymentIntentService();
-            var paymentIntent = service.Get(paymentIntentId);
-
-            Console.WriteLine(paymentIntent.Id);
-            break;
-          default:
-            break;
-        }
-        ////
-        return null;
+        return base.NotFound();
       }
+
     }
+
 
     [HttpPost("SampleCheckout")]
     [ProducesResponseType(typeof(SampleCheckoutCommandResult), StatusCodes.Status200OK)]
@@ -177,7 +164,7 @@ namespace Fistix.Training.WebApi.Controllers
 
       var options = new SessionCreateOptions
       {
-         
+
         CustomerEmail = Email,
         PaymentMethodTypes = new List<string>
                 {

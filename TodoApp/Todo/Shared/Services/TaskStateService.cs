@@ -34,41 +34,15 @@ namespace Todo.Shared.Services
     public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
     
 
-    public async void CreateTask(CreateTaskCommand command)
-    {
-      await Create(command);
-    }
-    public async void UpdateTask(Guid id, UpdateTaskCommand command)
-    {
-      await Update(id, command);
-    }
-    public async void DeleteTask(Guid id)
-    {
-      await Delete(id);
-    }
     public async Task<TaskDto> GetTaskById(Guid id)
     {
       var task = await GetById(id);
       return task;
     }
-    public async void GetAllTasks()
-    {
-      await GetAll();
-    }
-    public async void CreateMyTask(CreateMyTaskCommand command)
-    {
-      await AddMyTask(command);
-    }
-    public async void AssignUserWithTask(Guid id, AttachUserWithTaskCommand attachUserWithTaskCommand)
-    {
-      await AssignUser(id, attachUserWithTaskCommand);
-    }
+  
+ 
 
-    public async void GetMyAllTasks()
-    {
-      await GetMyAll();
-    }
-    private async Task Create(CreateTaskCommand command)
+    public async Task CreateTask(CreateTaskCommand command)
     {
       try
       {
@@ -101,7 +75,7 @@ namespace Todo.Shared.Services
         });
       }
     }
-    private async Task Update(Guid id, UpdateTaskCommand command)
+    public async Task UpdateTask(Guid id, UpdateTaskCommand command)
     {
       try
       {
@@ -146,7 +120,7 @@ namespace Todo.Shared.Services
         });
       }
     }
-    private async Task Delete(Guid id)
+    public async Task DeleteTask(Guid id)
     {
       try
       {
@@ -213,7 +187,7 @@ namespace Todo.Shared.Services
         return null;
       }
     }
-    private async Task GetAll()
+    public async Task GetAllTasks()
     {
       try
       {
@@ -241,7 +215,7 @@ namespace Todo.Shared.Services
       }
 
     }
-    private async Task AddMyTask(CreateMyTaskCommand command)
+    public async Task CreateMyTask(CreateMyTaskCommand command)
     {
       try
       {
@@ -274,7 +248,7 @@ namespace Todo.Shared.Services
         });
       }
     }
-    private async Task AssignUser(Guid id, AttachUserWithTaskCommand command)
+    public async Task AssignUserWithTask(Guid id, AttachUserWithTaskCommand command)
     {
       try
       {
@@ -314,8 +288,7 @@ namespace Todo.Shared.Services
         });
       }
     }
-
-    private async Task GetMyAll()
+    public async Task GetMyAllTasks()
     {
       try
       {

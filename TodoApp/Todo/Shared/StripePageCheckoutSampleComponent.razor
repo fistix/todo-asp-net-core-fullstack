@@ -5,21 +5,9 @@
 
 <h3>Checkout Sample Component</h3>
 
-
-<SfTextBox @ref="SfProductName" Placeholder="Enter Product name..." @bind-Value="@ProductName"></SfTextBox>
-@*<label style="color: tomato; font-size: 10px">@ErrorMessage</label>*@
-
 <SfButton CssClass="e-info" OnClick="Checkout">Checkout Sample</SfButton>
-<label style="color: tomato; font-size: 15px">@ErrorMessage</label>
-
 
 @code {
-
-  [Parameter] public string Amount { get; set; }
-  [Parameter] public string Email { get; set; }
-
-  SfTextBox SfProductName;
-  public string ProductName { get; set; }
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -37,22 +25,9 @@
 
   private void Checkout()
   {
-    if (String.IsNullOrEmpty(Email))
-    {
-      ErrorMessage = "Please insert an Email";
-    }
-    else if (String.IsNullOrEmpty(Amount))
-    {
-      ErrorMessage = "Please insert an Amount";
-    }
-    else if (String.IsNullOrEmpty(ProductName))
-    {
-      ErrorMessage = "Please insert Product Name";
-    }
-    else
-    {
-      _StripeStateService.CheckoutSample(Email, long.Parse(Amount), ProductName);
-    }
+    //_StripeStateService.CheckoutSample();
+
+
     //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
 
   }
@@ -82,7 +57,7 @@
           {
             NavManager.NavigateTo("/CheckoutSampleSuccess");
             await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
-            //StateHasChanged();
+          //StateHasChanged();
           }
 
           break;

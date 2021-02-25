@@ -1,0 +1,108 @@
+﻿@inject StripeStateService _StripeStateService
+@implements IDisposable
+
+<h3>Deduct Payment Component</h3>
+
+
+<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
+
+<div>
+  <label style="color: tomato; font-size: 15px">@ErrorMessage</label>
+</div>
+
+<SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
+
+
+
+@code {
+  [Parameter] public string StripeCustomerId { get; set; }
+  [Parameter] public string CustomerId { get; set; }
+  /*[Parameter] */
+  public string Amount { get; set; }
+
+  //SfNumericTextBox AmountSf;
+  SfTextBox AmountSf;
+  //SfNumericTextBox AmountSf;
+  //SfTextBox AmountSf;
+  //public string Amount { get; set; }
+
+
+  PaymentDeductCommand PaymentDeductionCommand = new PaymentDeductCommand();
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+  }
+
+  private async void Deduct()
+  {
+    if (String.IsNullOrEmpty(StripeCustomerId))
+    {
+      ErrorMessage = "Please Create/Get any customer before !";
+    }
+    if (String.IsNullOrEmpty(CustomerId))
+    {
+      ErrorMessage = "Please Create/Get any customer before !";
+    }
+    else if (String.IsNullOrEmpty(Amount))
+    {
+      ErrorMessage = "Please insert an Amount";
+    }
+    else
+    {
+      PaymentDeductionCommand.Amount = long.Parse(Amount);
+      PaymentDeductionCommand.StripeCustomerId = StripeCustomerId;
+      PaymentDeductionCommand.CustomerId = CustomerId;
+      //Console.WriteLine("Deduct button is clicked",Amount);
+      //await _StripeStateService.OffSessionPayment(StripeCustomerId, long.Parse(Amount), CustomerId);
+      await _StripeStateService.PaymentDeduct(PaymentDeductionCommand);
+    }
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      //Console.WriteLine(x.Data);
+      switch (x.Operation)
+      {
+
+        case "PaymentDeduct":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            //StateHasChanged();
+          }
+          else
+          {
+            //IsSucceed = true;
+            //IsTaskRunning = false;
+            //SpinnerVisiblity = false;
+
+            //ToastObj.Show().GetAwaiter().GetResult();
+
+            //StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+
+}

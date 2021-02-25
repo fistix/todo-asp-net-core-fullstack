@@ -6,10 +6,9 @@
   Email varchar(255) NULL,
   StripeCustomerId VARCHAR(255) NULL, 
   StripeCustomerName VARCHAR(255) NULL, 
-  Amount BIGINT NULL, 
-  LastPaymentDeduct DATETIME NULL,
+  LastPaymentDeduct BIGINT NULL, 
+  LastPaymentDeductOn DATETIME NULL,
   
-
   PRIMARY KEY CLUSTERED ([Id] ASC), 
      
 );

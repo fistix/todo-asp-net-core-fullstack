@@ -10,5 +10,8 @@ namespace Fistix.Training.Core.Config
   {
     public string SecretKey { get; set; }
     public string PublishableKey { get; set; }
+    public string Domain { get; set; }
+    public string SuccessUrl { get; set; }
+    public string CancelUrl { get; set; }
   }
 }

@@ -40,9 +40,8 @@ namespace Fistix.Training.WebApi.Controllers
       try
       {
         if (!ModelState.IsValid)
-        {
           return base.BadRequest(ModelState);
-        }
+        
 
         var result = await _mediator.Send<CreateProfileCommandResult>(command);
         return base.Created($"api/Profiles/{result.Payload.Id}", result);
@@ -87,9 +86,8 @@ namespace Fistix.Training.WebApi.Controllers
       try
       {
         if (id.Equals(Guid.Empty))
-        {
           return base.BadRequest();
-        }
+        
 
         var command = new DeleteProfileCommand()
         {

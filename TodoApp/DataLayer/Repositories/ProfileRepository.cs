@@ -22,9 +22,9 @@ namespace Fistix.Training.DataLayer.Repositories
     public async Task<bool> Create(Profile profile)
     {
       if (_efContext.Profiles.Any(x => x.Email.Equals(profile.Email)))
-      {
         throw new InvalidOperationException("Profile with same email already exist!");
-      }
+      
+
       await _efContext.Profiles.AddAsync(profile);
       var dbChangesCount = await _efContext.SaveChangesAsync();
       return dbChangesCount > 0;

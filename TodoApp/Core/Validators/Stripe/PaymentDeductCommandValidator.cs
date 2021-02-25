@@ -1,4 +1,4 @@
-﻿using Fistix.Training.Domain.Commands.Customers;
+﻿using Fistix.Training.Domain.Commands.Stripe;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Fistix.Training.Core.Validators.Stripe
 {
-  public class PaymentDeductionCommandValidator : AbstractValidator<PaymentDeductionCommand>
+  public class PaymentDeductCommandValidator : AbstractValidator<PaymentDeductCommand>
   {
-    public PaymentDeductionCommandValidator()
+    public PaymentDeductCommandValidator()
     {
       RuleFor(x => x.CustomerId).NotEmpty();
       RuleFor(x => x.StripeCustomerId).NotEmpty();

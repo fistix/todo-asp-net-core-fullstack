@@ -1,0 +1,118 @@
+﻿@inject StripeStateService _StripeStateService
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+
+
+<h3>Checkout Sample Component</h3>
+
+
+<SfTextBox @ref="SfProductName" Placeholder="Enter Product name..." @bind-Value="@checkoutCommand.ProductName"></SfTextBox>
+
+<SfTextBox @ref="SfAmount" Placeholder="Enter Product Amount..." @bind-Value="@Amount"></SfTextBox>
+
+<SfTextBox @ref="SfEmail" Placeholder="Enter Email..." @bind-Value="@checkoutCommand.Email"></SfTextBox>
+<div>
+  <label style="color: tomato; font-size: 15px">@ErrorMessage</label>
+</div>
+<SfButton CssClass="e-info" OnClick="Checkout">Sample Checkout</SfButton>
+
+
+@code {
+
+  //[Parameter] public string Amount { get; set; }
+  //[Parameter] public string Email { get; set; }
+
+
+  SfTextBox SfProductName;
+  SfTextBox SfAmount;
+  SfTextBox SfEmail;
+  //public string ProductName { get; set; }
+  public string Amount { get; set; }
+
+  private IDisposable apiCallSub;
+  public string ErrorMessage = "";
+  string sessionId = String.Empty;
+
+  SampleCheckoutCommand checkoutCommand = new SampleCheckoutCommand();
+
+
+  protected override void OnInitialized()
+  {
+    Subscribes();
+    base.OnInitialized();
+    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
+
+  private void Checkout()
+  {
+    if (String.IsNullOrEmpty(checkoutCommand.Email))
+    {
+      SfEmail.CssClass = "e-error";
+      ErrorMessage = "Please insert an Email";
+    }
+    else if (String.IsNullOrEmpty(Amount))
+    {
+      SfAmount.CssClass = "e-error";
+      ErrorMessage = "Please insert an Amount";
+    }
+    //else if (checkoutCommand.Amount <=0)
+    //{
+    //  ErrorMessage = "Please insert an Amount";
+    //}
+    else if (String.IsNullOrEmpty(checkoutCommand.ProductName))
+    {
+      SfProductName.CssClass = "e-error";
+      ErrorMessage = "Please insert Product Name";
+    }
+    else
+    {
+      //checkoutCommand.Email = Email;
+      checkoutCommand.Amount = long.Parse(Amount);
+      _StripeStateService.CheckoutSample(checkoutCommand);
+    }
+    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
+
+  }
+
+  private void Subscribes()
+  {
+    apiCallSub = _StripeStateService.ApiCallResultObservable.Subscribe(async x =>
+    {
+      Console.WriteLine(x.Operation);
+      Console.WriteLine(x.IsSucceed);
+      Console.WriteLine(x.Data);
+
+      switch (x.Operation)
+      {
+
+        case "CreateSampleCheckoutSession":
+
+          if (x.IsSucceed == false)
+          {
+            ErrorMessage = x.ErrorMessage;
+            NavManager.NavigateTo("/CheckoutSampleCancel");
+          }
+
+          else
+          {
+            //NavManager.NavigateTo("/CheckoutSampleSuccess");
+            sessionId = x.Data;
+
+            await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
+            //StateHasChanged();
+          }
+
+          break;
+      }
+
+    });
+
+  }
+
+  public void Dispose()
+  {
+    apiCallSub.Dispose();
+  }
+}

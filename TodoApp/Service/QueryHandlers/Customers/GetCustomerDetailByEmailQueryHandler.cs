@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
 using Fistix.Training.Domain.Dtos;
-using Fistix.Training.Domain.Queries.Stripe;
+using Fistix.Training.Domain.Queries.Customers;
 using MediatR;
 using Stripe;
 using System;

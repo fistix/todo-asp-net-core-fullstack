@@ -14,8 +14,8 @@ namespace Fistix.Training.Domain.DataModels
     public string StripeCustomerName { get; set; }
 
     //If ? is remove, we get the exception from repository
-    public long? Amount { get; set; }
-    public DateTime? LastPaymentDeduct { get; set; }
+    public long? LastPaymentDeduct { get; set; }
+    public DateTime? LastPaymentDeductOn { get; set; }
 
   }
 }

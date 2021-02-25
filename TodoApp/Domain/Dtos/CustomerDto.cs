@@ -12,8 +12,8 @@ namespace Fistix.Training.Domain.Dtos
     public string Email { get; set; }
     public string StripeCustomerId { get; set; }
     public string StripeCustomerName { get; set; }
-    public long? Amount { get; set; }
-    public DateTime? LastPaymentDeduct { get; set; }
+    public long? LastPaymentDeduct { get; set; }
+    public DateTime? LastPaymentDeductOn { get; set; }
 
   }
 }
