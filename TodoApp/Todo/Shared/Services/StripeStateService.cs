@@ -30,49 +30,14 @@ namespace Todo.Shared.Services
     private Subject<ApiCallResult<string>> _apiCallResultSubject = new Subject<ApiCallResult<string>>();
     public IObservable<ApiCallResult<string>> ApiCallResultObservable { get { return _apiCallResultSubject; } }
 
-
-    public async void CheckoutSample(SampleCheckoutCommand command)
-    {
-      try
-      {
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        //var response = await _httpClient.PostAsync($"api/Stripe/CheckoutSample?email={email}&amount={amount}&productName={productName}", null);
-        var response = await _httpClient.PostAsJsonAsync<SampleCheckoutCommand>("api/Stripe/SampleCheckout", command);
-        if (response.IsSuccessStatusCode)
-        {
-          var commandResult = await response.Content.ReadFromJsonAsync<SampleCheckoutCommandResult>();
-
-          //var tasks = new List<TaskDto>(_tasksSubject.Value);
-          //tasks.Add(commandResult.Payload);
-
-          //_tasksSubject.OnNext(tasks);
-
-          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
-          {
-            IsSucceed = true,
-            Operation = "CreateSampleCheckoutSession",
-            Data = commandResult.SessionId
-          });
-
-        }
-      }
-      catch (Exception ex)
-      {
-        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
-        {
-          IsSucceed = false,
-          Operation = "CreateSampleCheckoutSession",
-          ErrorMessage = ex.Message
-        });
-      }
-    }
+    #region Existing
 
     public async Task GetCustomer(GetCustomerDetailByEmailQuery query)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        
+
         var response = await _httpClient.GetFromJsonAsync<GetCustomerDetailByEmailQueryResult>($"api/Customers?email={query.Email}");
         if (response.Payload != null)
         {
@@ -115,20 +80,26 @@ namespace Todo.Shared.Services
         {
           var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
 
-          //var tasks = new List<TaskDto>(_tasksSubject.Value);
-          //tasks.Add(commandResult.Payload);
-          //_tasksSubject.OnNext(tasks);
-
           _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "CreateStripeCustomer",
-            Data = commandResult.Payload.StripeCustomerId/*Id*//*.Payload.Id.ToString()*/,
+            //Data = commandResult.Payload.StripeCustomerId,
             Payload = commandResult.Payload
           });
+        }
 
+        else
+        {
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = false,
+            Operation = "CreateStripeCustomer",
+            ErrorMessage = "Response is not succeeded from server."
+          });
         }
       }
+
       catch (Exception ex)
       {
         _apiCallResultSubject.OnNext(new ApiCallResult<string>()
@@ -140,28 +111,74 @@ namespace Todo.Shared.Services
       }
     }
 
+    public async Task CheckoutSample(SampleCheckoutCommand command)
+    {
+      try
+      {
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
+        var response = await _httpClient.PostAsJsonAsync<SampleCheckoutCommand>("api/Stripe/SampleCheckout", command);
+        if (response.IsSuccessStatusCode)
+        {
+          var commandResult = await response.Content.ReadFromJsonAsync<SampleCheckoutCommandResult>();
+
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = true,
+            Operation = "CreateSampleCheckoutSession",
+            Data = commandResult.SessionId
+          });
+        }
+
+        else
+        {
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = false,
+            Operation = "CreateSampleCheckoutSession",
+            ErrorMessage = "Response is not succeeded from server."
+          });
+        }
+      }
+
+      catch (Exception ex)
+      {
+        _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+        {
+          IsSucceed = false,
+          Operation = "CreateSampleCheckoutSession",
+          ErrorMessage = ex.Message
+        });
+      }
+    }
 
     public async Task PaymentDeduct(PaymentDeductCommand paymentDeductCommand)
     {
       try
       {
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _authHandler.GetAuthAccessToken());
-        //var response = await _httpClient.PostAsync($"api/Stripe/OffSessionPayment?customerId={customerId}&amount={amount}", null);
-        //var response = await _httpClient.PostAsJsonAsync<PaymentDeductionCommand>($"api/Stripe/OffSessionPayment", paymentDeductionCommand);
-        var response = await _httpClient.PostAsJsonAsync<PaymentDeductCommand>($"api/Stripe/PaymentDeduct", paymentDeductCommand);
+        var response = await _httpClient.PostAsJsonAsync<PaymentDeductCommand>("api/Stripe/PaymentDeduct", paymentDeductCommand);
         if (response.IsSuccessStatusCode)
         {
-          //var commandResult = await response.Content.ReadFromJsonAsync<CreateCustomerCommandResult>();
+          var commandResult = await response.Content.ReadFromJsonAsync<PaymentDeductCommandResult>();
 
           _apiCallResultSubject.OnNext(new ApiCallResult<string>()
           {
             IsSucceed = true,
             Operation = "PaymentDeduct",
-            //Data = commandResult.CustomerId
           });
+        }
 
+        else
+        {
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = false,
+            Operation = "PaymentDeduct",
+            ErrorMessage = "Response is not succeeded from server."
+          });
         }
       }
+
       catch (Exception ex)
       {
         _apiCallResultSubject.OnNext(new ApiCallResult<string>()
@@ -172,6 +189,8 @@ namespace Todo.Shared.Services
         });
       }
     }
+    
+    #endregion
 
     public async void CreateAndSave()
     {
@@ -191,7 +210,17 @@ namespace Todo.Shared.Services
           });
 
         }
+        else
+        {
+          _apiCallResultSubject.OnNext(new ApiCallResult<string>()
+          {
+            IsSucceed = false,
+            Operation = "CreateAndSave",
+            ErrorMessage = "Response is not succeeded from server."
+          });
+        }
       }
+
       catch (Exception ex)
       {
         _apiCallResultSubject.OnNext(new ApiCallResult<string>()

@@ -7,7 +7,7 @@ namespace Fistix.Training.Domain.Queries.Customers
 {
   public class GetCustomerDetailByEmailQueryResult
   {
-    public string CustomerId { get; set; }
+    //public string CustomerId { get; set; }
     public CustomerDto Payload { get; set; }
   }
 }

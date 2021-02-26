@@ -4,30 +4,52 @@
 <h3>Deduct Payment Component</h3>
 
 
-<SfTextBox @ref="AmountSf" Placeholder="Enter Amount..." @bind-Value="@Amount"></SfTextBox>
+<SfNumericTextBox TValue="int" @bind-Value="@paymentDeductCommand.Amount"
+                  Placeholder="Enter Amount in cents..." FloatLabelType='@FloatLabelType.Auto'
+                  Readonly="ButtonDisable">
+</SfNumericTextBox>
+
 
 <div>
   <label style="color: tomato; font-size: 15px">@ErrorMessage</label>
 </div>
 
-<SfButton CssClass="e-info" @onclick="Deduct">Deduct</SfButton>
+<SfButton CssClass="e-info" @onclick="Deduct" Disabled="ButtonDisable">Deduct</SfButton>
 
 
+  <div id="loader">
+    <SfSpinner @bind-Visible="@LoaderVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+<style>
+  #loader {
+    position: relative;
+  }
+</style>
 
 @code {
+
+  #region Loader-Toaster
+  SfToast ToastObj;
+  private string ToastTitle = string.Empty;
+
+  private bool ButtonDisable { get; set; } = false;
+  private bool LoaderVisiblity { get; set; } = false;
+  #endregion
+
+
   [Parameter] public string StripeCustomerId { get; set; }
   [Parameter] public string CustomerId { get; set; }
-  /*[Parameter] */
-  public string Amount { get; set; }
-
-  //SfNumericTextBox AmountSf;
-  SfTextBox AmountSf;
-  //SfNumericTextBox AmountSf;
-  //SfTextBox AmountSf;
-  //public string Amount { get; set; }
 
 
-  PaymentDeductCommand PaymentDeductionCommand = new PaymentDeductCommand();
+
+  PaymentDeductCommand paymentDeductCommand = new PaymentDeductCommand();
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -45,22 +67,25 @@
     {
       ErrorMessage = "Please Create/Get any customer before !";
     }
-    if (String.IsNullOrEmpty(CustomerId))
+
+    else if (String.IsNullOrEmpty(CustomerId))
     {
       ErrorMessage = "Please Create/Get any customer before !";
     }
-    else if (String.IsNullOrEmpty(Amount))
+
+    else if (paymentDeductCommand.Amount <= 0)
     {
       ErrorMessage = "Please insert an Amount";
     }
+
     else
     {
-      PaymentDeductionCommand.Amount = long.Parse(Amount);
-      PaymentDeductionCommand.StripeCustomerId = StripeCustomerId;
-      PaymentDeductionCommand.CustomerId = CustomerId;
-      //Console.WriteLine("Deduct button is clicked",Amount);
-      //await _StripeStateService.OffSessionPayment(StripeCustomerId, long.Parse(Amount), CustomerId);
-      await _StripeStateService.PaymentDeduct(PaymentDeductionCommand);
+      paymentDeductCommand.StripeCustomerId = StripeCustomerId;
+      paymentDeductCommand.CustomerId = CustomerId;
+
+      ButtonDisable = true;
+      LoaderVisiblity = true;
+      await _StripeStateService.PaymentDeduct(paymentDeductCommand);
     }
 
   }
@@ -79,18 +104,24 @@
 
           if (x.IsSucceed == false)
           {
+            ButtonDisable = false;
+            LoaderVisiblity = false;
             ErrorMessage = x.ErrorMessage;
-            //StateHasChanged();
+            StateHasChanged();
           }
+
           else
           {
             //IsSucceed = true;
-            //IsTaskRunning = false;
-            //SpinnerVisiblity = false;
 
-            //ToastObj.Show().GetAwaiter().GetResult();
+            ButtonDisable = false;
+            LoaderVisiblity = false;
+            ErrorMessage = String.Empty;
+            paymentDeductCommand.Amount = 0;
 
-            //StateHasChanged();
+            ToastObj.Content = "Payment deducted successfully!";
+            ToastObj.Show();
+            StateHasChanged();
           }
 
           break;

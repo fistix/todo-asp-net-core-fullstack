@@ -19,49 +19,171 @@ namespace Fistix.Training.Service
       _masterConfig = masterConfig;
     }
 
-    public async Task<Customer> Create(CreateCustomerCommand command)
-    {
-      //Customer stripeCustomer = new Customer();
-
-      //var stripeCustomer = await GetByEmail(command.Email);
-
-      //if (stripeCustomer == null)
-      //{
-      var customerService = new CustomerService();
-      Customer stripeCustomer = customerService.Create(new CustomerCreateOptions
-      {
-        Email = command.Email,
-        Name = command.FirstName + " " + command.LastName
-      });
-      //}
-
-      return stripeCustomer;
-    }
-
     public async Task<Customer> GetByEmail(string email)
     {
-      #region GetCustomersList
-      var CustomerOptions = new CustomerListOptions
+      try
       {
-        Limit = 50,
-        Email = email
-        //RnD about extra parameters
-      };
-      var customerService = new CustomerService();
-      StripeList<Customer> stripeCustomersList = customerService.List(
-        CustomerOptions
-        );
-      #endregion
+        #region GetCustomersList
+        var CustomerOptions = new CustomerListOptions
+        {
+          Limit = 50,
+          Email = email,
+          //RnD about extra parameters
+          //Created = DateTime.Now,
+          //StartingAfter = DateTime.Now.ToString(),
+          //EndingBefore = DateTime.Now.ToString(),
+        };
 
-      Customer stripeCustomer = new Customer();
+        var customerService = new CustomerService();
+        StripeList<Customer> stripeCustomersList = customerService.List(CustomerOptions);
+        #endregion
 
-      if (stripeCustomersList.Any(x => x.Email.Equals(email)))
-      {
-        stripeCustomer = stripeCustomersList.FirstOrDefault(x => x.Email.Equals(email));
-        //stripeCustomer.Id = temp.Id;
+        Customer stripeCustomer = new Customer();
+
+        if (stripeCustomersList.Any(x => x.Email.Equals(email)))
+          stripeCustomer = stripeCustomersList.FirstOrDefault(x => x.Email.Equals(email));
+
+        return stripeCustomer;
       }
-      return stripeCustomer;
 
+      catch (StripeException e)
+      {
+        string errorMessage = "";
+        switch (e.StripeError.Error)
+        {
+          case "card_error":
+            errorMessage = $"Card Error occurred on {e.StripeError.PaymentIntent.Id}, Error: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_error":
+            errorMessage = $"API Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_connection_error":
+            errorMessage = $"API Connection Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "invalid_request_error	":
+            errorMessage = $"Invalid request Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          default:
+            errorMessage = $"Some Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+        }
+
+        throw new InvalidOperationException(errorMessage);
+      }
+
+    }
+
+    public async Task<Customer> Create(CreateCustomerCommand command)
+    {
+      try
+      {
+        var customerService = new CustomerService();
+        Customer stripeCustomer = customerService.Create(new CustomerCreateOptions
+        {
+          Email = command.Email,
+          Name = command.FirstName + " " + command.LastName,
+          //RnD about extra parameters
+          //Description = "Additional description about customer",
+          //Phone = "897877745464",
+        });
+
+        return stripeCustomer;
+      }
+
+      catch (StripeException e)
+      {
+        string errorMessage = "";
+        switch (e.StripeError.Error)
+        {
+          case "card_error":
+            errorMessage = $"Card Error occurred on {e.StripeError.PaymentIntent.Id}, Error: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_error":
+            errorMessage = $"API Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_connection_error":
+            errorMessage = $"API Connection Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "invalid_request_error	":
+            errorMessage = $"Invalid request Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          default:
+            errorMessage = $"Some Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+        }
+
+        throw new InvalidOperationException(errorMessage);
+      }
+
+    }
+
+    public async Task<string> SampleCheckout(SampleCheckoutCommand command)
+    {
+      try
+      {
+        //var domain = "https://localhost:5200";
+        var domain = _masterConfig.StripeConfig.Domain;
+
+        var options = new SessionCreateOptions
+        {
+          CustomerEmail = command.Email,
+          PaymentMethodTypes = new List<string>
+                {
+                  "card",
+                },
+          LineItems = new List<SessionLineItemOptions>
+                {
+                  new SessionLineItemOptions
+                  {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                      UnitAmount = command.Amount,
+                      Currency = "usd",
+                      ProductData = new SessionLineItemPriceDataProductDataOptions
+                      {
+                        Name = command.ProductName,
+                      },
+                    },
+                    Quantity = 1,
+                  },
+                },
+          Mode = "payment",
+          SuccessUrl = _masterConfig.StripeConfig.SuccessUrl,
+          CancelUrl = _masterConfig.StripeConfig.CancelUrl,
+          //SuccessUrl = domain + "/checkoutSampleSuccess",
+          //CancelUrl = domain + "/checkoutSampleCancel",
+        };
+
+        var service = new SessionService();
+        Session session = service.Create(options);
+
+        return session.Id;
+      }
+
+      catch (StripeException e)
+      {
+        string errorMessage = "";
+        switch (e.StripeError.Error)
+        {
+          case "card_error":
+            errorMessage = $"Card Error occurred on {e.StripeError.PaymentIntent.Id}, Error: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_error":
+            errorMessage = $"API Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_connection_error":
+            errorMessage = $"API Connection Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "invalid_request_error	":
+            errorMessage = $"Invalid request Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          default:
+            errorMessage = $"Some Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+        }
+
+        throw new InvalidOperationException(errorMessage);
+      }
     }
 
     public async Task<bool> PaymentDeduct(PaymentDeductCommand command)
@@ -95,65 +217,33 @@ namespace Fistix.Training.Service
         return true;
       }
 
+
       catch (StripeException e)
       {
-        switch (e.StripeError.Error/*.ErrorType*/)
+        string errorMessage = "";
+        switch (e.StripeError.Error)
         {
           case "card_error":
-            // Error code will be authentication_required if authentication is needed
-            Console.WriteLine("Error code: " + e.StripeError.Code);
-            var paymentIntentId = e.StripeError.PaymentIntent.Id;
-            var service = new PaymentIntentService();
-            var paymentIntent = service.Get(paymentIntentId);
-
-            Console.WriteLine(paymentIntent.Id);
+            errorMessage = $"Card Error occurred on {e.StripeError.PaymentIntent.Id}, Error: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_error":
+            errorMessage = $"API Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "api_connection_error":
+            errorMessage = $"API Connection Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
+            break;
+          case "invalid_request_error	":
+            errorMessage = $"Invalid request Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
             break;
           default:
+            errorMessage = $"Some Error occurred: {e.StripeError.Error}, Error Code: {e.StripeError.Code}, Error Description: {e.StripeError.ErrorDescription}";
             break;
         }
-        ////
-        return false;
 
+        throw new InvalidOperationException(errorMessage);
       }
-    }
-    public async Task<string> SampleCheckout(SampleCheckoutCommand command)
-    {
-      var domain = "https://localhost:5200";
-      //var domain = _masterConfig.StripeConfig.Domain;
 
-      var options = new SessionCreateOptions
-      {
-        CustomerEmail = command.Email,
-        PaymentMethodTypes = new List<string>
-                {
-                  "card",
-                },
-        LineItems = new List<SessionLineItemOptions>
-                {
-                  new SessionLineItemOptions
-                  {
-                    PriceData = new SessionLineItemPriceDataOptions
-                    {
-                      UnitAmount = command.Amount,
-                      Currency = "usd",
-                      ProductData = new SessionLineItemPriceDataProductDataOptions
-                      {
-                        Name = command.ProductName,
-                      },
-                    },
-                    Quantity = 1,
-                  },
-                },
-        Mode = "payment",
-        SuccessUrl = domain + "/checkoutSampleSuccess",
-        //SuccessUrl = _masterConfig.StripeConfig.SuccessUrl,
-        CancelUrl = domain + "/checkoutSampleCancel",
-        //CancelUrl = _masterConfig.StripeConfig.CancelUrl,
-      };
-      var service = new SessionService();
-      Session session = service.Create(options);
-
-      return session.Id;
     }
   }
 }
+

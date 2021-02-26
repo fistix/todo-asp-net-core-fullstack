@@ -36,6 +36,7 @@ namespace Fistix.Training.WebApi
 
       MasterConfig.AzureStorageConfig = Configuration.GetSection("AzureStorage").Get<AzureStorageConfig>();
       MasterConfig.Auth0Config = Configuration.GetSection("Auth0").Get<Auth0Config>();
+      MasterConfig.StripeConfig = Configuration.GetSection("Stripe").Get<StripeConfig>();
 
 
     }

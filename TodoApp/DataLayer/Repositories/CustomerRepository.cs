@@ -55,14 +55,7 @@ namespace Fistix.Training.DataLayer.Repositories
 
     public async Task<Customer> GetByEmail(string email)
     {
-      var customer = await _efContext.Customers.FirstOrDefaultAsync(x => x.Email.Equals(email));
-      if (customer == null)
-      {
-        return null;
-        //throw new NotFoundException();
-        //throw new NotFoundException("Result not found!");
-      }
-      return customer;
+      return await _efContext.Customers.FirstOrDefaultAsync(x => x.Email.Equals(email));
     }
   }
 }

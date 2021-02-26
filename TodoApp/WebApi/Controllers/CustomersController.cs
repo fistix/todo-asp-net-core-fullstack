@@ -46,6 +46,7 @@ namespace Fistix.Training.WebApi.Controllers
         return base.Conflict(ex.Message);
       }
 
+
     }
 
 
@@ -67,6 +68,11 @@ namespace Fistix.Training.WebApi.Controllers
       catch (NotFoundException)
       {
         return base.NotFound();
+      }
+
+      catch (InvalidOperationException ex)
+      {
+        return base.Conflict(ex.Message);
       }
     }
 

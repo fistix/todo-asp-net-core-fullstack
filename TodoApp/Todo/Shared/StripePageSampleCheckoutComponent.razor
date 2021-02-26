@@ -3,31 +3,68 @@
 @inject IJSRuntime jsRuntime
 
 
-<h3>Checkout Sample Component</h3>
+<h3>Sample Checkout Component</h3>
 
 
-<SfTextBox @ref="SfProductName" Placeholder="Enter Product name..." @bind-Value="@checkoutCommand.ProductName"></SfTextBox>
+<SfTextBox @ref="SfProductName" @bind-Value="@checkoutCommand.ProductName" 
+           Placeholder="Enter Product name..." FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
 
-<SfTextBox @ref="SfAmount" Placeholder="Enter Product Amount..." @bind-Value="@Amount"></SfTextBox>
 
-<SfTextBox @ref="SfEmail" Placeholder="Enter Email..." @bind-Value="@checkoutCommand.Email"></SfTextBox>
+<SfNumericTextBox TValue="int" @bind-Value="@checkoutCommand.Amount" 
+                  
+                  Placeholder="Enter Amount in cents..." FloatLabelType='@FloatLabelType.Auto'
+                  Readonly="ButtonDisable">
+</SfNumericTextBox>
+
+
+<SfTextBox @ref="SfEmail" @bind-Value="@checkoutCommand.Email" 
+           Placeholder="Enter Email..." FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+
 <div>
   <label style="color: tomato; font-size: 15px">@ErrorMessage</label>
 </div>
-<SfButton CssClass="e-info" OnClick="Checkout">Sample Checkout</SfButton>
 
+<SfButton CssClass="e-info" OnClick="Checkout" Disabled="ButtonDisable">Sample Checkout</SfButton>
+
+
+<div>
+  <div id="loader">
+    <SfSpinner @bind-Visible="@LoaderVisiblity" CssClass="e-spin-overlay"
+               Type="@SpinnerType.Bootstrap" Size="100">
+    </SfSpinner>
+  </div>
+</div>
+
+<SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
+  <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+</SfToast>
+
+<style>
+  #loader {
+    position: relative;
+  }
+</style>
 
 @code {
 
-  //[Parameter] public string Amount { get; set; }
-  //[Parameter] public string Email { get; set; }
+  #region Loader-Toaster
+  SfToast ToastObj;
+  private string ToastTitle = string.Empty;
+
+  private bool ButtonDisable { get; set; } = false;
+  private bool LoaderVisiblity { get; set; } = false;
+  #endregion
 
 
   SfTextBox SfProductName;
-  SfTextBox SfAmount;
   SfTextBox SfEmail;
   //public string ProductName { get; set; }
-  public string Amount { get; set; }
+  //public string Amount { get; set; }
 
   private IDisposable apiCallSub;
   public string ErrorMessage = "";
@@ -45,35 +82,41 @@
   }
 
 
-  private void Checkout()
+  private async void Checkout()
   {
-    if (String.IsNullOrEmpty(checkoutCommand.Email))
+    if (checkoutCommand != null)
     {
-      SfEmail.CssClass = "e-error";
-      ErrorMessage = "Please insert an Email";
+      if (String.IsNullOrEmpty(checkoutCommand.Email))
+      {
+        SfEmail.CssClass = "e-error";
+        ErrorMessage = "Please insert an Email";
+      }
+
+      else if (checkoutCommand.Amount <= 0)
+      {
+        ErrorMessage = "Please insert an Amount";
+      }
+
+      else if (String.IsNullOrEmpty(checkoutCommand.ProductName))
+      {
+        SfProductName.CssClass = "e-error";
+        ErrorMessage = "Please insert Product Name";
+      }
+
+      else
+      {
+        ButtonDisable = true;
+        LoaderVisiblity = true;
+        await _StripeStateService.CheckoutSample(checkoutCommand);
+      }
+      //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
     }
-    else if (String.IsNullOrEmpty(Amount))
-    {
-      SfAmount.CssClass = "e-error";
-      ErrorMessage = "Please insert an Amount";
-    }
-    //else if (checkoutCommand.Amount <=0)
-    //{
-    //  ErrorMessage = "Please insert an Amount";
-    //}
-    else if (String.IsNullOrEmpty(checkoutCommand.ProductName))
-    {
-      SfProductName.CssClass = "e-error";
-      ErrorMessage = "Please insert Product Name";
-    }
+
+    //Also works validation without this else
     else
     {
-      //checkoutCommand.Email = Email;
-      checkoutCommand.Amount = long.Parse(Amount);
-      _StripeStateService.CheckoutSample(checkoutCommand);
+      ErrorMessage = "Please fill the fields!";
     }
-    //jsRuntime.InvokeVoidAsync("redirectToCheckout"/*, sessionId*/);
-
   }
 
   private void Subscribes()
@@ -91,6 +134,8 @@
 
           if (x.IsSucceed == false)
           {
+            ButtonDisable = false;
+            LoaderVisiblity = false;
             ErrorMessage = x.ErrorMessage;
             NavManager.NavigateTo("/CheckoutSampleCancel");
           }
@@ -99,6 +144,11 @@
           {
             //NavManager.NavigateTo("/CheckoutSampleSuccess");
             sessionId = x.Data;
+            ButtonDisable = false;
+            LoaderVisiblity = false;
+            ErrorMessage = String.Empty;
+            SfEmail.CssClass = "";
+            SfProductName.CssClass = "";
 
             await jsRuntime.InvokeVoidAsync("redirectToCheckout", sessionId);
             //StateHasChanged();

@@ -3,46 +3,54 @@
 
 <h3>Add Customer Component</h3>
 
-<SfTextBox @ref="SfFirstName" Placeholder="Enter First Name..." @bind-Value="createCustomerCommand.FirstName"></SfTextBox>
+<SfTextBox @ref="SfFirstName" @bind-Value="createCustomerCommand.FirstName"
+           Placeholder="Enter First Name..." FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
 
-<SfTextBox @ref="SfLastName" Placeholder="Enter Last Name..." @bind-Value="createCustomerCommand.LastName"></SfTextBox>
 
-<SfTextBox @ref="SfEmail" Placeholder="Enter Email..." @bind-Value="createCustomerCommand.Email"></SfTextBox>
+<SfTextBox @ref="SfLastName" @bind-Value="createCustomerCommand.LastName"
+           Placeholder="Enter Last Name..." FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+
+<SfTextBox @ref="SfEmail" @bind-Value="createCustomerCommand.Email"
+           Placeholder="Enter Email..." FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
 
 <div>
   <label style="color: tomato; font-size: 15px">@ErrorMessage</label>
 </div>
 
-<SfButton CssClass="e-info" @onclick="GetCustomer" >Create Or Get Customer</SfButton>
+<SfButton CssClass="e-info" @onclick="GetCustomer" Disabled="ButtonDisable">Create Or Get Customer</SfButton>
 
 
-<div>
-  <div id="container">
-    <SfSpinner @bind-Visible="@LoaderVisiblity" CssClass="e-spin-overlay"
+  <div id="loader">
+    <SfSpinner @bind-Visible="@LoaderVisiblity"  CssClass="e-spin-overlay"
                Type="@SpinnerType.Bootstrap" Size="100">
     </SfSpinner>
   </div>
-</div>
 
 <SfToast @ref="ToastObj" Title="@ToastTitle" CssClass="e-toast-success">
   <ToastPosition X="Right" Y="Bottom"></ToastPosition>
 </SfToast>
 
-@code {
+<style>
+  #loader {
+    position: relative;
+  }
+</style>
 
-  //[Parameter]
-  //public string Email { get; set; }
+@code {
 
   [Parameter]
   public EventCallback<CustomerDto> OnSendStripeCustomerIdToParent { get; set; }
 
-  //[Parameter]
-  //public EventCallback<string> OnSendCustomerIdToParent { get; set; }
-
-
+  SfTextBox SfEmail;
   SfTextBox SfFirstName;
   SfTextBox SfLastName;
-  SfTextBox SfEmail;
 
   public string ErrorMessage = "";
   CustomerDto CustomerDto = new CustomerDto();
@@ -50,21 +58,24 @@
   GetCustomerDetailByEmailQuery getCustomerByEmail = new GetCustomerDetailByEmailQuery();
   private IDisposable apiCallSub;
 
-  #region UI
+  #region Loader-Toaster
   SfToast ToastObj;
   private string ToastTitle = string.Empty;
-
 
   private bool ButtonDisable { get; set; } = false;
   private bool LoaderVisiblity { get; set; } = false;
   #endregion
 
 
+  protected override void OnInitialized()
+  {
+    Subscribes();
+  }
+
   private async void GetCustomer()
   {
     if (createCustomerCommand != null)
     {
-      //CreateCustomerCommand.Email = Email;
       if (String.IsNullOrEmpty(createCustomerCommand.Email))
       {
         SfEmail.CssClass = "e-error";
@@ -85,59 +96,25 @@
 
       else
       {
-        //ButtonDisable = true;
-        //LoaderVisiblity = true;
+        ButtonDisable = true;
+        LoaderVisiblity = true;
         getCustomerByEmail.Email = createCustomerCommand.Email;
-        await _StripeStateService.GetCustomer(getCustomerByEmail);
+        _StripeStateService.GetCustomer(getCustomerByEmail);
       }
     }
 
-    //if (createCustomerCommand.Email == null)
-    //{
-    //  SfEmail.CssClass = "e-error";
-    //  ErrorMessage = "Please insert an Email";
-
-    //}
-
-
+    //Also works validation without this else
+    else
+    {
+      ErrorMessage = "Please fill the fields!";
+    }
 
   }
 
 
   private async void CreateCustomer()
   {
-    //if (createCustomerCommand != null)
-    //{
-    //  //CreateCustomerCommand.Email = Email;
-    //  if (String.IsNullOrEmpty(createCustomerCommand.Email))
-    //  {
-    //    SfEmail.CssClass = "e-error";
-    //    //ErrorMessage = "Please insert an Email";
-    //  }
-
-    //  else if (String.IsNullOrEmpty(createCustomerCommand.FirstName))
-    //  {
-    //    SfFirstName.CssClass = "e-error";
-    //    //ErrorMessage = "Please insert First name";
-    //  }
-
-    //  else if (String.IsNullOrEmpty(createCustomerCommand.LastName))
-    //  {
-    //    SfLastName.CssClass = "e-error";
-    //    //ErrorMessage = "Please insert Last name";
-    //  }
-
-    //  else
-    //  {
     await _StripeStateService.CreateCustomer(createCustomerCommand);
-    //}
-    //}
-
-  }
-
-  protected override void OnInitialized()
-  {
-    Subscribes();
   }
 
   private void Subscribes()
@@ -153,6 +130,8 @@
 
           if (x.IsSucceed == false)
           {
+            ButtonDisable = false;
+            LoaderVisiblity = false;
             ErrorMessage = x.ErrorMessage;
             CreateCustomer();
           }
@@ -163,11 +142,16 @@
 
             //IsSucceed = true;
 
-            //ButtonDisable = false;
-            //LoaderVisiblity = false;
-            //ToastObj.Content = "Customer fetched successfully!";
-            //ToastObj.Show()/*.GetAwaiter().GetResult()*/;
-            //StateHasChanged();
+            ButtonDisable = false;
+            LoaderVisiblity = false;
+            ErrorMessage = String.Empty;
+            SfEmail.CssClass = "";
+            SfFirstName.CssClass = "";
+            SfLastName.CssClass = "";
+
+            ToastObj.Content = "Customer fetched successfully!";
+            await ToastObj.Show();
+            StateHasChanged();
           }
 
           break;
@@ -176,6 +160,8 @@
 
           if (x.IsSucceed == false)
           {
+            ButtonDisable = false;
+            LoaderVisiblity = false;
             ErrorMessage = x.ErrorMessage;
           }
 
@@ -185,11 +171,16 @@
 
             //IsSucceed = true;
 
-            //ButtonDisable = false;
-            //LoaderVisiblity = false;
-            //ToastObj.Content = "Customer is Created successfully!";
-            //ToastObj.Show()/*.GetAwaiter().GetResult()*/;
-            //StateHasChanged();
+            ButtonDisable = false;
+            LoaderVisiblity = false;
+            ErrorMessage = String.Empty;
+            SfEmail.CssClass = "";
+            SfFirstName.CssClass = "";
+            SfLastName.CssClass = "";
+
+            ToastObj.Content = "Customer is Created successfully!";
+            await ToastObj.Show();
+            StateHasChanged();
 
           }
 
