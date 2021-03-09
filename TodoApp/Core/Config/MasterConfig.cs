@@ -13,5 +13,6 @@ namespace Fistix.Training.Core.Config
     public Auth0Config Auth0Config { get; set; }
 
     public StripeConfig StripeConfig { get; set; }
+    public PayPalConfig PayPalConfig { get; set; }
   }
 }
