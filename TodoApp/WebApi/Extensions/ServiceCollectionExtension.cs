@@ -38,6 +38,7 @@ namespace Fistix.Training.WebApi.Extensions
       services.AddScoped<IProfileRepository, ProfileRepository>();
       services.AddScoped<ICustomerRepository, CustomerRepository>();
       services.AddScoped<StripeService>();
+      services.AddScoped<PayPalService>();
 
 
       services.AddDbContext<EfContext>(options =>

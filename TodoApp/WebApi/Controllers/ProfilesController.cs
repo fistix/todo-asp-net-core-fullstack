@@ -154,7 +154,10 @@ namespace Fistix.Training.WebApi.Controllers
           return base.BadRequest();
         }
 
-        var query = new GetProfileDetailByEmailQuery() { Email = email };
+        var query = new GetProfileDetailByEmailQuery() 
+        { 
+          Email = email 
+        };
 
         var result = await _mediator.Send(query);
 
@@ -271,7 +274,10 @@ namespace Fistix.Training.WebApi.Controllers
       try
       {
 
-        var query = new GetProfileDetailByEmailQuery() { Email = _currentUserService.Email };
+        var query = new GetProfileDetailByEmailQuery() 
+        { 
+          Email = _currentUserService.Email 
+        };
 
         var result = await _mediator.Send(query);
 

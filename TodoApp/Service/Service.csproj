@@ -9,6 +9,8 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.7.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.3.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.3" />
+    <PackageReference Include="PayPalHttp" Version="1.0.0" />
     <PackageReference Include="Stripe.net" Version="39.35.0" />
   </ItemGroup>
 

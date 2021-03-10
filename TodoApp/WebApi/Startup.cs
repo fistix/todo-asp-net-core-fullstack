@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -48,7 +49,12 @@ namespace Fistix.Training.WebApi
 
       services.AddControllers().AddFluentValidation(x => x.RegisterValidatorsFromAssembly(typeof(CreateTaskCommandValidator).Assembly));
 
+      //Ask about this
       services.Configure<StripeConfig>(Configuration.GetSection("Stripe"));
+
+      //Added during PayPal integration
+      services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
+
 
       //services.AddSwaggerGen(c =>
       //  {
