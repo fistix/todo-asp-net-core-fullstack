@@ -12,5 +12,10 @@ namespace Fistix.Training.Domain.PayPalModels
 
     //Additional property for GetSubscriptionPlansListModel
     public string encType { get; set; }
+
+    //Additional for OrderModel instead of Order default model of PayPal
+    public string EncType { get; set; }
+    public string MediaType { get; set; }
+    public string Title { get; set; }
   }
 }

@@ -164,7 +164,7 @@ namespace Fistix.Training.Service
               {
                 FullName = "John Doe"
               },
-              AddressPortable = new AddressPortable
+              AddressPortable = new PayPalCheckoutSdk.Orders.AddressPortable
               {
                 AddressLine1 = "123 Townsend St",
                 AddressLine2 = "Floor 6",
@@ -215,7 +215,7 @@ namespace Fistix.Training.Service
         result.Payer.Name.GivenName + " " + result.Payer.Name.Surname, result.Payer.AddressPortable.CountryCode
         );
       //}
-
+      
       return result;
       //return Json(new
       //{
@@ -244,7 +244,7 @@ namespace Fistix.Training.Service
       var contentString = await response.Content.ReadAsStringAsync();
 
       var content = Newtonsoft.Json.JsonConvert.DeserializeObject<SubscriptionPlanDetailModel>(contentString);
-
+      
       return content;
       //return Ok();
 

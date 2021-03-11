@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fistix.Training.Core;
 using Fistix.Training.Domain.Commands.Paypal;
+using Fistix.Training.Domain.PayPalModels;
 using MediatR;
 using PayPalCheckoutSdk.Orders;
 using System;
@@ -30,7 +31,7 @@ namespace Fistix.Training.Service.CommandHandlers.PayPal
       var order = await _payPalService.CreateOrder();
       return new CreateOrderCommandResult()
       {
-        Payload = _mapper.Map<Order>(order)
+        Payload = _mapper.Map<OrderModel>(order)
         //Order = order
       };
       //throw new NotImplementedException();

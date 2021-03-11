@@ -29,7 +29,7 @@ namespace Fistix.Training.WebApi.Controllers
 
     #region OneTimeCheckout
 
-    [HttpPost]
+    [HttpPost("CreateOrder")]
     [ProducesResponseType(typeof(CreateOrderCommandResult), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateOrder()
     {
@@ -53,20 +53,20 @@ namespace Fistix.Training.WebApi.Controllers
 
     }
 
-    [HttpPost("CaptureOrder")]
+    [HttpPost("CaptureOrder/{id}")]
     [ProducesResponseType(typeof(CaptureOrderCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CaptureOrder([FromRoute] string orderId /*CaptureOrderCommand command*/)
+    public async Task<IActionResult> CaptureOrder([FromRoute] string id /*CaptureOrderCommand command*/)
     {
       try
       {
         //if (!ModelState.IsValid)
         //  return base.BadRequest(ModelState);
 
-        if (String.IsNullOrEmpty(orderId))
+        if (String.IsNullOrEmpty(id))
           return base.BadRequest(ModelState);
 
-        var command = new CaptureOrderCommand() { OrderId = orderId };
+        var command = new CaptureOrderCommand() { OrderId = id };
 
         var result = await _mediator.Send<CaptureOrderCommandResult>(command);
         ////

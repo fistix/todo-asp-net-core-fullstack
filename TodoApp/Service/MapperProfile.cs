@@ -6,6 +6,7 @@ using Fistix.Training.Domain.Commands.Profiles;
 using Fistix.Training.Domain.Commands.Tasks;
 using Fistix.Training.Domain.DataModels;
 using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.PayPalModels;
 using Fistix.Training.Domain.Queries.Tasks;
 using PayPalCheckoutSdk.Orders;
 using System;
@@ -93,8 +94,8 @@ namespace Fistix.Training.Service
       //    .ForMember(x => x.StripeCustomerName, v => v.UseDestinationValue());
       //CreateMap<Domain.DataModels.Customer, PaymentDeductionCommand>();
 
-      CreateMap<CreateOrderCommandResult, Order>();
-      CreateMap<Order, CreateOrderCommandResult>();
+      CreateMap<OrderModel, Order>();
+      CreateMap<Order, OrderModel>();
     }
   }
 }

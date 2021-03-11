@@ -32,6 +32,7 @@ namespace Todo
       builder.Services.AddScoped<TaskStateService>();
       builder.Services.AddScoped<ProfileStateService>();
       builder.Services.AddScoped<StripeStateService>();
+      builder.Services.AddScoped<PayPalStateService>();
       //builder.Services.AddScoped<List<TaskDetail>>();
       builder.Services.AddSyncfusionBlazor();
 
