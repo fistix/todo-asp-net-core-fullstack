@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Todo.Shared;
-using Todo.Shared.Models;
 using Todo.Shared.Services;
 using Todo.Shared.State;
 
@@ -24,6 +22,8 @@ namespace Todo
       var builder = WebAssemblyHostBuilder.CreateDefault(args);
       builder.RootComponents.Add<App>("#app");
 
+
+      //Base address 5001 or 5200?
       builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
       builder.Services.AddScoped<AppState>();
       builder.Services.AddScoped<AuthHandler>();

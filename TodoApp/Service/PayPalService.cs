@@ -22,7 +22,7 @@ namespace Fistix.Training.Service
       _httpClient = httpClient;
     }
 
-    public const string BearerToken = "A21AAJrjyXzsZG7JUsw8nTBVXAyyK8ZxfZNQhFR8qtMTlrHDm-eeulvnMdvmsajBSX-oKVJW029VUKR6gE0YHud5SeF0w51eA";
+    public const string BearerToken = "A21AAKvUc9WucEtVebqo4BgKGDY-ELrjN5cigfAphcyJSUNxvFFYiZJZnIb_M_gphcr8DU1tmCG6GbdV8ja0mBDnUNh2qMYPg";
 
     #region OneTimeCheckout
     public async Task<Order> CreateOrder(bool debug = true)
@@ -204,7 +204,7 @@ namespace Fistix.Training.Service
       Console.WriteLine("Capture Ids: ");
       foreach (PurchaseUnit purchaseUnit in result.PurchaseUnits)
       {
-        foreach (PayPalCheckoutSdk.Orders.Capture capture in purchaseUnit.Payments.Captures)
+        foreach (Capture capture in purchaseUnit.Payments.Captures)
         {
           Console.WriteLine("\t {0}", capture.Id);
         }

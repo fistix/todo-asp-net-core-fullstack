@@ -17,5 +17,12 @@ namespace Fistix.Training.Domain.DataModels
     public long? LastPaymentDeduct { get; set; }
     public DateTime? LastPaymentDeductOn { get; set; }
 
+    public string? PayPalCustomerId { get; set; }
+    public string? PayPalCustomerName { get; set; }
+    //public string PayPalCustomerEmail { get; set; }
+    public string? PayPalSubscriptionId { get; set; }
+    public string? PayPalLastPaymentDeduct { get; set; }
+    public DateTime? PayPalLastPaymentDeductOn { get; set; }
+
   }
 }

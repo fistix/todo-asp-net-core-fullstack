@@ -4,66 +4,13 @@
 
 <h3>One Time Payment Page</h3>
 
+<script suppress-error="BL9992" src="https://www.paypal.com/sdk/js?client-id=AQm921FElnvm67C0zEH33eRkI7H2i1XM5r7MEyp49Gz_vuXT0D-aFbML5jTj2mKKbtOCKB7uyIagKwG4"></script>
 
-<!--<!DOCTYPE html>
 
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">-->
-<!-- Ensures optimal rendering on mobile devices. -->
-<!--<meta http-equiv="X-UA-Compatible" content="IE=edge" />--> <!-- Optimal Internet Explorer compatibility -->
-<!--</head>
 
-<body>-->
-@*<script src="https://www.paypal.com/sdk/js?client-id=AQm921FElnvm67C0zEH33eRkI7H2i1XM5r7MEyp49Gz_vuXT0D-aFbML5jTj2mKKbtOCKB7uyIagKwG4">
-    // Required. Replace YOUR_CLIENT_ID with your sandbox client ID.
-  </script>*@
-<SfButton CssClass="e-info" OnClick="Checkout" >Checkout</SfButton>
+<SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
 
 <div id="paypal-button-container"></div>
-
-
-@*  1.1. Server    *@
-@*  4. Set up the transaction*@
-@*<script>
-    paypal.Buttons({
-      createOrder: function () {
-        return fetch('/PayPalTestImplementation/CreateOrder', {
-          method: 'post',
-          headers: {
-            'content-type': 'application/json'
-          }
-        }).then(function (res) {
-          //debugger
-          return res.json();
-        }).then(function (data) {
-          //debugger
-          return data.id; // Use the key sent by your server's response, ex. 'id' or 'token'
-        });
-      },
-      onApprove: function (data) {
-        debugger
-
-        return fetch('/PayPalTestImplementation/CaptureOrder?orderId=' + data.orderID, {
-          method: 'post',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            orderID: data.orderID
-          })
-        }).then(function (res) {
-          return res.json();
-        }).then(function (details) {
-          debugger
-          alert('Transaction funds captured from ' + details.givenName + " " + details.surName);
-        })
-      }
-    }).render('#paypal-button-container');
-  </script>*@
-
-@*</body>*@
-
-
 
 
 @code {
@@ -77,9 +24,9 @@
 
   }
 
-  private  void Checkout()
+  private void Checkout()
   {
-    jsRuntime.InvokeVoidAsync("PayPalRedirectToCheckout");
+    jsRuntime.InvokeVoidAsync("OneTimeCheckout");
 
   }
 

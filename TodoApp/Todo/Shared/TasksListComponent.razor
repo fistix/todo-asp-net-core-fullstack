@@ -454,6 +454,7 @@
   private void StoreUserid(string id)
   {
     //UserId = Guid.Parse(id);
+    Console.WriteLine("user id is: ",id);
     AttachUserCommand.UserId = Guid.Parse(id);
     Console.WriteLine($"Item Select ID: {id}");
   }

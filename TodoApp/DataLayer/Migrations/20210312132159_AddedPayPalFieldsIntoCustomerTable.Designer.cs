@@ -4,14 +4,16 @@ using Fistix.Training.DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(EfContext))]
-    partial class TodoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210312132159_AddedPayPalFieldsIntoCustomerTable")]
+    partial class AddedPayPalFieldsIntoCustomerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

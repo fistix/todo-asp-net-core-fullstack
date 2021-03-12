@@ -34,7 +34,7 @@ namespace Fistix.Training.Service.CommandHandlers.PayPal
         Payload = _mapper.Map<OrderModel>(order)
         //Order = order
       };
-      //throw new NotImplementedException();
+      
     }
   }
 }

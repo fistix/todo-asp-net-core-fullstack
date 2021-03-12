@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,11 +7,22 @@ namespace Fistix.Training.Domain.PayPalModels
 {
   public class Address
   {
-    public string address_line_1 { get; set; }
-    public string address_line_2 { get; set; }
-    public string admin_area_2 { get; set; }
-    public string admin_area_1 { get; set; }
-    public string postal_code { get; set; }
-    public string country_code { get; set; }
+    [JsonProperty("address_line_1")]
+    public string AddressLine1 { get; set; }
+    
+    [JsonProperty("address_line_2")]
+    public string AddressLine2 { get; set; }
+    
+    [JsonProperty("admin_area_2")]
+    public string AdminArea2 { get; set; }
+
+    [JsonProperty("admin_area_1")]
+    public string AdminArea1 { get; set; }
+
+    [JsonProperty("postal_code")]
+    public string PostalCode { get; set; }
+
+    [JsonProperty("country_code")]
+    public string CountryCode { get; set; }
   }
 }

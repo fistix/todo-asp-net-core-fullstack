@@ -1,0 +1,27 @@
+﻿@page "/subscriptionPage"
+@inject IJSRuntime jsRuntime
+
+<script suppress-error="BL9992" src="https://www.paypal.com/sdk/js?client-id=AQm921FElnvm67C0zEH33eRkI7H2i1XM5r7MEyp49Gz_vuXT0D-aFbML5jTj2mKKbtOCKB7uyIagKwG4&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+
+
+<h3>Subscription Page</h3>
+
+
+<SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
+
+<div id="paypal-button-container"></div>
+
+@code {
+  protected override void OnInitialized()
+  {
+    //Subscribes();
+    base.OnInitialized();
+    //jsRuntime.InvokeVoidAsync("paypal.Buttons");
+
+  }
+
+  private void Checkout()
+  {
+    jsRuntime.InvokeVoidAsync("Subscription");
+  }
+}
