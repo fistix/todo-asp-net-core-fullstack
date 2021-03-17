@@ -7,8 +7,7 @@ namespace Fistix.Training.Domain.Queries.PayPal
 {
   public class GetAllSubscriptionPlansQueryResult
   {
-    //public List<Plan> Plans { get; set; }
-
-    public SubscriptionPlanDetailModel Payload { get; set; }
+    public List<Plan> Plans { get; set; }
+    //public SubscriptionPlanDetailModel Payload { get; set; }
   }
 }

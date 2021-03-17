@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[PayPalSubscriptionPlans]
+(
+  Id UNIQUEIDENTIFIER NOT NULL,
+  PlanId VARCHAR(255) NULL, 
+  PlanName VARCHAR(255) NULL,
+  PRIMARY KEY CLUSTERED ([Id] ASC), 
+)

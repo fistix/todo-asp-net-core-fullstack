@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Fistix.Training.Domain.PayPalModels
 {
+
   public class BillingCycle
   {
     public PricingScheme pricing_scheme { get; set; }

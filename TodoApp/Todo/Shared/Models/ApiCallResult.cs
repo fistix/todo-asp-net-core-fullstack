@@ -1,4 +1,5 @@
 ﻿using Fistix.Training.Domain.Dtos;
+using Fistix.Training.Domain.PayPalModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace Todo.Shared.Models
     public T Data { get; set; }
 
     public CustomerDto Payload { get; set; }
+    //public List<Plan> Plans { get; set; }
   }
 }

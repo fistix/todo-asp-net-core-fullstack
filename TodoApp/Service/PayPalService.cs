@@ -22,7 +22,7 @@ namespace Fistix.Training.Service
       _httpClient = httpClient;
     }
 
-    public const string BearerToken = "A21AAKvUc9WucEtVebqo4BgKGDY-ELrjN5cigfAphcyJSUNxvFFYiZJZnIb_M_gphcr8DU1tmCG6GbdV8ja0mBDnUNh2qMYPg";
+    public const string BearerToken = "A21AALgS961sTUM0PLNgZNc3SugDtBirNhO6uoEnxWxnHwx36zam6T8FIt3rKZEehxKe81CXlBc41jNxKe0zIDqwAFq4WtdpQ";
 
     #region OneTimeCheckout
     public async Task<Order> CreateOrder(bool debug = true)
@@ -236,18 +236,30 @@ namespace Fistix.Training.Service
     #endregion
 
     #region API calls
-    public async Task<SubscriptionPlanDetailModel> GetAllSubscriptionPlans()
+    //public async Task<SubscriptionPlanDetailModel> GetAllSubscriptionPlans()
+    //{
+    //  _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+    //  //var result = await _httpClient.GetFromJsonAsync("api/profiles");
+    //  var response = await _httpClient.GetAsync("https://api-m.sandbox.paypal.com/v1/billing/plans");
+    //  var contentString = await response.Content.ReadAsStringAsync();
+
+    //  var content = Newtonsoft.Json.JsonConvert.DeserializeObject<SubscriptionPlanDetailModel>(contentString);
+      
+    //  return content;
+    //  //return Ok();
+
+    //}
+
+    public async Task<List<Plan>/*SubscriptionPlanDetailModel*/> GetAllSubscriptionPlans()
     {
       _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
       //var result = await _httpClient.GetFromJsonAsync("api/profiles");
       var response = await _httpClient.GetAsync("https://api-m.sandbox.paypal.com/v1/billing/plans");
       var contentString = await response.Content.ReadAsStringAsync();
 
-      var content = Newtonsoft.Json.JsonConvert.DeserializeObject<SubscriptionPlanDetailModel>(contentString);
-      
-      return content;
-      //return Ok();
-
+      var content = Newtonsoft.Json.JsonConvert.DeserializeObject</*List<Plan>*/SubscriptionPlanDetailModel>(contentString);
+      List<Plan> plans = content.Plans.ToList();
+      return plans;
     }
 
 
@@ -289,6 +301,122 @@ namespace Fistix.Training.Service
     }
 
 
+    public async Task<CreatePlanModel> CreatePlan()
+    {
+
+      Frequency frequency = new Frequency()
+      {
+        interval_unit = "MONTH",
+        interval_count = 1
+      };
+
+      FixedPrice fixedPrice = new FixedPrice()
+      {
+        value = "10",
+        currency_code = "USD"
+      };
+
+      PricingScheme pricingScheme = new PricingScheme()
+      {
+        fixed_price = fixedPrice
+      };
+      //List
+      //BillingCycle billing_cycles = new BillingCycle()
+      //{
+      //  frequency = frequency,
+      //  tenure_type = "TRIAL",
+      //  sequence = 1,
+      //  total_cycles = 1
+      //};
+      List<BillingCycle> billing_cycles = new List<BillingCycle>()
+      //BillingCycle billing_cycles = new BillingCycle()
+      {
+        new BillingCycle()
+        {
+          frequency = frequency,
+          tenure_type = "TRIAL",
+          sequence = 1,
+          total_cycles = 1,
+          //pricing_scheme = pricingScheme
+        },
+
+        new BillingCycle()
+        {
+          frequency = frequency,
+          tenure_type = "REGULAR",
+          sequence = 2,
+          total_cycles = 12,
+          pricing_scheme = pricingScheme
+        }
+      };
+
+      Taxes taxes = new Taxes()
+      {
+        percentage = "10",
+        inclusive = false
+      };
+
+      SetupFee setupFee = new SetupFee()
+      {
+        value = "10",
+        currency_code = "USD"
+      };
+
+      PaymentPreferences paymentPreferences = new PaymentPreferences()
+      {
+        auto_bill_outstanding = true,
+        setup_fee = setupFee,
+        setup_fee_failure_action = "CONTINUE",
+        payment_failure_threshold = 3
+      };
+
+      CreatePlanModel createPlanModel = new CreatePlanModel()
+      {
+        product_id = "product_social_marketing",
+        name = "Basic Plan",
+        description = "Basic plan",
+        billing_cycles = billing_cycles,
+        payment_preferences = paymentPreferences,
+        taxes = taxes
+
+      };
+
+      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+
+      var result = await _httpClient.PostAsJsonAsync<CreatePlanModel>("https://api-m.sandbox.paypal.com/v1/billing/plans", createPlanModel);
+
+      //Working
+      //var result = await _httpClient.PostAsync("https://api-m.sandbox.paypal.com/v1/billing/plans", new StringContent(json, Encoding.UTF8, "application/json"));
+      //var json = System.Text.Json.JsonSerializer.Serialize(createPlanModel);
+
+
+
+      //var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"https://api-m.sandbox.paypal.com/v1/billing/plans")
+      //{
+      //  Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(createPlanModel), System.Text.Encoding.UTF8, "application/json")
+      //});
+
+      //var result = await _httpClient.PostAsync($"https://api-m.sandbox.paypal.com/v1/billing/plans?{json}", new System.Net.Http.StringContent(json/*, Encoding.UTF8, "application/json"*/));
+      //await _httpClient.PostAsync(_configuration["SisSendBulkSmsURL"], new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json"));
+      //await _httpClient.PostAsync(, new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json"));
+      //var responsee = await _httpClient.PostAsync($"https://api-m.sandbox.paypal.com/v1/billing/plans?product_id=product_social_marketing&name=BasicPlan&description=Basicplan&billing_cycles[0][frequency][interval_unit]=MONTH&billing_cycles[0][frequency][interval_count]=1&billing_cycles[0][tenure_type]=TRIAL&billing_cycles[0][sequence]=1&billing_cycles[0][total_cycles]=1&billing_cycles[1][frequency][interval_unit]=MONTH&billing_cycles[1][frequency][interval_count]=1&billing_cycles[1][tenure_type]=REGULAR&billing_cycles[1][sequence]=2&billing_cycles[1][total_cycles]=12&billing_cycles[1][pricing_scheme][fixed_price][value]=10&billing_cycles[1][pricing_scheme][fixed_price][currency_code]=USD&payment_preferences[auto_bill_outstanding]=true&payment_preferences[setup_fee][value]=10&payment_preferences[setup_fee][currency_code]=USD&payment_preferences[setup_fee_failure_action]=CONTINUE&payment_preferences[payment_failure_threshold]=3&taxes[percentage]=10&taxes[inclusive]=false",null);
+
+      if (result.IsSuccessStatusCode)
+      {
+        string content = await result.Content.ReadAsStringAsync();
+        //createPlanModel = Newtonsoft.Json.JsonConvert.DeserializeObject<CreatePlanModel>(content);
+        createPlanModel = await result.Content.ReadFromJsonAsync<CreatePlanModel>();
+
+      }
+
+      else
+      {
+        string content = await result.Content.ReadAsStringAsync();
+      }
+
+      return createPlanModel;
+
+    }
     #endregion
 
   }

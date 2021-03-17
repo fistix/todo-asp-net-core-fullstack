@@ -36,7 +36,7 @@ var OneTimeCheckout = function () {
 
 
 //Subscription function
-var Subscription = function () {
+var Subscription = function (PlanId) {
 
   paypal.Buttons({
     style: {
@@ -46,8 +46,10 @@ var Subscription = function () {
       label: 'subscribe'
     },
     createSubscription: function (data, actions) {
+      debugger
       return actions.subscription.create({
-        'plan_id': 'P-9XU85364167496542MBBELRA'
+        //'plan_id': 'P-9XU85364167496542MBBELRA'
+        'plan_id': PlanId
       });
     },
     onApprove: function (data, actions) {

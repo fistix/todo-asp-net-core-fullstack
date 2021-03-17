@@ -21,9 +21,13 @@ namespace Fistix.Training.Service.QueryHandlers.PayPal
     {
       var plans = await _payPalService.GetAllSubscriptionPlans();
 
+      //Get only Active Plans
+      var activePlans = plans.Where(x => x.Status.Equals("ACTIVE")).ToList();
+
       return new GetAllSubscriptionPlansQueryResult()
       {
-        Payload = plans
+        Plans = activePlans,
+        //Payload = plans
       };
       //throw new NotImplementedException();
     }
