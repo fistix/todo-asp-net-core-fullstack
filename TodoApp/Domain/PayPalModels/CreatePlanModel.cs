@@ -1,49 +1,42 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Fistix.Training.Domain.PayPalModels
 {
   public class CreatePlanModel
   {
+    //With JsonProperty, model is filled but Plan is not creating on PayPal, response is false - ResponseMessage: Request is not well-formed
+    
     //[JsonProperty("product_id")]
-    public string product_id { get; set; }
+    [JsonPropertyName("product_id")]
+    public string ProductId { get; set; }
+
 
     //[JsonProperty("name")]
-    public string name { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
 
     //[JsonProperty("description")]
-    public string description { get; set; }
+    [JsonPropertyName("description")]
+    public string Description { get; set; }
+
 
     //[JsonProperty("billing_cycles")]
-    public List<BillingCycle> billing_cycles { get; set; }
+    [JsonPropertyName("billing_cycles")]
+    public List<BillingCycle> BillingCycles { get; set; }
+
 
     //[JsonProperty("payment_preferences")]
-    public PaymentPreferences payment_preferences { get; set; }
+    [JsonPropertyName("payment_preferences")]
+    public PaymentPreferences PaymentPreferences { get; set; }
+
 
     //[JsonProperty("taxes")]
-    public Taxes taxes { get; set; }
-
-
-
-    //[JsonProperty("product_id")]
-    //public string ProductId { get; set; }
-
-    //[JsonProperty("name")]
-    //public string Name { get; set; }
-
-    //[JsonProperty("description")]
-    //public string Description { get; set; }
-
-    //[JsonProperty("billing_cycles")]
-    //public List<BillingCycle> BillingCycles { get; set; }
-
-    //[JsonProperty("payment_preferences")]
-    //public PaymentPreferences PaymentPreferences { get; set; }
-
-    //[JsonProperty("taxes")]
-    //public Taxes Taxes { get; set; }
+    [JsonPropertyName("taxes")]
+    public Taxes Taxes { get; set; }
 
   }
 }

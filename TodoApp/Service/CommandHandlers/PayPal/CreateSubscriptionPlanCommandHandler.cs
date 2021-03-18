@@ -18,7 +18,7 @@ namespace Fistix.Training.Service.CommandHandlers.PayPal
     }
     public async Task<CreateSubscriptionPlanCommandResult> Handle(CreateSubscriptionPlanCommand command, CancellationToken cancellationToken)
     {
-      var plan = await _payPalService.CreatePlan();
+      var plan = await _payPalService.CreatePlan(command);
 
       return new CreateSubscriptionPlanCommandResult()
       {

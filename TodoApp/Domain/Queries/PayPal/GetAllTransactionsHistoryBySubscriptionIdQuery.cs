@@ -9,7 +9,7 @@ namespace Fistix.Training.Domain.Queries.PayPal
   public class GetAllTransactionsHistoryBySubscriptionIdQuery : IRequest<GetAllTransactionsHistoryBySubscriptionIdQueryResult>
   {
     [JsonIgnore]
-    public string Id { get; set; }
+    public string SubscriptionId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
   }

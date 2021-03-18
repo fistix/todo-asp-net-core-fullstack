@@ -1,4 +1,5 @@
-﻿using Fistix.Training.Domain.PayPalModels;
+﻿using Fistix.Training.Domain.Commands.Paypal;
+using Fistix.Training.Domain.PayPalModels;
 using Fistix.Training.Domain.Queries.PayPal;
 //
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace Fistix.Training.Service
       _httpClient = httpClient;
     }
 
-    public const string BearerToken = "A21AALgS961sTUM0PLNgZNc3SugDtBirNhO6uoEnxWxnHwx36zam6T8FIt3rKZEehxKe81CXlBc41jNxKe0zIDqwAFq4WtdpQ";
+    public const string BearerToken = "A21AAKMi3FThuvvW_umR1541cdkzF8b5zwARNI9QzlAShYMIfcXC0yGkd1rm7LkwLOfa9qgCg3NRKreJeJ9xOB1q1PbPd0RAQ";
 
     #region OneTimeCheckout
     public async Task<Order> CreateOrder(bool debug = true)
@@ -74,18 +75,22 @@ namespace Fistix.Training.Service
 
         ApplicationContext = new ApplicationContext
         {
+          //Check effects of these properties
           BrandName = "EXAMPLE INC",
           LandingPage = "BILLING",
           UserAction = "CONTINUE",
+
           ShippingPreference = "SET_PROVIDED_ADDRESS"
         },
         PurchaseUnits = new List<PurchaseUnitRequest>
         {
           new PurchaseUnitRequest{
+            //Check effects of these properties
             ReferenceId =  "PUHF",
             Description = "Sporting Goods",
             CustomId = "CUST-HighFashions",
             SoftDescriptor = "HighFashions",
+
             AmountWithBreakdown = new PayPalCheckoutSdk.Orders.AmountWithBreakdown
             {
               CurrencyCode = "USD",
@@ -119,9 +124,9 @@ namespace Fistix.Training.Service
                 }
               }
             },
-            Items = new List<PayPalCheckoutSdk.Orders.Item>
+            Items = new List<Item>
             {
-              new PayPalCheckoutSdk.Orders.Item
+              new Item
               {
                 Name = "T-shirt",
                 Description = "Green XL",
@@ -139,7 +144,7 @@ namespace Fistix.Training.Service
                 Quantity = "1",
                 Category = "PHYSICAL_GOODS"
               },
-              new PayPalCheckoutSdk.Orders.Item
+              new Item
               {
                 Name = "Shoes",
                 Description = "Running, Size 10.5",
@@ -293,7 +298,8 @@ namespace Fistix.Training.Service
       //var content = Newtonsoft.Json.JsonConvert.DeserializeObject(contentString);
 
       var result = await _httpClient.GetFromJsonAsync<GetAllTransactionsHistoryBySubscriptionIdModel>
-        ($"https://api-m.sandbox.paypal.com/v1/billing/subscriptions/{query.Id}/transactions?start_time=2021-03-01T07:50:20.940Z&end_time=2021-03-09T07:50:20.940Z");
+        //($"https://api-m.sandbox.paypal.com/v1/billing/subscriptions/{query.Id}/transactions?start_time=2021-03-01T07:50:20.940Z&end_time=2021-03-09T07:50:20.940Z");
+        ($"https://api-m.sandbox.paypal.com/v1/billing/subscriptions/{query.SubscriptionId}/transactions?start_time={query.StartTime}&end_time={query.EndTime}");
 
       return result;
       //return Ok();
@@ -301,7 +307,7 @@ namespace Fistix.Training.Service
     }
 
 
-    public async Task<CreatePlanModel> CreatePlan()
+    public async Task<CreatePlanModel> CreatePlan(CreateSubscriptionPlanCommand command)
     {
 
       Frequency frequency = new Frequency()
@@ -345,7 +351,8 @@ namespace Fistix.Training.Service
           frequency = frequency,
           tenure_type = "REGULAR",
           sequence = 2,
-          total_cycles = 12,
+          //total_cycles = 12,
+          total_cycles = command.BillingCycles,
           pricing_scheme = pricingScheme
         }
       };
@@ -358,7 +365,8 @@ namespace Fistix.Training.Service
 
       SetupFee setupFee = new SetupFee()
       {
-        value = "10",
+        //value = "10",
+        value = command.SubscriptionSetupFee,
         currency_code = "USD"
       };
 
@@ -372,13 +380,15 @@ namespace Fistix.Training.Service
 
       CreatePlanModel createPlanModel = new CreatePlanModel()
       {
-        product_id = "product_social_marketing",
-        name = "Basic Plan",
-        description = "Basic plan",
-        billing_cycles = billing_cycles,
-        payment_preferences = paymentPreferences,
-        taxes = taxes
-
+        ProductId = "product_social_marketing",
+        //ProductId = command.ProductId,
+        //Name = "Basic Plan",
+        Name = command.PlanName,
+        //Description = "Basic plan",
+        Description = command.PlanDescription,
+        BillingCycles= billing_cycles,
+        PaymentPreferences = paymentPreferences,
+        Taxes = taxes
       };
 
       _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
@@ -404,7 +414,9 @@ namespace Fistix.Training.Service
       if (result.IsSuccessStatusCode)
       {
         string content = await result.Content.ReadAsStringAsync();
-        //createPlanModel = Newtonsoft.Json.JsonConvert.DeserializeObject<CreatePlanModel>(content);
+        //All properties are getting null except name and description
+        createPlanModel = Newtonsoft.Json.JsonConvert.DeserializeObject<CreatePlanModel>(content);
+        //objects are getting null, properties are filled
         createPlanModel = await result.Content.ReadFromJsonAsync<CreatePlanModel>();
 
       }
@@ -416,6 +428,30 @@ namespace Fistix.Training.Service
 
       return createPlanModel;
 
+    }
+    
+    
+    public async Task<SubscriptionDetailByIdResponseModel> GetSubscriptionDetailbyId(string subscriptionId)
+    {
+      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+
+      //var response = await _httpClient.GetAsync($"https://api-m.sandbox.paypal.com/v1/billing/subscriptions/{subscriptionId}");
+      //if (response.IsSuccessStatusCode)
+      //{
+      //  string content = await response.Content.ReadAsStringAsync();
+      //  //All properties are getting null except name and description
+      //  var createPlanModel = Newtonsoft.Json.JsonConvert.DeserializeObject<SubscriptionDetailByIdResponseModel>(content);
+      //  //objects are getting null, properties are filled
+      //  createPlanModel = await response.Content.ReadFromJsonAsync<SubscriptionDetailByIdResponseModel>();
+
+      //}
+
+
+      var result = await _httpClient.GetFromJsonAsync<SubscriptionDetailByIdResponseModel>
+         ($"https://api-m.sandbox.paypal.com/v1/billing/subscriptions/{subscriptionId}");
+
+      return result;
+    
     }
     #endregion
 

@@ -12,7 +12,7 @@ namespace Fistix.Training.Core.Validators.PayPal
   {
     public GetAllTransactionsHistoryBySubscriptionIdQueryValidator()
     {
-      RuleFor(x => x.Id).NotEmpty();
+      RuleFor(x => x.SubscriptionId).NotEmpty();
       RuleFor(x => x.StartTime).NotEmpty();
       RuleFor(x => x.EndTime).NotEmpty();
     }

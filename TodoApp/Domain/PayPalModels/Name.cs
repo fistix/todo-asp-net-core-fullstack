@@ -1,12 +1,17 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Fistix.Training.Domain.PayPalModels
 {
   public class Name
   {
+    [JsonPropertyName("given_name")]
     public string given_name { get; set; }
+
+    [JsonPropertyName("surname")]
     public string surname { get; set; }
     public string full_name { get; set; }
 

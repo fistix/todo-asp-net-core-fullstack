@@ -15,6 +15,7 @@ namespace Fistix.Training.Domain.Dtos
     public long? LastPaymentDeduct { get; set; }
     public DateTime? LastPaymentDeductOn { get; set; }
 
+    //CustomerId creates in on-Time-Checkout(during capture order), from "Order" model of PayPal
     public string PayPalCustomerId { get; set; }
     public string PayPalCustomerName { get; set; }
     //public string PayPalCustomerEmail { get; set; }

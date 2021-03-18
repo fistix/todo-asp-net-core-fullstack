@@ -53,7 +53,18 @@ var Subscription = function (PlanId) {
       });
     },
     onApprove: function (data, actions) {
-      alert(data.subscriptionID);
+      debugger
+      return fetch("https://localhost:5001/api/PayPal/AttachSubscriptionIdToCustomer/" + data.subscriptionID, {
+        method: 'post',
+        headers: {
+          'content-type': 'application/json'
+        }
+      }).then((dataa) => {
+        alert('Your Subscription Id is:  ' + data.subscriptionID);
+        //alert('Transaction funds captured from ' + /*details.Order.Payer.Name.GivenName*/details.payer_given_name);
+        //result.Order.Payer.Name.GivenName
+      })
+      //alert(data.subscriptionID);
     }
   }).render('#paypal-button-container');
 

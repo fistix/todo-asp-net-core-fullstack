@@ -24,15 +24,15 @@ namespace Fistix.Training.WebApi.Controllers
   public class PayPalController : ControllerBase
   {
     private readonly IMediator _mediator = null;
-    private readonly HttpClient _httpClient = null;
-    private readonly IHttpContextAccessor _contextAccessor = null;
-    public const string BearerToken = "A21AALgS961sTUM0PLNgZNc3SugDtBirNhO6uoEnxWxnHwx36zam6T8FIt3rKZEehxKe81CXlBc41jNxKe0zIDqwAFq4WtdpQ";
+    //private readonly HttpClient _httpClient = null;
+    //private readonly IHttpContextAccessor _contextAccessor = null;
+    public const string BearerToken = "A21AAKMi3FThuvvW_umR1541cdkzF8b5zwARNI9QzlAShYMIfcXC0yGkd1rm7LkwLOfa9qgCg3NRKreJeJ9xOB1q1PbPd0RAQ";
 
-    public PayPalController(IMediator mediator, HttpClient httpClient, IHttpContextAccessor contextAccessor)
+    public PayPalController(IMediator mediator/*, HttpClient httpClient, IHttpContextAccessor contextAccessor*/)
     {
       _mediator = mediator;
-      _httpClient = httpClient;
-      _contextAccessor = contextAccessor;
+      //_httpClient = httpClient;
+      //_contextAccessor = contextAccessor;
     }
 
     #region OneTimeCheckout
@@ -61,20 +61,20 @@ namespace Fistix.Training.WebApi.Controllers
 
     }
 
-    [HttpPost("CaptureOrder/{id}")]
+    [HttpPost("CaptureOrder/{orderId}")]
     [ProducesResponseType(typeof(CaptureOrderCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CaptureOrder([FromRoute] string id /*CaptureOrderCommand command*/)
+    public async Task<IActionResult> CaptureOrder([FromRoute] string orderId /*CaptureOrderCommand command*/)
     {
       try
       {
         //if (!ModelState.IsValid)
         //  return base.BadRequest(ModelState);
 
-        if (String.IsNullOrEmpty(id))
+        if (String.IsNullOrEmpty(orderId))
           return base.BadRequest(ModelState);
 
-        var command = new CaptureOrderCommand() { OrderId = id };
+        var command = new CaptureOrderCommand() { OrderId = orderId };
 
         var result = await _mediator.Send<CaptureOrderCommandResult>(command);
         ////
@@ -95,15 +95,19 @@ namespace Fistix.Training.WebApi.Controllers
 
     #region API calls
 
-    [HttpGet("GetAllTransactions")]
+    //[HttpGet("GetAllTransactions/{subscriptionId}")]
+    [HttpGet("GetAllTransactionsBySubscriptionId")]
     [ProducesResponseType(typeof(GetAllTransactionsHistoryBySubscriptionIdQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllTransactionsHistoryBySubscriptionId([FromQuery] string Id, [FromQuery] GetAllTransactionsHistoryBySubscriptionIdQuery query)
+    public async Task<IActionResult> GetAllTransactionsHistoryBySubscriptionId(/*[FromRoute] string SubscriptionId, */[FromQuery] GetAllTransactionsHistoryBySubscriptionIdQuery query)
     {
+      //JsonIgnore not working in FromQuery tag
+      //Should I use FromQuery tag to get all fields? And remove subscriptionId from endpoint?
       try
       {
-        Id = "I-SX5SXUFJH4KW";
-        query.Id = Id;
+        //SubscriptionId = "I-SX5SXUFJH4KW";
+        //query.SubscriptionId = SubscriptionId;
+        query.SubscriptionId = "I-SX5SXUFJH4KW";
 
         if (!ModelState.IsValid)
           return base.BadRequest(ModelState);
@@ -309,13 +313,44 @@ namespace Fistix.Training.WebApi.Controllers
     [HttpPost("CreateSubscriptionPlan")]
     //[ProducesResponseType(typeof(CreateSubscriptionPlanCommandResult), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateSubscriptionPlanCommandResult), StatusCodes.Status200OK)]
-
-    public async Task<IActionResult> CreateSubscriptionPlan(CreateSubscriptionPlanCommand command)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateSubscriptionPlan([FromBody] CreateSubscriptionPlanCommand command)
     {
+      //if (!ModelState.IsValid)
+      //  return base.BadRequest(ModelState);
+
       var result = await _mediator.Send<CreateSubscriptionPlanCommandResult>(command);
-      return Ok(result);
+      return Ok(result.Payload);
     }
 
+
+
+    //This method is called internally after successfully subscribe to a Plan
+    [HttpPost("AttachSubscriptionIdToCustomer/{subscriptionId}")]
+    [ProducesResponseType(typeof(AttachSubscriptionIdToCustomerCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AttachSubscriptionIdToCustomer([FromRoute] string subscriptionId)
+    {
+      try
+      {
+        if (String.IsNullOrEmpty(subscriptionId))
+          return base.BadRequest(ModelState);
+
+        var command = new AttachSubscriptionIdToCustomerCommand()
+        {
+          Id = subscriptionId
+        };
+
+        var result = await _mediator.Send<AttachSubscriptionIdToCustomerCommandResult>(command);
+        return Ok(result.Payload);
+      }
+      ///
+      catch (Exception)
+      {
+        throw;
+      }
+
+    }
     #endregion
   }
 }
