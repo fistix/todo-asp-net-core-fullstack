@@ -1,5 +1,5 @@
 //One Time Payment function
-var OneTimeCheckout = function () {
+var OneTimeCheckout = function (createOrderCommand) {
 
   paypal.Buttons({
     createOrder: () => {
@@ -7,7 +7,8 @@ var OneTimeCheckout = function () {
         method: 'post',
         headers: {
           'content-type': 'application/json'
-        }
+        },
+        body: JSON.stringify(createOrderCommand)
       }).then((res) => {
         return res.json();
       }).then((data) => {

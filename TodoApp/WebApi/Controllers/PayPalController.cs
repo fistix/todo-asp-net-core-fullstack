@@ -26,7 +26,7 @@ namespace Fistix.Training.WebApi.Controllers
     private readonly IMediator _mediator = null;
     //private readonly HttpClient _httpClient = null;
     //private readonly IHttpContextAccessor _contextAccessor = null;
-    public const string BearerToken = "A21AAKMi3FThuvvW_umR1541cdkzF8b5zwARNI9QzlAShYMIfcXC0yGkd1rm7LkwLOfa9qgCg3NRKreJeJ9xOB1q1PbPd0RAQ";
+    public const string BearerToken = "A21AAKlEi6igztWCovpWY33ClG99N6S6KI4d7qRJT-zY6ZZJMPnHgUUo-Op6aFXJyWI3mHtl0HfwF6Mu-sA_orskYcx6P3OoQ";
 
     public PayPalController(IMediator mediator/*, HttpClient httpClient, IHttpContextAccessor contextAccessor*/)
     {
@@ -39,7 +39,7 @@ namespace Fistix.Training.WebApi.Controllers
 
     [HttpPost("CreateOrder")]
     [ProducesResponseType(typeof(CreateOrderCommandResult), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateOrder()
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
     {
       try
       {
@@ -132,23 +132,23 @@ namespace Fistix.Training.WebApi.Controllers
     }
 
 
-    [HttpGet("GetSubscriptionPlanDetailById/{id}")]
+    [HttpGet("GetSubscriptionPlanDetailById/{planId}")]
     [ProducesResponseType(typeof(GetSubscriptionPlanDetailByIdQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetSubscriptionPlanDetailById([FromRoute] string id/*, [FromBody] GetSubscriptionPlanDetailByIdQuery query*/)
+    public async Task<IActionResult> GetSubscriptionPlanDetailById([FromRoute] string planId/*, [FromBody] GetSubscriptionPlanDetailByIdQuery query*/)
     {
       try
       {
-        id = "P-1GP34431BG4466351MBAOLLA";
+        planId = "P-1GP34431BG4466351MBAOLLA";
         //query.Id = Id;
 
         //if (!ModelState.IsValid)
-        if (String.IsNullOrEmpty(id))
+        if (String.IsNullOrEmpty(planId))
           return base.BadRequest(ModelState);
 
         var query = new GetSubscriptionPlanDetailByIdQuery()
         {
-          Id = id
+          Id = planId
         };
 
         var result = await _mediator.Send<GetSubscriptionPlanDetailByIdQueryResult>(query);
@@ -351,6 +351,70 @@ namespace Fistix.Training.WebApi.Controllers
       }
 
     }
+
+
+    [HttpPost("CreateProduct")]
+    //[ProducesResponseType(typeof(CreateProductCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CreateProductCommandResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
+    {
+      if (String.Equals("string", command.Type))
+        command.Type = "SERVICE";
+
+      if (String.Equals("string", command.Category))
+        command.Category = "SOFTWARE";
+
+      try
+      {
+        if (!ModelState.IsValid)
+          return base.BadRequest(ModelState);
+
+        var result = await _mediator.Send<CreateProductCommandResult>(command);
+        return Ok(result);
+      }
+      ///
+      catch (InvalidOperationException ex)
+      {
+        return base.Conflict(ex.Message);
+      }
+
+    }
+
+
+    [HttpGet("GetAllProductDetails")]
+    [ProducesResponseType(typeof(GetAllProductDetailsQueryResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAllProductDetails()
+    {
+      var result = await _mediator.Send(new GetAllProductDetailsQuery());
+      return Ok(result);
+    }
+
     #endregion
+
+
+    #region WebHook
+    [HttpPost("SubscriptionWebHook")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SubscriptionWebHook([FromBody] SubscriptionResponseModel model)
+    {
+      var Name = model.Resource.subscriber.name.given_name + " " + model.Resource.subscriber.name.surname;
+      var Email = model.Resource.subscriber.email_address;
+      var LastPayment = model.Resource.billing_info.last_payment.amount.value;
+      var LastPaymentDate = model.Resource.billing_info.last_payment.time;
+
+      Console.WriteLine($"Name of subscriber is: {Name}  ");
+      Console.WriteLine($"Email of subscriber is: {Email}  ", Email);
+      Console.WriteLine($"Last payment of subscription is: {LastPayment}  ", LastPayment);
+      Console.WriteLine($"Last payment date of subscription is: {LastPaymentDate}  ", LastPaymentDate);
+
+      return Ok();
+      //return "https://www.paypal.com/paypal_webhook_samples/" + Guid.NewGuid().ToString();
+    }
+    #endregion
+
   }
 }

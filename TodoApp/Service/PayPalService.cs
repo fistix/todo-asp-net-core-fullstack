@@ -23,15 +23,17 @@ namespace Fistix.Training.Service
       _httpClient = httpClient;
     }
 
-    public const string BearerToken = "A21AAKMi3FThuvvW_umR1541cdkzF8b5zwARNI9QzlAShYMIfcXC0yGkd1rm7LkwLOfa9qgCg3NRKreJeJ9xOB1q1PbPd0RAQ";
+    public const string ClientId = "AQm921FElnvm67C0zEH33eRkI7H2i1XM5r7MEyp49Gz_vuXT0D-aFbML5jTj2mKKbtOCKB7uyIagKwG4";
+    public const string ClientSecret = "ELvlAIfdcDBRM7lC61hOe7C79tHCVGm9vLm3780vzJLU2270UugPNWQYzKS_8yk8xRWjPom_I6d1PlBt";
+    public const string BearerToken = "A21AAITOVzxr-iqfNsc1vixKwosqZf7sXFx1iEqyGkxtQr0z8BDelI5TYE9GwJnl2gTVMqIheVvjElXalpKndk5QCNJa9IiBQ";
 
     #region OneTimeCheckout
-    public async Task<Order> CreateOrder(bool debug = true)
+    public async Task<Order> CreateOrder(CreateOrderCommand command,bool debug = true)
     {
 
       var request = new OrdersCreateRequest();
       request.Prefer("return=representation");
-      request.RequestBody(BuildRequestBody());
+      request.RequestBody(BuildRequestBody(command));
       //3. Call PayPal to set up a transaction
       var response = await PayPalClientService.Client().Execute(request);
 
@@ -67,7 +69,7 @@ namespace Fistix.Training.Service
 
     }
 
-    private static OrderRequest BuildRequestBody()
+    private static OrderRequest BuildRequestBody(CreateOrderCommand command)
     {
       OrderRequest orderRequest = new OrderRequest()
       {
@@ -163,20 +165,27 @@ namespace Fistix.Training.Service
                 Category = "PHYSICAL_GOODS"
               }
             },
-            ShippingDetail = new ShippingDetail
+            ShippingDetail = new PayPalCheckoutSdk.Orders.ShippingDetail
             {
               Name = new PayPalCheckoutSdk.Orders.Name
               {
-                FullName = "John Doe"
+                //FullName = "John Doe"
+                FullName = command.ShippingName
               },
               AddressPortable = new PayPalCheckoutSdk.Orders.AddressPortable
               {
-                AddressLine1 = "123 Townsend St",
-                AddressLine2 = "Floor 6",
-                AdminArea2 = "San Francisco",
-                AdminArea1 = "CA",
-                PostalCode = "94107",
-                CountryCode = "US"
+                //AddressLine1 = "123 Townsend St",
+                AddressLine1 = command.ShippingAddressLine1,
+                //AddressLine2 = "Floor 6",
+                AddressLine2 = command.ShippingAddressLine2,
+                //AdminArea2 = "San Francisco",
+                AdminArea2 = command.ShippingCity,
+                //AdminArea1 = "CA",
+                AdminArea1 = command.ShippingState,
+                //PostalCode = "94107",
+                PostalCode = command.ShippingPostalCode,
+                //CountryCode = "US"
+                CountryCode = command.ShippingCountryCode
               }
             }
           }
@@ -326,16 +335,8 @@ namespace Fistix.Training.Service
       {
         fixed_price = fixedPrice
       };
-      //List
-      //BillingCycle billing_cycles = new BillingCycle()
-      //{
-      //  frequency = frequency,
-      //  tenure_type = "TRIAL",
-      //  sequence = 1,
-      //  total_cycles = 1
-      //};
+
       List<BillingCycle> billing_cycles = new List<BillingCycle>()
-      //BillingCycle billing_cycles = new BillingCycle()
       {
         new BillingCycle()
         {
@@ -452,6 +453,47 @@ namespace Fistix.Training.Service
 
       return result;
     
+    }
+
+    public async Task<ProductModel> CreateProduct(CreateProductCommand command)
+    {
+      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+      var result = await _httpClient.PostAsJsonAsync<CreateProductCommand>("https://api-m.sandbox.paypal.com/v1/catalogs/products", command);
+
+      ProductModel productModel = null;
+      if (result.IsSuccessStatusCode)
+      {
+        string content = await result.Content.ReadAsStringAsync();
+        //All properties are getting null except name and description
+        productModel = Newtonsoft.Json.JsonConvert.DeserializeObject<ProductModel>(content);
+        //objects are getting null, properties are filled
+        var productModell = await result.Content.ReadFromJsonAsync<ProductModel>();
+
+      }
+
+      else
+      {
+        string content = await result.Content.ReadAsStringAsync();
+      }
+
+      return productModel;
+    }
+
+    public async Task<GetAllProductsResponseModel> GetAllProductDetails()
+    {
+      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+
+      var response = await _httpClient
+        .GetAsync("https://api-m.sandbox.paypal.com/v1/catalogs/products");
+
+      var contentString = await response.Content.ReadAsStringAsync();
+
+      //var content = Newtonsoft.Json.JsonConvert.DeserializeObject(contentString);
+      var result = Newtonsoft.Json.JsonConvert.DeserializeObject<GetAllProductsResponseModel>(contentString);
+
+      //var result = await _httpClient.GetFromJsonAsync<GetAllProductsResponseModel>("https://api-m.sandbox.paypal.com/v1/catalogs/products");
+
+      return result;
     }
     #endregion
 

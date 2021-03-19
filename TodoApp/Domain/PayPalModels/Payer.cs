@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +13,7 @@ namespace Fistix.Training.Domain.PayPalModels
     public string BirthDate { get; set; }
     public string Email { get; set; }
     public Name Name { get; set; }
+    [JsonProperty("payer_id")]
     public string PayerId { get; set; }
     //public PhoneWithType PhoneWithType { get; set; }
     //public TaxInfo TaxInfo { get; set; }

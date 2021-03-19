@@ -28,7 +28,7 @@ namespace Fistix.Training.Service.CommandHandlers.PayPal
 
     public async Task<CreateOrderCommandResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
-      var order = await _payPalService.CreateOrder();
+      var order = await _payPalService.CreateOrder(command);
       return new CreateOrderCommandResult()
       {
         Payload = _mapper.Map<OrderModel>(order)

@@ -19,5 +19,7 @@ namespace Fistix.Training.Domain.PayPalModels
     public DateTime create_time { get; set; }
     public DateTime update_time { get; set; }
     public List<Link> links { get; set; }
+
+    //public Payer Payer { get; set; }
   }
 }

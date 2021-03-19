@@ -7,6 +7,46 @@
 <script suppress-error="BL9992" src="https://www.paypal.com/sdk/js?client-id=AQm921FElnvm67C0zEH33eRkI7H2i1XM5r7MEyp49Gz_vuXT0D-aFbML5jTj2mKKbtOCKB7uyIagKwG4"></script>
 
 
+<h5><b>Enter Delivery Detail</b></h5>
+<SfTextBox @ref="SfShippingName" @bind-Value="createOrderCommand.ShippingName"
+           Placeholder="Enter Name" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingAddressLine1" @bind-Value="createOrderCommand.ShippingAddressLine1"
+           Placeholder="Address line 1" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingAddressLine2" @bind-Value="createOrderCommand.ShippingAddressLine2"
+           Placeholder="Address line 2" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingAdminArea2" @bind-Value="createOrderCommand.ShippingCity"
+           Placeholder="Enter City" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingAdminArea1" @bind-Value="createOrderCommand.ShippingState"
+           Placeholder="Enter State" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingPostalCode" @bind-Value="createOrderCommand.ShippingPostalCode"
+           Placeholder="Enter Postal Code" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingCountryCode" @bind-Value="createOrderCommand.ShippingCountryCode"
+           Placeholder="Enter Country Code" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
+
+<SfTextBox @ref="SfShippingCountryCodeTest" @bind-Value="addressPortable.CountryCode"
+           Placeholder="Enter Country Code" FloatLabelType='@FloatLabelType.Auto'
+           Readonly="ButtonDisable">
+</SfTextBox>
 
 <SfButton CssClass="e-info" OnClick="Checkout">Checkout</SfButton>
 
@@ -14,7 +54,34 @@
 
 
 @code {
-  private IDisposable apiCallSub;
+
+  SfTextBox SfShippingName;
+  SfTextBox SfShippingAddressLine1;
+  SfTextBox SfShippingAddressLine2;
+  SfTextBox SfShippingAdminArea1;
+  SfTextBox SfShippingAdminArea2;
+  SfTextBox SfShippingPostalCode;
+  SfTextBox SfShippingCountryCode;
+  SfTextBox SfShippingCountryCodeTest;
+
+
+  public string ErrorMessage = "";
+
+
+
+  //private IDisposable apiCallSub;
+  CreateOrderCommand createOrderCommand = new CreateOrderCommand();
+  ShippingDetail shippingDetail = new ShippingDetail();
+  AddressPortable addressPortable = new AddressPortable();
+  Name name = new Name();
+
+  #region Loader-Toaster
+  SfToast ToastObj;
+  private string ToastTitle = string.Empty;
+
+  private bool ButtonDisable { get; set; } = false;
+  private bool LoaderVisiblity { get; set; } = false;
+  #endregion
 
   protected override void OnInitialized()
   {
@@ -26,7 +93,12 @@
 
   private void Checkout()
   {
-    jsRuntime.InvokeVoidAsync("OneTimeCheckout");
+    //shippingDetail.AddressPortable.CountryCode = addressPortable.CountryCode;
+    //createOrderCommand.ShippingDetail.AddressPortable.CountryCode = shippingDetail.AddressPortable.CountryCode;
+    //Console.WriteLine($"{addressPortable.CountryCode}");
+    //Console.WriteLine($"{shippingDetail.AddressPortable.CountryCode}");
+    //Console.WriteLine($"{createOrderCommand.ShippingDetail.AddressPortable.CountryCode}");
+    jsRuntime.InvokeVoidAsync("OneTimeCheckout", createOrderCommand);
 
   }
 
